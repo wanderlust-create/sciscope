@@ -7,7 +7,9 @@
     "dev": "nodemon index.js",
     "test": "jest",
     "clean": "rimraf dist",
-    "build": "npm-run-all clean"
+    "build": "npm-run-all clean",
+    "migrate-make": "knex migrate:make init --knexfile ./src/config/knexfile.js",
+    "migrate": "knex migrate:latest --knexfile ./src/config/knexfile.js"
   },
   "keywords": [],
   "author": "",
