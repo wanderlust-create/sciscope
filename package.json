@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest",
+    "clean": "rimraf dist",
+    "build": "npm-run-all clean",
+    "migrate-make": "knex migrate:make init --knexfile ./src/config/knexfile.js",
+    "migrate": "knex migrate:latest --knexfile ./src/config/knexfile.js"
   },
   "keywords": [],
   "author": "",
