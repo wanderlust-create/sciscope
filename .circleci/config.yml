@@ -25,12 +25,21 @@ jobs:
       - run:
           name: Create .env file from CircleCI Environment Variables
           command: |
-            echo "DB_HOST=$DB_HOST" >> .env
+            echo "DB_HOST=db" >> .env
             echo "DB_USER=$DB_USER" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-            echo "TEST_DB_NAME=$TEST_DB_NAME" >> .env
-            echo "DB_PORT=$DB_PORT" >> .env
+            echo "DB_NAME=$TEST_DB_NAME" >> .env
+            echo "DB_PORT=5432" >> .env
             echo "NODE_ENV=test" >> .env
+
+      - run:
+          name: Load Environment Variables
+          command: source .env
+
+      - run:
+          name: Verify Environment Variables
+          command: cat .env
+
 
       # Source .env before installing dependencies
       - run:
