@@ -19,6 +19,18 @@ jobs:
 
     steps:
       - checkout
+
+      # Create .env file from CircleCI stored environment variables
+      - run:
+          name: Create .env file from CircleCI Environment Variables
+          command: |
+            echo "DB_HOST" >> .env
+            echo DB_NAME" >> .env
+            echo "DB_PASSWORD" >> .env
+            echo "DB_PORT" >> .env
+            echo "DB_USER" >> .env
+            echo "NODE_ENV=test" >> .env
+            
       - node/install-packages:
           pkg-manager: npm
 
@@ -91,4 +103,4 @@ workflows:
       - test-node
       - build-node:
           requires:
-            - test-node  
+            - test-node
