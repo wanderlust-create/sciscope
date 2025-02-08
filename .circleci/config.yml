@@ -49,7 +49,7 @@ jobs:
           name: Wait for PostgreSQL
           command: |
             for i in $(seq 1 10); do
-              nc -z localhost 5432 && echo "Postgres is up" && exit 0;
+              nc -z db 5432 && echo "Postgres is up" && exit 0;
               echo "Waiting for Postgres...";
               sleep 2;
             done;
