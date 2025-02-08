@@ -12,7 +12,7 @@ jobs:
           POSTGRES_DB: $TEST_DB_NAME
     environment:
       DB_HOST: $DB_HOST
-      DB_PORT: $DB_PORT
+      DB_PORT: 5432
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
 
     steps:
@@ -21,11 +21,11 @@ jobs:
       - run:
           name: Create .env file
           command: |
-            echo "DB_HOST=db" >> .env
+            echo "DB_HOST=$DB_HOST" >> .env
             echo "DB_USER=$DB_USER" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
             echo "TEST_DB_NAME=$TEST_DB_NAME" >> .env
-            echo "DB_PORT=5432" >> .env
+            echo "DB_PORT=$DB_PORT" >> .env
             echo "NODE_ENV=test" >> .env
 
       - run:
