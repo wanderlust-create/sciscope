@@ -1,12 +1,9 @@
 version: 2.1
 
-orbs:
-  node: circleci/node@5
-
 jobs:
   test-node:
     docker:
-      - image: circleci/node:14.17.0
+      - image: cimg/node:14.21.3
       - image: circleci/postgres:12.3
         name: db
         environment:
@@ -21,9 +18,8 @@ jobs:
     steps:
       - checkout
 
-      # Create .env file with values from CircleCI environment variables
       - run:
-          name: Create .env file from CircleCI Environment Variables
+          name: Create .env file
           command: |
             echo "DB_HOST=db" >> .env
             echo "DB_USER=$DB_USER" >> .env
@@ -40,19 +36,16 @@ jobs:
           name: Verify Environment Variables
           command: cat .env
 
-      # Install dependencies
       - run:
-          name: Install All Dependencies
-          command: >
-            source .env &&
+          name: Install Dependencies
+          command: |
+            source .env
             npm install
 
-      # Check installed npm packages
       - run:
           name: Check Installed Dependencies
           command: npm list || echo "Dependency list failed"
 
-      # Wait for PostgreSQL to be ready
       - run:
           name: Wait for PostgreSQL
           command: |
@@ -72,27 +65,25 @@ jobs:
             else
               echo "✅ DB_USER is set!"
             fi
-
             if [ -z "$DB_PASSWORD" ]; then
               echo "❌ DB_PASSWORD is NOT set!"
             else
               echo "✅ DB_PASSWORD is set!"
             fi
-
             if [ -z "$TEST_DB_NAME" ]; then
               echo "❌ TEST_DB_NAME is NOT set!"
             else
               echo "✅ TEST_DB_NAME is set!"
             fi
+
       - run:
           name: Install PostgreSQL client (psql)
           command: |
             sudo apt-get update
             sudo apt-get install -y postgresql-client
 
-      # Debug DB Connection via psql
       - run:
-          name: Debug DB Connection
+          name: Debug DB Connection with psql
           command: |
             source .env
             PGPASSWORD="$DB_PASSWORD" psql \
@@ -101,55 +92,22 @@ jobs:
               --dbname="$TEST_DB_NAME" \
               --command="SELECT 'Connection successful' as status;"
 
-      # Run migrations
       - run:
           name: Run Database Migrations
-          command: >
-            source .env &&
+          command: |
+            source .env
             npx knex migrate:latest --knexfile ./src/config/knexfile.js
 
-      # Run tests
       - run:
           name: Run Tests
-          command: >
-            source .env &&
+          command: |
+            source .env
             npm run test --ci --runInBand --reporters=default --reporters=jest-junit
 
-      # Store test results
       - store_test_results:
           path: ./test-results/
-
-  build-node:
-    docker:
-      - image: circleci/node:14.17.0
-    steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          command: npm run build
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      - run:
-          name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
-
-  deploy:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - run:
-          name: deploy
-          command: "# e.g. ./deploy.sh"
 
 workflows:
   build-and-test:
     jobs:
       - test-node
-      - build-node:
-          requires:
-            - test-node
