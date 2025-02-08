@@ -3,13 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "jest",
     "clean": "rimraf dist",
     "build": "npm-run-all clean",
     "migrate-make": "knex migrate:make init --knexfile ./src/config/knexfile.js",
-    "migrate": "knex migrate:latest --knexfile ./src/config/knexfile.js"
+    "migrate": "knex migrate:latest --knexfile ./src/config/knexfile.js",
+    "docker:up": "docker-compose up --build",
+    "docker:down": "docker-compose down"
   },
   "keywords": [],
   "author": "",
