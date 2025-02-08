@@ -18,7 +18,7 @@ const config = {
       max: 10,
     },
     migrations: {
-      directory: "src/db/migrations",
+      directory: path.resolve(__dirname, "../../src/db/migrations"),
       tableName: "knex_migrations",
     },
     // No seed data yet
@@ -37,7 +37,7 @@ const config = {
       password: process.env.DB_PASSWORD,
     },
     migrations: {
-      directory: "src/db/migrations",
+      directory: path.resolve(__dirname, "../../src/db/migrations"),
       tableName: "knex_migrations",
     },
     // Commented out for now
