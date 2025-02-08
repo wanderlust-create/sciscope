@@ -22,7 +22,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
 
-      # Ensure all dependencies are installed
+      # Install all dependencies
       - run:
           name: Install All Dependencies
           command: npm install
@@ -86,9 +86,9 @@ jobs:
           command: "#e.g. ./deploy.sh"
 
 workflows:
-  version: 2
   build-and-test:
     jobs:
       - test-node
       - build-node:
-          re
+          requires:
+            - test-node  
