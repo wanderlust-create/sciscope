@@ -1,6 +1,8 @@
+const path = require("path");
 const { knexSnakeCaseMappers } = require("objection");
+
 require("dotenv").config({
-  path: require("path").resolve(__dirname, "../../.env"),
+  path: path.resolve(__dirname, "../../.env"),
 });
 
 const config = {
@@ -23,7 +25,7 @@ const config = {
     },
     // No seed data yet
     // seeds: {
-    //   directory: "src/db/seeds",
+    //   directory: path.resolve(__dirname, "../../src/db/seeds"),
     // },
     ...knexSnakeCaseMappers(),
   },
@@ -42,7 +44,7 @@ const config = {
     },
     // Commented out for now
     // seeds: {
-    //   directory: "src/db/seeds",
+    //   directory: path.resolve(__dirname, "../../src/db/seeds"),
     // },
     ...knexSnakeCaseMappers(),
   },
