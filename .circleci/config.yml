@@ -1,27 +1,54 @@
-# This config was automatically generated from your source code
-# Stacks detected: deps:node:.,test:jest:
 version: 2.1
+
 orbs:
   node: circleci/node@5
+
 jobs:
   test-node:
-    # Install node dependencies and run tests
+    # Install dependencies, set up DB, run migrations, and test
     executor: node/default
     environment:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
+    docker:
+      - image: circleci/node:14.17.0
+      - image: circleci/postgres:12.3
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
+
+      # Ensure PostgreSQL is ready before running migrations
+      - run:
+          name: Wait for PostgreSQL to be ready
+          command: |
+            for i in $(seq 1 10); do
+              nc -z localhost 5432 && echo "Postgres is up" && exit 0;
+              echo "Waiting for Postgres to start...";
+              sleep 2;
+            done;
+            echo "Postgres did not start in time";
+            exit 1
+
+      # Run Knex Migrations to set up the database schema
+      - run:
+          name: Run Database Migrations
+          command: npx knex migrate:latest --knexfile ./src/config/knexfile.js
+
+      # Install jest-junit for test results
       - run:
           command: npm install jest-junit
+
+      # Run tests
       - run:
-          name: Run tests
+          name: Run Tests
           command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
+
+      # Store test results
       - store_test_results:
           path: ./test-results/
+
   build-node:
-    # Build node project
+    # Build the project after tests pass
     executor: node/default
     steps:
       - checkout
@@ -39,15 +66,16 @@ jobs:
       - store_artifacts:
           path: ~/artifacts
           destination: node-build
+
   deploy:
-    # This is an example deploy job, not actually used by the workflow
+    # Placeholder job for deployment if needed later
     docker:
       - image: cimg/base:stable
     steps:
-      # Replace this with steps to deploy to users
       - run:
           name: deploy
           command: '#e.g. ./deploy.sh'
+
 workflows:
   build-and-test:
     jobs:
@@ -55,6 +83,3 @@ workflows:
       - build-node:
           requires:
             - test-node
-    # - deploy:
-    #     requires:
-    #       - build-node
