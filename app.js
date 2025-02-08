@@ -1,8 +1,8 @@
 const express = require("express");
-const app = express();
-require("./src/config/loadEnv");
+// const app = express();
+// require("./src/config/loadEnv");
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 app.get("/", (req, res) => {
   res.send("Hello SciScope!");
