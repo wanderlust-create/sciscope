@@ -24,12 +24,12 @@ jobs:
       - run:
           name: Create .env file from CircleCI Environment Variables
           command: |
-            echo "DB_HOST" >> ../../.env
-            echo "DB_NAME" >> ../../.env
-            echo "DB_PASSWORD" >> ../../.env
-            echo "DB_PORT" >> ../../.env
-            echo "DB_USER" >> ../../.env
-            echo "NODE_ENV=test" >> ../../.env
+            echo "DB_HOST" >> .env
+            echo "DB_NAME" >> .env
+            echo "DB_PASSWORD" >> .env
+            echo "DB_PORT" >> .env
+            echo "DB_USER" >> .env
+            echo "NODE_ENV=test" >> .env
 
       - node/install-packages:
           pkg-manager: npm
