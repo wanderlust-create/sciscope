@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+require("./src/config/loadEnv");
 
 const PORT = process.env.PORT || 3000;
 
