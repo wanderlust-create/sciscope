@@ -52,17 +52,6 @@ jobs:
           name: Check Installed Dependencies
           command: npm list || echo "Dependency list failed"
 
-      - run:
-          name: Debug Raw Environment Variables
-          command: env | grep DB_
-      - run:
-          name: Debug Processed Environment Variables
-          command: |
-                echo "DB_HOST=$DB_HOST"
-                echo "DB_USER=$DB_USER"
-                echo "DB_PASSWORD=$DB_PASSWORD"
-                echo "TEST_DB_NAME=$TEST_DB_NAME"
-                echo "DB_PORT=$DB_PORT"
       # Wait for PostgreSQL to be ready
       - run:
           name: Wait for PostgreSQL
@@ -95,18 +84,11 @@ jobs:
             else
               echo "✅ TEST_DB_NAME is set!"
             fi
-      - run:
-          name: Debug Environment Variables
-          command: |
-            echo "DB_USER=$DB_USER"
-            echo "DB_PASSWORD=$DB_PASSWORD"
-            echo "DB_NAME=$TEST_DB_NAME"
 
       - run:
         name: Debug PostgreSQL Connection Inside Container
         command: |
           docker exec $(docker ps -q -f name=db) env | grep POSTGRES
-
 
       # Source .env before running Knex migrations
       - run:
