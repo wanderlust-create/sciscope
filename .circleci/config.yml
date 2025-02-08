@@ -8,13 +8,14 @@ jobs:
     docker:
       - image: circleci/node:14.17.0
       - image: circleci/postgres:12.3
+        name: db
         environment:
           POSTGRES_USER: $DB_USER
           POSTGRES_PASSWORD: $DB_PASSWORD
           POSTGRES_DB: $TEST_DB_NAME
-          DB_HOST: $DB_HOST
-          DB_PORT: $DB_PORT
     environment:
+      DB_HOST: db
+      DB_PORT: 5432
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
 
     steps:
