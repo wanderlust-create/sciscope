@@ -11,8 +11,8 @@ jobs:
           POSTGRES_PASSWORD: $DB_PASSWORD
           POSTGRES_DB: $TEST_DB_NAME
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
+      DB_HOST: $DB_HOST
+      DB_PORT: $DB_PORT
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
 
     steps:
