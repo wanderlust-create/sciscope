@@ -74,6 +74,13 @@ jobs:
               echo "✅ DB_PASSWORD is set!"
             fi
 
+      - run:
+          name: Debug Environment Variables
+          command: |
+            echo "DB_USER=$DB_USER"
+            echo "DB_PASSWORD=$DB_PASSWORD"
+            echo "DB_NAME=$TEST_DB_NAME"
+
 
       # Source .env before running Knex migrations
       - run:
