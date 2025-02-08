@@ -1,6 +1,7 @@
 const { knexSnakeCaseMappers } = require("objection");
 require("dotenv").config({ path: "../../.env" });
 
+
 const config = {
   development: {
     client: "postgresql",
