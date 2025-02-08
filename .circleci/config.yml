@@ -5,13 +5,17 @@ orbs:
 
 jobs:
   test-node:
-    # Install dependencies, set up DB, run migrations, and test
     executor: node/default
-    environment:
-      JEST_JUNIT_OUTPUT_DIR: ./test-results/
     docker:
       - image: circleci/node:14.17.0
       - image: circleci/postgres:12.3
+        environment:
+          POSTGRES_USER: $POSTGRES_USER
+          POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+          POSTGRES_DB: $POSTGRES_DB
+    environment:
+      JEST_JUNIT_OUTPUT_DIR: ./test-results/
+
     steps:
       - checkout
       - node/install-packages:
@@ -74,7 +78,7 @@ jobs:
     steps:
       - run:
           name: deploy
-          command: '#e.g. ./deploy.sh'
+          command: "#e.g. ./deploy.sh"
 
 workflows:
   build-and-test:
