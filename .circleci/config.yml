@@ -9,11 +9,11 @@ jobs:
       - image: circleci/node:14.17.0
       - image: circleci/postgres:12.3
         environment:
-          POSTGRES_USER: $POSTGRES_USER
-          POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-          POSTGRES_DB: $POSTGRES_DB
-          DB_HOST: 127.0.0.1
-          DB_PORT: 5432
+          POSTGRES_USER: $DB_USER
+          POSTGRES_PASSWORD: $DB_PASSWORD
+          POSTGRES_DB: $TEST_DB_NAME
+          DB_HOST: $DB_HOST
+          DB_PORT: $DB_PORT
     environment:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
 
@@ -25,10 +25,10 @@ jobs:
           name: Create .env file from CircleCI Environment Variables
           command: |
             echo "DB_HOST=$DB_HOST" >> .env
-            echo "DB_NAME=$DB_NAME" >> .env
-            echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-            echo "DB_PORT=$DB_PORT" >> .env
             echo "DB_USER=$DB_USER" >> .env
+            echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+            echo "TEST_DB_NAME=$TEST_DB_NAME" >> .env
+            echo "DB_PORT=$DB_PORT" >> .env
             echo "NODE_ENV=test" >> .env
 
       # Source .env before installing dependencies
