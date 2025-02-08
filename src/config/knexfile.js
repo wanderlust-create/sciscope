@@ -35,7 +35,7 @@ const config = {
   test: {
     client: "postgresql",
     connection: {
-      host: process.env.DB_HOST || "localhost",
+      host: isCI ? "db" : process.env.DB_HOST || "localhost",
       port: process.env.DB_PORT || 5432,
       database: process.env.TEST_DB_NAME || "sciscope_test_db",
       user: process.env.DB_USER,
