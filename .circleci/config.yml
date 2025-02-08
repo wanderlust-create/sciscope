@@ -12,7 +12,7 @@ jobs:
         environment:
           POSTGRES_USER: $DB_USER
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: sciscope_test_db
+          POSTGRES_DB: $TEST_DB_NAME"
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -27,7 +27,7 @@ jobs:
           command: |
             echo "DB_HOST=db" >> .env
             echo "DB_USER=$DB_USER" >> .env
-            echo "DB_PASSWORD=$DB_PASSWORD}" >> .env
+            echo "DB_PASSWORD=$DB_PASSWORD" >> .env
             echo "TEST_DB_NAME=$TEST_DB_NAME" >> .env
             echo "DB_PORT=5432" >> .env
             echo "NODE_ENV=test" >> .env
@@ -65,8 +65,15 @@ jobs:
             exit 1
 
       - run:
-          name: Print Environment Variables (Debug)
-          command: printenv | sort
+          name: Debug Environment Variables
+          command: |
+            if [ -z "$TEST_DB_NAME" ]; then
+              echo "❌ TEST_DB_NAME is NOT set!"
+              exit 1
+            else
+              echo "✅ TEST_DB_NAME is set!"
+            fi
+
 
       # Source .env before running Knex migrations
       - run:
