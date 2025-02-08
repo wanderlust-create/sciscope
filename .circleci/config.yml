@@ -22,7 +22,7 @@ jobs:
       - run:
           name: Create .env file
           command: |
-            echo "DB_HOST=db >> .env
+            echo "DB_HOST=db" >> .env
             echo "DB_USER=$DB_USER" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
             echo "TEST_DB_NAME=$TEST_DB_NAME" >> .env
