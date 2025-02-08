@@ -1,4 +1,4 @@
-const { knexSnakeCaseMappers } = require("objection");
+=const { knexSnakeCaseMappers } = require("objection");
 require("dotenv").config({
   path: require("path").resolve(__dirname, "../../.env"),
 });
@@ -18,13 +18,13 @@ const config = {
       max: 10,
     },
     migrations: {
-      directory: "../db/migrations",
+      directory: "src/db/migrations",
       tableName: "knex_migrations",
     },
-    seeds: {
-      directory: "../db/seeds",
-    },
-    // Auto-convert camelCase to snake_case when accessing the PostgreSQL DB.
+    // No seed data yet
+    // seeds: {
+    //   directory: "src/db/seeds",
+    // },
     ...knexSnakeCaseMappers(),
   },
   test: {
@@ -40,9 +40,10 @@ const config = {
       directory: "src/db/migrations",
       tableName: "knex_migrations",
     },
-    seeds: {
-      directory: "src/db/seeds",
-    },
+    // Commented out for now
+    // seeds: {
+    //   directory: "src/db/seeds",
+    // },
     ...knexSnakeCaseMappers(),
   },
 };
