@@ -11,7 +11,7 @@ jobs:
         name: db
         environment:
           POSTGRES_USER: $DB_USER
-          POSTGRES_PASSWORD: password
+          POSTGRES_PASSWORD: $DB_PASSWORD
           POSTGRES_DB: $TEST_DB_NAME"
     environment:
       DB_HOST: db
@@ -67,11 +67,11 @@ jobs:
       - run:
           name: Debug Environment Variables
           command: |
-            if [ -z "$TEST_DB_NAME" ]; then
-              echo "❌ TEST_DB_NAME is NOT set!"
+            if [ -z "$DB_PASSWORD" ]; then
+              echo "❌ DB_PASSWORD is NOT set!"
               exit 1
             else
-              echo "✅ TEST_DB_NAME is set!"
+              echo "✅ DB_PASSWORD is set!"
             fi
 
 
