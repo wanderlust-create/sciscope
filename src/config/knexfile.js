@@ -5,6 +5,9 @@ require("dotenv").config({
   path: path.resolve(__dirname, "../../.env"),
 });
 
+// Detect if running inside CircleCI (CIRCLECI env variable is always set in CI/CD)
+const isCI = process.env.CIRCLECI === "true";
+
 const config = {
   development: {
     client: "postgresql",
