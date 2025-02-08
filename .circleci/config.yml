@@ -65,6 +65,10 @@ jobs:
             echo "Postgres did not start in time";
             exit 1
 
+      - run:
+          name: Print Environment Variables (Debug)
+          command: printenv | sort
+
       # Source .env before running Knex migrations
       - run:
           name: Run Database Migrations
