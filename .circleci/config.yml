@@ -22,37 +22,59 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
 
-      # Wait for PostgreSQL to be ready before running migrations
+      # ✅ Ensure all dependencies are installed
       - run:
-          name: Wait for PostgreSQL
+          name: Install All Dependencies
+          command: npm install
+
+      # ✅ Debug: List installed npm packages (to check for dotenv issues)
+      - run:
+          name: Check Installed Dependencies
+          command: npm list || echo "Dependency list failed"
+
+      # ✅ Wait for PostgreSQL to start
+      - run:
+          name: Wait for PostgreSQL to be ready
           command: |
             for i in $(seq 1 10); do
-              nc -z 127.0.0.1 5432 && echo "Postgres is up" && exit 0;
-              echo "Waiting for Postgres...";
+              nc -z localhost 5432 && echo "Postgres is up" && exit 0;
+              echo "Waiting for Postgres to start...";
               sleep 2;
             done;
             echo "Postgres did not start in time";
             exit 1
 
-      # Run Knex Migrations
+      # ✅ Run Knex Migrations
       - run:
-          name: Run Migrations
+          name: Run Database Migrations
           command: npx knex migrate:latest --knexfile ./src/config/knexfile.js
 
-      # Install jest-junit for test reporting
-      - run:
-          command: npm install jest-junit
-
-      # Run tests
+      # ✅ Run Tests
       - run:
           name: Run Tests
           command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
 
-      # Store test results
+      # ✅ Store test results for CircleCI
       - store_test_results:
           path: ./test-results/
 
-workflows:
-  build-and-test:
-    jobs:
-      - test-node
+  build-node:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run:
+          command: npm run build
+      - run:
+          name: Create the ~/artifacts directory if it doesn't exist
+          command: mkdir -p ~/artifacts
+      - run:
+          name: Copy artifacts
+          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
+      - store_artifacts:
+          path: ~/artifacts
+          destination: node-build
+
+  deploy:
+    docke
