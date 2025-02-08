@@ -84,6 +84,11 @@ jobs:
             else
               echo "✅ TEST_DB_NAME is set!"
             fi
+      - run:
+          name: Install PostgreSQL client (psql)
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
 
       # Debug DB Connection via psql
       - run:
