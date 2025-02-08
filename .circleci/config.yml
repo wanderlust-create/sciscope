@@ -86,9 +86,9 @@ jobs:
             fi
 
       - run:
-        name: Debug PostgreSQL Connection Inside Container
-        command: |
-          docker exec $(docker ps -q -f name=db) env | grep POSTGRES
+          name: Debug PostgreSQL Connection Inside Container
+          command: |
+            docker exec $(docker ps -q -f name=db) env | grep POSTGRES
 
       # Source .env before running Knex migrations
       - run:
