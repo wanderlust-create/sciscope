@@ -60,10 +60,10 @@ jobs:
       - run:
           name: Debug Raw Environment Variables
           command: |
-            if [ -z "$DB_USER" ]; then
-              echo "❌ DB_USER is NOT set!"
+            if [ -z "$DB_HOST" ]; then
+              echo "❌ DB_HOST is NOT set!"
             else
-              echo "✅ DB_USER is set!"
+              echo "✅ DB_HOST is set!"
             fi
             if [ -z "$DB_PASSWORD" ]; then
               echo "❌ DB_PASSWORD is NOT set!"
