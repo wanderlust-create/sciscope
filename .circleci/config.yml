@@ -21,7 +21,7 @@ jobs:
     steps:
       - checkout
 
-      # Correctly create .env file with values
+      # Create .env file with values from CircleCI environment variables
       - run:
           name: Create .env file from CircleCI Environment Variables
           command: |
@@ -40,14 +40,14 @@ jobs:
           name: Verify Environment Variables
           command: cat .env
 
-      # Source .env before installing dependencies
+      # Install dependencies
       - run:
           name: Install All Dependencies
           command: >
             source .env &&
             npm install
 
-      # Debugging: Check installed npm packages
+      # Check installed npm packages
       - run:
           name: Check Installed Dependencies
           command: npm list || echo "Dependency list failed"
@@ -85,22 +85,32 @@ jobs:
               echo "✅ TEST_DB_NAME is set!"
             fi
 
+      # Debug DB Connection via psql
+      - run:
+          name: Debug DB Connection
+          command: |
+            source .env
+            PGPASSWORD="$DB_PASSWORD" psql \
+              --host="$DB_HOST" \
+              --username="$DB_USER" \
+              --dbname="$TEST_DB_NAME" \
+              --command="SELECT 'Connection successful' as status;"
 
-      # Source .env before running Knex migrations
+      # Run migrations
       - run:
           name: Run Database Migrations
           command: >
             source .env &&
             npx knex migrate:latest --knexfile ./src/config/knexfile.js
 
-      # Source .env before running tests
+      # Run tests
       - run:
           name: Run Tests
           command: >
             source .env &&
             npm run test --ci --runInBand --reporters=default --reporters=jest-junit
 
-      # Store test results for CircleCI
+      # Store test results
       - store_test_results:
           path: ./test-results/
 
@@ -129,7 +139,7 @@ jobs:
     steps:
       - run:
           name: deploy
-          command: "#e.g. ./deploy.sh"
+          command: "# e.g. ./deploy.sh"
 
 workflows:
   build-and-test:
