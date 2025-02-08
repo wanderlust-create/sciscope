@@ -10,8 +10,8 @@ jobs:
       - image: circleci/postgres:12.3
         name: db
         environment:
-          POSTGRES_USER: $DB_USER
-          POSTGRES_PASSWORD: password
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: $DB_PASSWORD
           POSTGRES_DB: sciscope_test_db
     environment:
       DB_HOST: db
