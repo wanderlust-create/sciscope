@@ -20,24 +20,23 @@ jobs:
     steps:
       - checkout
 
-      # Create .env file from CircleCI stored environment variables
+      # Correctly create .env file with values
       - run:
           name: Create .env file from CircleCI Environment Variables
           command: |
-            echo "DB_HOST" >> .env
-            echo "DB_NAME" >> .env
-            echo "DB_PASSWORD" >> .env
-            echo "DB_PORT" >> .env
-            echo "DB_USER" >> .env
+            echo "DB_HOST=$DB_HOST" >> .env
+            echo "DB_NAME=$POSTGRES_DB" >> .env
+            echo "DB_PASSWORD=$POSTGRES_PASSWORD" >> .env
+            echo "DB_PORT=$DB_PORT" >> .env
+            echo "DB_USER=$POSTGRES_USER" >> .env
             echo "NODE_ENV=test" >> .env
 
-      - node/install-packages:
-          pkg-manager: npm
-
-      # Install all dependencies
+      # Source .env before installing dependencies
       - run:
           name: Install All Dependencies
-          command: npm install
+          command: >
+            source .env &&
+            npm install
 
       # Debugging: Check installed npm packages
       - run:
@@ -56,15 +55,19 @@ jobs:
             echo "Postgres did not start in time";
             exit 1
 
-      # Run Knex Migrations
+      # Source .env before running Knex migrations
       - run:
           name: Run Database Migrations
-          command: npx knex migrate:latest --knexfile ./src/config/knexfile.js
+          command: >
+            source .env &&
+            npx knex migrate:latest --knexfile ./src/config/knexfile.js
 
-      # Run Tests
+      # Source .env before running tests
       - run:
           name: Run Tests
-          command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
+          command: >
+            source .env &&
+            npm run test --ci --runInBand --reporters=default --reporters=jest-junit
 
       # Store test results for CircleCI
       - store_test_results:
