@@ -22,44 +22,45 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
 
-      # ✅ Ensure all dependencies are installed
+      # Ensure all dependencies are installed
       - run:
           name: Install All Dependencies
           command: npm install
 
-      # ✅ Debug: List installed npm packages (to check for dotenv issues)
+      # Debugging: Check installed npm packages
       - run:
           name: Check Installed Dependencies
           command: npm list || echo "Dependency list failed"
 
-      # ✅ Wait for PostgreSQL to start
+      # Wait for PostgreSQL to be ready
       - run:
-          name: Wait for PostgreSQL to be ready
+          name: Wait for PostgreSQL
           command: |
             for i in $(seq 1 10); do
               nc -z localhost 5432 && echo "Postgres is up" && exit 0;
-              echo "Waiting for Postgres to start...";
+              echo "Waiting for Postgres...";
               sleep 2;
             done;
             echo "Postgres did not start in time";
             exit 1
 
-      # ✅ Run Knex Migrations
+      # Run Knex Migrations
       - run:
           name: Run Database Migrations
           command: npx knex migrate:latest --knexfile ./src/config/knexfile.js
 
-      # ✅ Run Tests
+      # Run Tests
       - run:
           name: Run Tests
           command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
 
-      # ✅ Store test results for CircleCI
+      # Store test results for CircleCI
       - store_test_results:
           path: ./test-results/
 
   build-node:
-    executor: node/default
+    docker:
+      - image: circleci/node:14.17.0
     steps:
       - checkout
       - node/install-packages:
@@ -77,4 +78,17 @@ jobs:
           destination: node-build
 
   deploy:
-    docke
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: deploy
+          command: "#e.g. ./deploy.sh"
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - test-node
+      - build-node:
+          re
