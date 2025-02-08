@@ -95,7 +95,7 @@ jobs:
       - run:
           name: Run Database Migrations
           command: |
-            source .env
+            source .env &&
             npx knex migrate:latest --knexfile ./src/config/knexfile.js
 
       - run:
