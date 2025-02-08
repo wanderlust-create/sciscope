@@ -13,6 +13,8 @@ jobs:
           POSTGRES_USER: $POSTGRES_USER
           POSTGRES_PASSWORD: $POSTGRES_PASSWORD
           POSTGRES_DB: $POSTGRES_DB
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
     environment:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
 
