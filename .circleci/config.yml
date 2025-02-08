@@ -10,8 +10,8 @@ jobs:
       - image: circleci/postgres:12.3
         name: db
         environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ${DB_PASSWORD}
+          POSTGRES_USER: $DB_USER
+          POSTGRES_PASSWORD: password
           POSTGRES_DB: sciscope_test_db
     environment:
       DB_HOST: db
@@ -26,9 +26,9 @@ jobs:
           name: Create .env file from CircleCI Environment Variables
           command: |
             echo "DB_HOST=db" >> .env
-            echo "DB_USER=${DB_USER}" >> .env
-            echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
-            echo "TEST_DB_NAME=${TEST_DB_NAME}" >> .env
+            echo "DB_USER=$DB_USER" >> .env
+            echo "DB_PASSWORD=$DB_PASSWORD}" >> .env
+            echo "TEST_DB_NAME=$TEST_DB_NAME" >> .env
             echo "DB_PORT=5432" >> .env
             echo "NODE_ENV=test" >> .env
 
