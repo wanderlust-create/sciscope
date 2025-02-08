@@ -5,7 +5,6 @@ orbs:
 
 jobs:
   test-node:
-    executor: node/default
     docker:
       - image: circleci/node:14.17.0
       - image: circleci/postgres:12.3
@@ -23,24 +22,24 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
 
-      # Ensure PostgreSQL is ready before running migrations
+      # Wait for PostgreSQL to be ready before running migrations
       - run:
-          name: Wait for PostgreSQL to be ready
+          name: Wait for PostgreSQL
           command: |
             for i in $(seq 1 10); do
-              nc -z localhost 5432 && echo "Postgres is up" && exit 0;
-              echo "Waiting for Postgres to start...";
+              nc -z 127.0.0.1 5432 && echo "Postgres is up" && exit 0;
+              echo "Waiting for Postgres...";
               sleep 2;
             done;
             echo "Postgres did not start in time";
             exit 1
 
-      # Run Knex Migrations to set up the database schema
+      # Run Knex Migrations
       - run:
-          name: Run Database Migrations
+          name: Run Migrations
           command: npx knex migrate:latest --knexfile ./src/config/knexfile.js
 
-      # Install jest-junit for test results
+      # Install jest-junit for test reporting
       - run:
           command: npm install jest-junit
 
@@ -53,39 +52,7 @@ jobs:
       - store_test_results:
           path: ./test-results/
 
-  build-node:
-    # Build the project after tests pass
-    executor: node/default
-    steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          command: npm run build
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      # Copy output to artifacts dir
-      - run:
-          name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
-
-  deploy:
-    # Placeholder job for deployment if needed later
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - run:
-          name: deploy
-          command: "#e.g. ./deploy.sh"
-
 workflows:
   build-and-test:
     jobs:
       - test-node
-      - build-node:
-          requires:
-            - test-node
