@@ -10,10 +10,9 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password
           POSTGRES_DB: sciscope_test_db
-    environment:
-      DB_HOST: $DB_HOST
-      DB_PORT: 5432
-      JEST_JUNIT_OUTPUT_DIR: ./test-results/
+          DB_HOST: $DB_HOST
+          DB_PORT: 5432
+          JEST_JUNIT_OUTPUT_DIR: ./test-results/
 
     steps:
       - checkout
