@@ -22,7 +22,7 @@ jobs:
       - run:
           name: Create .env file
           command: |
-            echo "DB_HOST=db" >> .env
+            echo "DB_HOST=$DB_HOST" >> .env
             echo "DB_USER=$DB_USER" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
             echo "TEST_DB_NAME=$TEST_DB_NAME" >> .env
@@ -58,24 +58,6 @@ jobs:
             echo "Postgres did not start in time";
             exit 1
 
-      - run:
-          name: Debug Raw Environment Variables
-          command: |
-            if [ -z "$DB_HOST" ]; then
-              echo "❌ DB_HOST is NOT set!"
-            else
-              echo "✅ DB_HOST is set!"
-            fi
-            if [ -z "$DB_PASSWORD" ]; then
-              echo "❌ DB_PASSWORD is NOT set!"
-            else
-              echo "✅ DB_PASSWORD is set!"
-            fi
-            if [ -z "$TEST_DB_NAME" ]; then
-              echo "❌ TEST_DB_NAME is NOT set!"
-            else
-              echo "✅ TEST_DB_NAME is set!"
-            fi
 
       - run:
           name: Install PostgreSQL client (psql)
