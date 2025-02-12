@@ -1,8 +1,9 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5
-  postgres: circleci/postgres@4.1
+  node: cimg/node:14.21.
+  postgres: circleci/postgres:12.3
+
 
 jobs:
   test-node:
