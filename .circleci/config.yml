@@ -1,44 +1,76 @@
 version: 2.1
 
+orbs:
+  node: circleci/node@5
+  postgres: circleci/postgres@3.1
+
 jobs:
-  build:
-    docker:
-      - image: img/node:14.21.3
-      - image: circleci/postgres:12.3
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: $TEST_DB_NAME
-          DB_HOST: $DB_HOST
-          DB_PORT: $DB_PORT
+  test-node:
+    executor: node/default
+    environment:
+      JEST_JUNIT_OUTPUT_DIR: ./test-results/
     steps:
       - checkout
-
+      - node/install-packages:
+          pkg-manager: npm
+      - postgres/start-and-wait:
+          docker:
+            - image: circleci/postgres:12.3
+              environment:
+                POSTGRES_USER: $POSTGRES_USER
+                POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+                POSTGRES_DB: $POSTGRES_DB
+                DB_HOST: 127.0.0.1
+                DB_PORT: 5432
       - run:
-          name: Install Dependencies
-          command: npm install
-
-      - run:
-          name: Wait for PostgreSQL to be ready
-          command: |
-            for i in $(seq 1 10); do
-              nc -z localhost 5432 && echo "Postgres is up" && exit 0;
-              echo "Waiting for Postgres to start...";
-              sleep 2;
-            done;
-            echo "Postgres did not start in time";
-            exit 1
-
-      - run:
-          name: Run Migrations
+          name: Run Database Migrations
           command: npx knex migrate:latest --knexfile ./src/config/knexfile.js
-
+      - run:
+          command: npm install jest-junit
       - run:
           name: Run Tests
-          command: npm test
+          command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
+      - store_test_results:
+          path: ./test-results/
+      - save_cache:
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+
+  build-node:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run:
+          command: npm run build
+      - run:
+          name: Create the ~/artifacts directory if it doesn't exist
+          command: mkdir -p ~/artifacts
+      - run:
+          name: Copy artifacts
+          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
+      - store_artifacts:
+          path: ~/artifacts
+          destination: node-build
+      - save_cache:
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+
+  deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: deploy
+          command: "#e.g. ./deploy.sh"
 
 workflows:
-  version: 2
-  build_and_test:
+  build-and-test:
     jobs:
-      - build
+      - test-node
+      - build-node:
+          requires:
+            - test-node
