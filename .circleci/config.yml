@@ -12,13 +12,13 @@ jobs:
       - image: postgres:12.3
         name: db
         environment:
-            POSTGRES_USER: << pipeline.parameters.DB_USER >>
-            POSTGRES_PASSWORD: << pipeline.parameters.DB_PASSWORD >>
-            POSTGRES_DB: << pipeline.parameters.POSTGRES_DB >>
-        steps:
-        - checkout
-        - node/install-packages:
-            pkg-manager: npm
+          POSTGRES_USER: << pipeline.parameters.DB_USER >>
+          POSTGRES_PASSWORD: << pipeline.parameters.DB_PASSWORD >>
+          POSTGRES_DB: << pipeline.parameters.POSTGRES_DB >>
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
       - run:
           name: Wait for PostgreSQL to be ready
           command: |
@@ -65,6 +65,7 @@ jobs:
           key: v1-npm-deps-{{ checksum "package-lock.json" }}
           paths:
             - ~/.npm
+
   deploy:
     docker:
       - image: cimg/base:stable
