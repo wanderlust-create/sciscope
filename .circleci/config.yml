@@ -14,7 +14,7 @@ jobs:
         environment:
             POSTGRES_USER: << pipeline.parameters.DB_USER >>
             POSTGRES_PASSWORD: << pipeline.parameters.DB_PASSWORD >>
-                    POSTGRES_DB: << pipeline.parameters.POSTGRES_DB >>
+            POSTGRES_DB: << pipeline.parameters.POSTGRES_DB >>
             steps:
       - checkout
       - node/install-packages:
