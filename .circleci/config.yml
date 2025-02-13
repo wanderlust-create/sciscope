@@ -44,7 +44,6 @@ jobs:
             - ~/.npm
 
   build-node:
-  build-node:
     docker:
       - image: circleci/node:16
     steps:
