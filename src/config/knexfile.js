@@ -1,11 +1,18 @@
+const path = require("path");
 const { knexSnakeCaseMappers } = require("objection");
-require("dotenv").config({ path: "../../.env" });
+
+require("dotenv").config({
+  path: path.resolve(__dirname, "../../.env"),
+});
+
+// Detect if running inside CircleCI (CIRCLECI env variable is always set in CI/CD)
+const isCI = process.env.CIRCLECI === "true";
 
 const config = {
   development: {
     client: "postgresql",
     connection: {
-      host: process.env.DB_HOST || "localhost",
+      host: isCI ? "db" : process.env.DB_HOST || "127.0.0.1",
       port: process.env.DB_PORT || 5432,
       database: process.env.DB_NAME,
       user: process.env.DB_USER,
@@ -16,31 +23,32 @@ const config = {
       max: 10,
     },
     migrations: {
-      directory: "../db/migrations",
+      directory: path.resolve(__dirname, "../../src/db/migrations"),
       tableName: "knex_migrations",
     },
-    seeds: {
-      directory: "../db/seeds",
-    },
-    // Auto-convert camelCase to snake_case when accessing the PostgreSQL DB.
+    // No seed data yet
+    // seeds: {
+    //   directory: path.resolve(__dirname, "../../src/db/seeds"),
+    // },
     ...knexSnakeCaseMappers(),
   },
   test: {
     client: "postgresql",
     connection: {
-      host: process.env.DB_HOST || "localhost",
+      host: isCI ? "db" : process.env.DB_HOST || "127.0.0.1",
       port: process.env.DB_PORT || 5432,
       database: process.env.TEST_DB_NAME || "sciscope_test_db",
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
     },
     migrations: {
-      directory: "src/db/migrations",
+      directory: path.resolve(__dirname, "../../src/db/migrations"),
       tableName: "knex_migrations",
     },
-    seeds: {
-      directory: "src/db/seeds",
-    },
+    // Commented out for now
+    // seeds: {
+    //   directory: path.resolve(__dirname, "../../src/db/seeds"),
+    // },
     ...knexSnakeCaseMappers(),
   },
 };

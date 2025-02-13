@@ -1,66 +1,58 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5
+  node: circleci/node@4.7.0
 
 jobs:
   test-node:
-    docker:
-      - image: circleci/node:14.17.0
-      - image: circleci/postgres:12.3
-        environment:
-          POSTGRES_USER: $POSTGRES_USER
-          POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-          POSTGRES_DB: $POSTGRES_DB
-          DB_HOST: 127.0.0.1
-          DB_PORT: 5432
     environment:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
-
+      DB_HOST: db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sciscope_test_db
+    docker:
+      - image: circleci/node:16
+      - image: postgres:12.3
+        name: db
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: sciscope_test_db
     steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
-
-      # Install all dependencies
       - run:
-          name: Install All Dependencies
-          command: npm install
-
-      # Debugging: Check installed npm packages
-      - run:
-          name: Check Installed Dependencies
-          command: npm list || echo "Dependency list failed"
-
-      # Wait for PostgreSQL to be ready
-      - run:
-          name: Wait for PostgreSQL
+          name: Wait for PostgreSQL to be ready
           command: |
-            for i in $(seq 1 10); do
-              nc -z localhost 5432 && echo "Postgres is up" && exit 0;
-              echo "Waiting for Postgres...";
-              sleep 2;
-            done;
-            echo "Postgres did not start in time";
-            exit 1
-
-      # Run Knex Migrations
+            for i in {1..30}; do
+              nc -z db 5432 && echo "Postgres is ready" && exit 0
+              echo "Waiting for Postgres..."
+              sleep 1
+            done
+            echo "Postgres failed to start" && exit 1
+      - run:
+          name: Debug Environment Variables
+          command: env | grep POSTGRES || true
       - run:
           name: Run Database Migrations
           command: npx knex migrate:latest --knexfile ./src/config/knexfile.js
-
-      # Run Tests
+      - run:
+          command: npm install jest-junit
       - run:
           name: Run Tests
           command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
-
-      # Store test results for CircleCI
       - store_test_results:
           path: ./test-results/
+      - save_cache:
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
 
   build-node:
     docker:
-      - image: circleci/node:14.17.0
+      - image: circleci/node:16
     steps:
       - checkout
       - node/install-packages:
@@ -76,6 +68,10 @@ jobs:
       - store_artifacts:
           path: ~/artifacts
           destination: node-build
+      - save_cache:
+          key: v1-npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
 
   deploy:
     docker:
@@ -91,4 +87,4 @@ workflows:
       - test-node
       - build-node:
           requires:
-            - test-node  
+            - test-node
