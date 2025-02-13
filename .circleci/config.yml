@@ -1,16 +1,5 @@
 version: 2.1
 
-parameters:
-  DB_USER:
-    type: string
-    default: "default_user"
-  DB_PASSWORD:
-    type: string
-    default: "default_password"
-  POSTGRES_DB:
-    type: string
-    default: "default_db"
-
 orbs:
   node: circleci/node@4.7.0
 
@@ -18,17 +7,18 @@ jobs:
   test-node:
     environment:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
-      POSTGRES_USER: << pipeline.parameters.DB_USER >>
-      POSTGRES_PASSWORD: << pipeline.parameters.DB_PASSWORD >>
-      POSTGRES_DB: << pipeline.parameters.POSTGRES_DB >>
+      DB_HOST: db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: sciscope_test_db
     docker:
       - image: circleci/node:16
       - image: postgres:12.3
         name: db
         environment:
-          POSTGRES_USER: << pipeline.parameters.DB_USER >>
-          POSTGRES_PASSWORD: << pipeline.parameters.DB_PASSWORD >>
-          POSTGRES_DB: << pipeline.parameters.POSTGRES_DB >>
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: sciscope_test_db
     steps:
       - checkout
       - node/install-packages:
@@ -42,6 +32,9 @@ jobs:
               sleep 1
             done
             echo "Postgres failed to start" && exit 1
+      - run:
+          name: Debug Environment Variables
+          command: env | grep POSTGRES || true
       - run:
           name: Run Database Migrations
           command: npx knex migrate:latest --knexfile ./src/config/knexfile.js
