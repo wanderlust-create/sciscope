@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "jest",
+    "test": "jest --coverage --detectOpenHandles",
     "clean": "rimraf dist",
     "build": "npm-run-all clean",
     "migrate-make": "knex migrate:make init --knexfile ./src/config/knexfile.js",
