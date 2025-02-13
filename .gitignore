@@ -1,2 +1,23 @@
-node_modules
+# Node.js dependencies
+node_modules/
+
+# Environment variables
 .env
+
+# Jest test coverage reports
+coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS/System files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+
