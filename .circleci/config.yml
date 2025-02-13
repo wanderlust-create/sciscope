@@ -12,10 +12,9 @@ jobs:
       - image: postgres:12.3
         name: db
         environment:
-          POSTGRES_USER: $POSTGRES_USER
-          POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-          POSTGRES_DB: $POSTGRES_DB
-    steps:
+            POSTGRES_USER: << pipeline.parameters.DB_USER >>
+            POSTGRES_PASSWORD: << pipeline.parameters.DB_PASSWORD >>
+            POSTGRES_DB: << pipeline.parameters.TEST_DB_NAME >> steps:
       - checkout
       - node/install-packages:
           pkg-manager: npm
