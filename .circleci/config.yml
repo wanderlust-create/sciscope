@@ -11,6 +11,7 @@ jobs:
     docker:
       - image: circleci/node:16
       - image: postgres:12.3
+        name: db
         environment:
           POSTGRES_USER: $POSTGRES_USER
           POSTGRES_PASSWORD: $POSTGRES_PASSWORD
