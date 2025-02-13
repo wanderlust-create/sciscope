@@ -24,7 +24,7 @@ jobs:
           name: Wait for PostgreSQL to be ready
           command: |
             for i in {1..30}; do
-              nc -z 127.0.0.1 5432 && echo "Postgres is ready" && exit 0
+              nc -z db 5432 && echo "Postgres is ready" && exit 0
               echo "Waiting for Postgres..."
               sleep 1
             done
