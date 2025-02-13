@@ -1,11 +1,14 @@
-const path = require("path");
-const { knexSnakeCaseMappers } = require("objection");
+import dotenv from "dotenv";
+import { knexSnakeCaseMappers } from "objection";
+import path from "path";
+import { fileURLToPath } from "url";
 
-require("dotenv").config({
-  path: path.resolve(__dirname, "../../.env"),
-});
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Detect if running inside CircleCI (CIRCLECI env variable is always set in CI/CD)
+// Load .env file
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+
 const isCI = process.env.CIRCLECI === "true";
 
 const config = {
@@ -18,18 +21,11 @@ const config = {
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
     },
-    pool: {
-      min: 2,
-      max: 10,
-    },
+    pool: { min: 2, max: 10 },
     migrations: {
       directory: path.resolve(__dirname, "../../src/db/migrations"),
       tableName: "knex_migrations",
     },
-    // No seed data yet
-    // seeds: {
-    //   directory: path.resolve(__dirname, "../../src/db/seeds"),
-    // },
     ...knexSnakeCaseMappers(),
   },
   test: {
@@ -45,12 +41,7 @@ const config = {
       directory: path.resolve(__dirname, "../../src/db/migrations"),
       tableName: "knex_migrations",
     },
-    // Commented out for now
-    // seeds: {
-    //   directory: path.resolve(__dirname, "../../src/db/seeds"),
-    // },
     ...knexSnakeCaseMappers(),
   },
 };
-
-module.exports = config;
+export default config;
