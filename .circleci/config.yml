@@ -5,7 +5,6 @@ orbs:
 
 jobs:
   test-node:
-    executor: node/default
     environment:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
     docker:
@@ -45,7 +44,9 @@ jobs:
             - ~/.npm
 
   build-node:
-    executor: node/default
+  build-node:
+    docker:
+      - image: circleci/node:16
     steps:
       - checkout
       - node/install-packages:
@@ -65,7 +66,6 @@ jobs:
           key: v1-npm-deps-{{ checksum "package-lock.json" }}
           paths:
             - ~/.npm
-
   deploy:
     docker:
       - image: cimg/base:stable
