@@ -18,6 +18,9 @@ jobs:
   test-node:
     environment:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
+      POSTGRES_USER: << pipeline.parameters.DB_USER >>
+      POSTGRES_PASSWORD: << pipeline.parameters.DB_PASSWORD >>
+      POSTGRES_DB: << pipeline.parameters.POSTGRES_DB >>
     docker:
       - image: circleci/node:16
       - image: postgres:12.3
@@ -88,10 +91,7 @@ jobs:
 workflows:
   build-and-test:
     jobs:
-      - test-node:
-          DB_USER: << pipeline.parameters.DB_USER >>
-          DB_PASSWORD: << pipeline.parameters.DB_PASSWORD >>
-          POSTGRES_DB: << pipeline.parameters.POSTGRES_DB >>
+      - test-node
       - build-node:
           requires:
             - test-node
