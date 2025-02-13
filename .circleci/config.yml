@@ -1,5 +1,16 @@
 version: 2.1
 
+parameters:
+  DB_USER:
+    type: string
+    default: "default_user"
+  DB_PASSWORD:
+    type: string
+    default: "default_password"
+  POSTGRES_DB:
+    type: string
+    default: "default_db"
+
 orbs:
   node: circleci/node@4.7.0
 
@@ -77,7 +88,10 @@ jobs:
 workflows:
   build-and-test:
     jobs:
-      - test-node
+      - test-node:
+          DB_USER: << pipeline.parameters.DB_USER >>
+          DB_PASSWORD: << pipeline.parameters.DB_PASSWORD >>
+          POSTGRES_DB: << pipeline.parameters.POSTGRES_DB >>
       - build-node:
           requires:
             - test-node
