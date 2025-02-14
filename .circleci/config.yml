@@ -50,7 +50,11 @@ jobs:
             echo "DB_PASSWORD=$DB_PASSWORD"
             echo "TEST_DB_NAME=$TEST_DB_NAME"
             echo "DB_HOST=$DB_HOST"
-
+      - run:
+          name: Install PostgreSQL client
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y postgresql-client
       - run:
           name: psql check
           command: |
