@@ -21,7 +21,6 @@ jobs:
           POSTGRES_DB: $TEST_DB_NAME
     steps:
       - checkout
-
       - run:
           name: Print DB_USER in hex
           command: |
