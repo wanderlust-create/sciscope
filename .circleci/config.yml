@@ -27,10 +27,13 @@ jobs:
           command: mkdir -p ./test-results/
 
       - run:
-          name: Print DB_USER in hex
+          name: Print environment variables in hex
           command: |
-            echo "DB_USER in raw form:"
-            echo "$DB_USER" | xxd
+            for var in DB_USER DB_PASSWORD TEST_DB_NAME DB_HOST; do
+              echo "$var in raw form (hex):"
+              echo -n "${!var}" | xxd
+              echo ""
+            done
 
       - run:
           name: Debug Environment Variables
