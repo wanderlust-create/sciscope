@@ -1,4 +1,4 @@
-exports.up = async function (knex) {
+export async function up(knex) {
   // Create sources table
   await knex.schema.createTable("sources", (table) => {
     table.increments("id").primary();
@@ -101,9 +101,9 @@ exports.up = async function (knex) {
     table.timestamp("assigned_at").defaultTo(knex.fn.now());
     table.unique(["user_bookmark_id", "bookmark_group_id"]);
   });
-};
+}
 
-exports.down = async function (knex) {
+export async function down(knex) {
   // Drop tables in reverse order to avoid foreign key issues
   await knex.schema.dropTableIfExists("bookmark_group_assignments");
   await knex.schema.dropTableIfExists("user_bookmarks");
@@ -112,4 +112,4 @@ exports.down = async function (knex) {
   await knex.schema.dropTableIfExists("articles");
   await knex.schema.dropTableIfExists("authors");
   await knex.schema.dropTableIfExists("sources");
-};
+}
