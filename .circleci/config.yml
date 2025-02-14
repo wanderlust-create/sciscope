@@ -21,14 +21,18 @@ jobs:
           POSTGRES_DB: $TEST_DB_NAME
     steps:
       - checkout
+
       - run:
           name: Create .env file
           command: |
             echo "DB_USER=${DB_USER}" >> .env
+            echo "DB_PORT=${DB_PORT}" >> .env
             echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
             echo "TEST_DB_NAME=${TEST_DB_NAME}" >> .env
+
       - node/install-packages:
           pkg-manager: npm
+
       - run:
           name: Wait for PostgreSQL to be ready
           command: |
@@ -38,19 +42,38 @@ jobs:
               sleep 1
             done
             echo "Postgres failed to start" && exit 1
+
+      - run:
+          name: Debug DB env
+          command: |
+            echo "DB_USER=$DB_USER"
+            echo "DB_PASSWORD=$DB_PASSWORD"
+            echo "TEST_DB_NAME=$TEST_DB_NAME"
+            echo "DB_HOST=$DB_HOST"
+
+      - run:
+          name: psql check
+          command: |
+            psql -h db -U "$DB_USER" -c 'SELECT version();' "$TEST_DB_NAME"
+
       - run:
           name: Debug Environment Variables
           command: env | grep POSTGRES || true
+
       - run:
           name: Run Database Migrations
           command: npx knex migrate:latest --env test --knexfile ./src/config/knexfile.js
+
       - run:
           command: npm install jest-junit
+
       - run:
           name: Run Tests
           command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
+
       - store_test_results:
           path: ./test-results/
+
       - save_cache:
           key: v1-npm-deps-{{ checksum "package-lock.json" }}
           paths:
@@ -85,7 +108,7 @@ jobs:
     steps:
       - run:
           name: deploy
-          command: "#e.g. ./deploy.sh"
+          command: "# e.g. ./deploy.sh"
 
 workflows:
   build-and-test:
