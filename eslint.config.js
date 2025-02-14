@@ -2,7 +2,7 @@ import eslintPluginPrettier from "eslint-plugin-prettier";
 
 export default [
   {
-    ignores: ["node_modules/", "dist/", "coverage/"], // Ignore unnecessary folders
+    ignores: ["node_modules/", "dist/", "coverage/"],
   },
   {
     languageOptions: {
@@ -19,4 +19,3 @@ export default [
     },
   },
 ];
-
