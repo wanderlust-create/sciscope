@@ -43,7 +43,7 @@ jobs:
           command: env | grep POSTGRES || true
       - run:
           name: Run Database Migrations
-          command: npx knex migrate:latest --knexfile ./src/config/knexfile.js
+          command: npx knex migrate:latest --env test --knexfile ./src/config/knexfile.js
       - run:
           command: npm install jest-junit
       - run:
