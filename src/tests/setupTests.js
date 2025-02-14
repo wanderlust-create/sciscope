@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 
-dotenv.config(); // Load environment variables
+dotenv.config();
 
-// Increase Jest timeout for async tests (optional)
+import { jest } from "@jest/globals";
+
 jest.setTimeout(30000);
