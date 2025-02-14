@@ -21,6 +21,18 @@ jobs:
           POSTGRES_DB: $TEST_DB_NAME
     steps:
       - checkout
+            # 1) Remove leftover Docker volumes (requires machine or remote-docker):
+      - run:
+          name: Force remove all Docker volumes
+          command: |
+            docker volume prune -f
+
+      # 2) Print $DB_USER in hex to catch hidden characters
+      - run:
+          name: Print DB_USER in hex
+          command: |
+            echo "DB_USER in raw form:"
+            echo "$DB_USER" | xxd
       - run:
           name: Debug Environment Variables
           command: env | grep POSTGRES || true
