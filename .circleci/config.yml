@@ -12,8 +12,8 @@ jobs:
       POSTGRES_PASSWORD: $DB_PASSWORD
       POSTGRES_DB: $TEST_DB_NAME
     docker:
-      - image: circleci/node:16
-      - image: postgres:12.3
+      - image: cimg/node:16.17
+      - image: cimg/postgres:15.1
         name: db
         environment:
           POSTGRES_USER: $DB_USER
@@ -21,7 +21,6 @@ jobs:
           POSTGRES_DB: $TEST_DB_NAME
     steps:
       - checkout
-
       - run:
           name: Create .env file
           command: |
