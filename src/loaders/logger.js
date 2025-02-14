@@ -1,5 +1,5 @@
-import winston from "winston";
 import dotenv from "dotenv";
+import winston from "winston";
 
 dotenv.config();
 
@@ -12,7 +12,6 @@ const logger = winston.createLogger({
   ],
 });
 
-// Add console logging in non-production environments
 if (process.env.NODE_ENV !== "production") {
   logger.add(
     new winston.transports.Console({
