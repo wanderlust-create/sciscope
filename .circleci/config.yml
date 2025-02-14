@@ -19,9 +19,12 @@ jobs:
           POSTGRES_USER: $DB_USER
           POSTGRES_PASSWORD: $DB_PASSWORD
           POSTGRES_DB: $TEST_DB_NAME
-          
+
     steps:
       - checkout
+      - run:
+          name: Create test-results directory
+          command: mkdir -p ./test-results/
       - run:
           name: Print DB_USER in hex
           command: |
@@ -108,7 +111,9 @@ jobs:
           command: mkdir -p ~/artifacts
       - run:
           name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
+          command: |
+            mkdir -p build dist public .output .next .docusaurus
+            cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
       - store_artifacts:
           path: ~/artifacts
           destination: node-build
@@ -121,7 +126,7 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
-      - run:
+          command: echo "Deploying application..." && ./deploy.sh
           name: deploy
           command: "# e.g. ./deploy.sh"
 
