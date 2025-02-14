@@ -19,23 +19,27 @@ jobs:
           POSTGRES_USER: $DB_USER
           POSTGRES_PASSWORD: $DB_PASSWORD
           POSTGRES_DB: $TEST_DB_NAME
-
     steps:
       - checkout
+
       - run:
           name: Create test-results directory
           command: mkdir -p ./test-results/
+
       - run:
           name: Print DB_USER in hex
           command: |
             echo "DB_USER in raw form:"
             echo "$DB_USER" | xxd
+
       - run:
           name: Debug Environment Variables
           command: env | grep POSTGRES || true
+
       - run:
           name: Print environment var
           command: echo "DB_USER=${DB_USER}"
+
       - run:
           name: Create .env file
           command: |
@@ -64,11 +68,13 @@ jobs:
             echo "DB_PASSWORD=$DB_PASSWORD"
             echo "TEST_DB_NAME=$TEST_DB_NAME"
             echo "DB_HOST=$DB_HOST"
+
       - run:
           name: Install PostgreSQL client
           command: |
             sudo apt-get update
             sudo apt-get install -y postgresql-client
+
       - run:
           name: psql check
           command: |
@@ -112,6 +118,7 @@ jobs:
       - run:
           name: Copy artifacts
           command: |
+            # Make sure these directories exist before copying:
             mkdir -p build dist public .output .next .docusaurus
             cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
       - store_artifacts:
@@ -126,9 +133,14 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
-          command: echo "Deploying application..." && ./deploy.sh
+      - checkout
+      - run:
           name: deploy
-          command: "# e.g. ./deploy.sh"
+          command: |
+            echo "Deploying application..."
+            # e.g. ./deploy.sh
+            # If you actually have a deploy.sh script, uncomment:
+            # ./deploy.sh
 
 workflows:
   build-and-test:
