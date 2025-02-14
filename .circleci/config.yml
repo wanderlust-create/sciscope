@@ -22,6 +22,12 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Debug Environment Variables
+          command: env | grep POSTGRES || true
+      - run:
+          name: Print environment var
+          command: echo "DB_USER=${DB_USER}"
+      - run:
           name: Create .env file
           command: |
             echo "DB_USER=${DB_USER}" >> .env
