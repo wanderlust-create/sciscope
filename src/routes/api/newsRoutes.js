@@ -1,10 +1,8 @@
-import express from "express";
+import { Router } from "express";
+import NewsController from "../../controllers/newsController.js";
 
-const router = express.Router();
+const route = Router();
 
-// Placeholder response 
-router.get("/", (req, res) => {
-  res.json({ message: "Science news API is working!" });
-});
+route.get("/", NewsController.getNews);
 
-export default router;
+export default route;

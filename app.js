@@ -22,4 +22,3 @@ app.listen(PORT, async () => {
 });
 
 export default app;
-
