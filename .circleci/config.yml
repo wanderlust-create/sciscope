@@ -1,4 +1,4 @@
-version: 2.1
+version: 3.0
 
 orbs:
   node: circleci/node@4.7.0
@@ -8,19 +8,25 @@ jobs:
     environment:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
       DB_HOST: db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: sciscope_test_db
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASSWORD
+      POSTGRES_DB: $TEST_DB_NAME
     docker:
       - image: circleci/node:16
       - image: postgres:12.3
         name: db
         environment:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: sciscope_test_db
+          POSTGRES_USER: $DB_USER
+          POSTGRES_PASSWORD: $DB_PASSWORD
+          POSTGRES_DB: $TEST_DB_NAME
     steps:
       - checkout
+      - run:
+          name: Create .env file
+          command: |
+            echo "DB_USER=${DB_USER}" >> .env
+            echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+            echo "TEST_DB_NAME=${TEST_DB_NAME}" >> .env
       - node/install-packages:
           pkg-manager: npm
       - run:
