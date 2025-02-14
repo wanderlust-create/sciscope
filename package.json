@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "jest --coverage --detectOpenHandles",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --forceExit",
+    "test:single": "NODE_OPTIONS=--experimental-vm-modules jest --forceExit -- src/tests/newsService.integration.test.js",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "lint": "eslint .",
     "format": "prettier --write .",
     "migrate-make": "knex migrate:make init --knexfile ./src/config/knexfile.js",
@@ -17,6 +19,7 @@
     "docker:down": "docker-compose down"
   },
   "dependencies": {
+    "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "knex": "^3.1.0",
