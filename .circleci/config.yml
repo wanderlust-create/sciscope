@@ -8,31 +8,35 @@ jobs:
     environment:
       JEST_JUNIT_OUTPUT_DIR: ./test-results/
       DB_HOST: db
-      POSTGRES_USER: $DB_USER
-      POSTGRES_PASSWORD: $DB_PASSWORD
-      POSTGRES_DB: $TEST_DB_NAME
     docker:
       - image: cimg/node:16.17
       - image: cimg/postgres:15.1
         name: db
         environment:
-          POSTGRES_USER: "${DB_USER}"
-          POSTGRES_PASSWORD: "${DB_PASSWORD}"
-          POSTGRES_DB: "${TEST_DB_NAME}"
           POSTGRES_HOST_AUTH_METHOD: md5
+
     steps:
       - checkout
 
       - run:
-          name: Debug Postgres Environment Variables (Hex & Normal)
+          name: Inject Environment Variables Manually
           command: |
-            echo "POSTGRES_USER (normal): $POSTGRES_USER"
+            echo "Manually exporting DB environment variables..."
+            echo "export POSTGRES_USER=$DB_USER" >> $BASH_ENV
+            echo "export POSTGRES_PASSWORD=$DB_PASSWORD" >> $BASH_ENV
+            echo "export POSTGRES_DB=$TEST_DB_NAME" >> $BASH_ENV
+            source $BASH_ENV
+
+      - run:
+          name: Debug Environment Variables
+          command: |
+            echo "POSTGRES_USER: $POSTGRES_USER"
             echo -n "POSTGRES_USER (hex): "; echo -n "$POSTGRES_USER" | xxd
 
-            echo "POSTGRES_PASSWORD (normal): $POSTGRES_PASSWORD"
+            echo "POSTGRES_PASSWORD: $POSTGRES_PASSWORD"
             echo -n "POSTGRES_PASSWORD (hex): "; echo -n "$POSTGRES_PASSWORD" | xxd
 
-            echo "POSTGRES_DB (normal): $POSTGRES_DB"
+            echo "POSTGRES_DB: $POSTGRES_DB"
             echo -n "POSTGRES_DB (hex): "; echo -n "$POSTGRES_DB" | xxd
 
       - run:
@@ -52,7 +56,7 @@ jobs:
       - run:
           name: Verify Postgres Users
           command: |
-            psql -h db -U postgres -d "$TEST_DB_NAME" -c '\du'
+            psql -h db -U postgres -d "$POSTGRES_DB" -c '\du'
 
       - run:
           name: Run Database Migrations
