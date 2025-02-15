@@ -9,13 +9,12 @@ const __dirname = path.dirname(__filename);
 // Load .env file
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-const isCI = process.env.CIRCLECI === "true";
 
 const config = {
   development: {
     client: "postgresql",
     connection: {
-      host: isCI ? "db" : process.env.DB_HOST || "127.0.0.1",
+      host: process.env.DB_HOST || "127.0.0.1",
       port: process.env.DB_PORT || 5432,
       database: process.env.DB_NAME,
       user: process.env.DB_USER,
@@ -31,7 +30,7 @@ const config = {
   test: {
     client: "postgresql",
     connection: {
-      host: isCI ? "db" : process.env.DB_HOST,
+      host: process.env.DB_HOST,
       port: process.env.DB_PORT || 5432,
       database: process.env.TEST_DB_NAME,
       user: process.env.DB_USER,
