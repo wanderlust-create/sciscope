@@ -37,7 +37,7 @@ jobs:
 
       - run:
           name: Debug Environment Variables
-          command: env | grep POSTGRES || true
+          command: env | sort
 
       - run:
           name: Print environment var
