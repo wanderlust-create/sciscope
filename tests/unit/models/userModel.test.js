@@ -12,16 +12,16 @@ afterAll(async () => {
 
 describe("User Model", () => {
   beforeEach(async () => {
-    await db("users").del(); // Clear users table before each test
+    await db("users").del();
   });
 
   // 🔹 Test Required Fields
   test("should require email and username", async () => {
     await expect(
-      User.query().insert({ password_hash: "password123" })
+      User.query().insert({ password_hash: "password123" }),
     ).rejects.toThrow();
     await expect(
-      User.query().insert({ username: "testuser" })
+      User.query().insert({ username: "testuser" }),
     ).rejects.toThrow();
   });
 
@@ -38,7 +38,7 @@ describe("User Model", () => {
         username: "user2",
         email: "test@example.com",
         password_hash: await bcrypt.hash("password456", 10),
-      })
+      }),
     ).rejects.toThrow(/duplicate key value violates unique constraint/);
   });
 
@@ -55,7 +55,7 @@ describe("User Model", () => {
         username: "duplicateuser",
         email: "user2@example.com",
         password_hash: await bcrypt.hash("password456", 10),
-      })
+      }),
     ).rejects.toThrow(/duplicate key value violates unique constraint/);
   });
 
@@ -73,8 +73,6 @@ describe("User Model", () => {
       .where({ email: "secure@example.com" })
       .first();
 
-    console.log("DEBUG: Retrieved User from DB →", dbUser);
-
     expect(dbUser).toBeDefined();
     expect(dbUser.passwordHash).toBeDefined();
     expect(dbUser.passwordHash).not.toBe(rawPassword);
@@ -90,7 +88,7 @@ describe("User Model", () => {
         username: "invalidemail",
         email: "not-an-email",
         password_hash: await bcrypt.hash("password123", 10),
-      })
+      }),
     ).rejects.toThrow();
   });
 

@@ -40,7 +40,7 @@ class User extends Model {
 
     if (!password_hash && !oauth_provider) {
       throw new Error(
-        "Either `password_hash` or `oauth_provider` is required."
+        "Either `password_hash` or `oauth_provider` is required.",
       );
     }
   }

@@ -12,4 +12,4 @@ export async function down(knex) {
     table.dropColumn("oauth_id");
     table.string("password_hash", 255).notNullable().alter();
   });
-};
+}

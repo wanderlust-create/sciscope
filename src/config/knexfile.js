@@ -9,7 +9,6 @@ const __dirname = path.dirname(__filename);
 // Load .env file
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-
 const config = {
   development: {
     client: "postgresql",
