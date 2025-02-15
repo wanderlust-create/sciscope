@@ -1,4 +1,4 @@
-import NewsService from "../services/newsService.js";
+import NewsService from "../../../services/newsService.js";
 import { jest } from "@jest/globals";
 
 const mockNews = [
