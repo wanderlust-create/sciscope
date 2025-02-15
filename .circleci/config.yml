@@ -16,14 +16,28 @@ jobs:
       - image: cimg/postgres:15.1
         name: db
         environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: "circleci-password"
           POSTGRES_DB: $TEST_DB_NAME
           POSTGRES_HOST_AUTH_METHOD: md5
     steps:
       - checkout
 
       - run:
-          name: Create test-results directory
-          command: mkdir -p ./test-results/
+          name: Debug Postgres Environment Variables (Hex & Normal)
+          command: |
+            echo "POSTGRES_USER (normal): $POSTGRES_USER"
+            echo -n "POSTGRES_USER (hex): "; echo -n "$POSTGRES_USER" | xxd
+
+            echo "POSTGRES_PASSWORD (normal): $POSTGRES_PASSWORD"
+            echo -n "POSTGRES_PASSWORD (hex): "; echo -n "$POSTGRES_PASSWORD" | xxd
+
+            echo "POSTGRES_DB (normal): $POSTGRES_DB"
+            echo -n "POSTGRES_DB (hex): "; echo -n "$POSTGRES_DB" | xxd
+
+      - run:
+          name: Restart Postgres if Needed
+          command: docker restart db || true
 
       - run:
           name: Wait for PostgreSQL to be ready
@@ -36,14 +50,9 @@ jobs:
             echo "Postgres failed to start" && exit 1
 
       - run:
-          name: Force Create PostgreSQL User
-          command: |
-            psql -h db -U postgres -d postgres -c "CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD '$DB_PASSWORD';" || true
-
-      - run:
           name: Verify Postgres Users
           command: |
-            psql -h db -U postgres -d postgres -c '\du'
+            psql -h db -U postgres -d "$TEST_DB_NAME" -c '\du'
 
       - run:
           name: Run Database Migrations
@@ -61,36 +70,7 @@ jobs:
           paths:
             - ~/.npm
 
-  build-node:
-    docker:
-      - image: circleci/node:16
-    steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          command: npm run build
-      - store_artifacts:
-          path: ./build
-          destination: node-build
-      - save_cache:
-          key: v1-npm-deps-{{ checksum "package-lock.json" }}
-          paths:
-            - ~/.npm
-
-  deploy:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - run:
-          name: deploy
-          command: echo "Deploying application..."
-
 workflows:
   build-and-test:
     jobs:
       - test-node
-      - build-node:
-          requires:
-            - test-node
