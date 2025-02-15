@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - dev
-      - '**'  # Trigger on all branches
+      - "**" # Trigger on all branches
   pull_request:
     branches:
       - main
@@ -37,7 +37,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
+
+      - name: Check Node.js version
+        run: node -v
 
       - name: Install dependencies
         run: npm ci
