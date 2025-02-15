@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import knex from "knex";
 import { Model } from "objection";
-import knexConfig from "../config/knexfile.js";
+import knexConfig from "./knexfile.js";
 
 dotenv.config();
 

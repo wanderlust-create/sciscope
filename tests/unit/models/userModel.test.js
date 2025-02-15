@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import db from "../../../src/loaders/dbSetup.js";
+import db from "../../../src/config/db.js";
 import User from "../../../src/models/User.js";
 
 beforeAll(async () => {

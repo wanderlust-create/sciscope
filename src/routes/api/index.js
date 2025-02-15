@@ -1,5 +1,5 @@
 import express from "express";
-import newsRoutes from "./api/newsRoutes.js";
+import newsRoutes from "./newsRoutes.js";
 
 const router = express.Router();
 
