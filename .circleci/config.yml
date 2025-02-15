@@ -12,8 +12,13 @@ jobs:
       - image: cimg/node:16.17
       - image: cimg/postgres:15.1
         name: db
-        environment:
-          POSTGRES_HOST_AUTH_METHOD: md5
+        command: |
+          bash -c "
+            export POSTGRES_USER=$DB_USER &&
+            export POSTGRES_PASSWORD=$DB_PASSWORD &&
+            export POSTGRES_DB=$TEST_DB_NAME &&
+            docker-entrypoint.sh postgres
+          "
 
     steps:
       - checkout
