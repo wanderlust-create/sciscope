@@ -29,22 +29,21 @@ class User extends Model {
     };
   }
 
-  static async beforeInsert({ username, email, password_hash, oauth_provider }) {
-    if (!password_hash && !oauth_provider) {
-      throw new Error("Either `password_hash` or `oauth_provider` is required.");
+  static async beforeInsert(args) {
+    const data = args.inputItems?.[0];
+
+    if (!data) {
+      throw new Error("beforeInsert received no data!");
     }
 
+    const { password_hash, oauth_provider } = data;
 
-    const existingUser = await this.query()
-      .where({ email })
-      .orWhere({ username })
-      .first();
-
-    if (existingUser) {
-      throw new Error("Username or email already exists.");
+    if (!password_hash && !oauth_provider) {
+      throw new Error(
+        "Either `password_hash` or `oauth_provider` is required."
+      );
     }
   }
 }
 
 export default User;
-
