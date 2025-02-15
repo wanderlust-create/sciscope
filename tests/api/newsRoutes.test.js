@@ -1,6 +1,6 @@
 import request from "supertest";
-import createServer from "../../loaders/server.js";
-import NewsService from "../../services/newsService.js";
+import createServer from "../../src/loaders/server.js"
+import NewsService from "../../src/services/newsService.js";
 import { jest } from "@jest/globals";
 
 const app = createServer();

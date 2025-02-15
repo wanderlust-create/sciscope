@@ -22,7 +22,7 @@ const config = {
     },
     pool: { min: 2, max: 10 },
     migrations: {
-      directory: path.resolve(__dirname, "../../src/db/migrations"),
+      directory: path.resolve(__dirname, "../../db/migrations"),
       tableName: "knex_migrations",
     },
     ...knexSnakeCaseMappers(),
@@ -37,7 +37,7 @@ const config = {
       password: process.env.DB_PASSWORD,
     },
     migrations: {
-      directory: path.resolve(__dirname, "../../src/db/migrations"),
+      directory: path.resolve(__dirname, "../../db/migrations"),
       tableName: "knex_migrations",
     },
     ...knexSnakeCaseMappers(),

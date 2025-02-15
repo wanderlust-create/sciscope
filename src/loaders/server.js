@@ -1,7 +1,7 @@
 import express from "express";
 import morgan from "morgan";
-import apiRoutes from "../routes/index.js";
-import apiErrorHandler from "../middleware/apiErrorHandler.js";
+import apiRoutes from "../routes/api/index.js";
+import apiErrorHandler from "../middleware/api/errorHandler.js";
 import dotenv from "dotenv";
 
 dotenv.config();

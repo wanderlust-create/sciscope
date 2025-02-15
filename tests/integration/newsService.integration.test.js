@@ -1,5 +1,5 @@
 import axios from "axios";
-import { fetchScienceNews } from "../../services/newsService.js";
+import { fetchScienceNews } from "../../src/services/newsService";
 
 describe("News Service (Integration Test)", () => {
   afterAll(() => {

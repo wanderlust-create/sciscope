@@ -1,12 +1,11 @@
-import createServer from "./src/loaders/server.js";
 import dotenv from "dotenv";
-import db from "./src/loaders/dbSetup.js";
-import logger from "./src/loaders/logger.js";
-
 dotenv.config();
 
-const PORT = process.env.PORT || 8080;
+import createServer from "./src/loaders/server.js";
+import db from "./src/config/db.js";
+import logger from "./src/loaders/logger.js";
 
+const PORT = process.env.PORT || 8080;
 const app = createServer();
 
 app.listen(PORT, async () => {
