@@ -62,6 +62,12 @@ jobs:
           name: Verify Postgres Users
           command: |
             psql -h db -U postgres -d "$POSTGRES_DB" -c '\du'
+      - run:
+          name: Ensure Database Exists
+          command: |
+            echo "Checking if database exists..."
+            psql -h db -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_database WHERE datname = '$POSTGRES_DB';" | grep -q 1 ||
+            psql -h db -U "$POSTGRES_USER" -c "CREATE DATABASE $POSTGRES_DB;"
 
       - run:
           name: Run Database Migrations
