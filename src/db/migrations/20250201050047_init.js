@@ -1,4 +1,4 @@
-exports.up = async function (knex) {
+export async function up(knex) {
   // Create sources table
   await knex.schema.createTable("sources", (table) => {
     table.increments("id").primary();
@@ -7,7 +7,7 @@ exports.up = async function (knex) {
     table.text("url").notNullable();
   });
 
-  // Create authors table with separate first_name and last_name fields
+  // Create authors table
   await knex.schema.createTable("authors", (table) => {
     table.increments("id").primary();
     table.string("first_name", 255).notNullable();
@@ -16,7 +16,7 @@ exports.up = async function (knex) {
     table.text("website");
   });
 
-  // Create articles table, linking to sources and authors
+  // Create articles table
   await knex.schema.createTable("articles", (table) => {
     table.increments("id").primary();
     table.text("title").notNullable();
@@ -51,7 +51,7 @@ exports.up = async function (knex) {
     table.timestamp("updated_at").defaultTo(knex.fn.now());
   });
 
-  // Create bookmark_groups table for user-defined groups
+  // Create bookmark_groups table
   await knex.schema.createTable("bookmark_groups", (table) => {
     table.increments("id").primary();
     table
@@ -64,7 +64,7 @@ exports.up = async function (knex) {
     table.timestamp("created_at").defaultTo(knex.fn.now());
   });
 
-  // Create user_bookmarks table (linking a user with an article)
+  // Create user_bookmarks table
   await knex.schema.createTable("user_bookmarks", (table) => {
     table.increments("id").primary();
     table
@@ -83,7 +83,7 @@ exports.up = async function (knex) {
     table.unique(["user_id", "article_id"]);
   });
 
-  // Create join table for bookmark group assignments (many-to-many)
+  // Create bookmark_group_assignments table
   await knex.schema.createTable("bookmark_group_assignments", (table) => {
     table.increments("id").primary();
     table
@@ -101,10 +101,9 @@ exports.up = async function (knex) {
     table.timestamp("assigned_at").defaultTo(knex.fn.now());
     table.unique(["user_bookmark_id", "bookmark_group_id"]);
   });
-};
+}
 
-exports.down = async function (knex) {
-  // Drop tables in reverse order to avoid foreign key issues
+export async function down(knex) {
   await knex.schema.dropTableIfExists("bookmark_group_assignments");
   await knex.schema.dropTableIfExists("user_bookmarks");
   await knex.schema.dropTableIfExists("bookmark_groups");
@@ -112,4 +111,4 @@ exports.down = async function (knex) {
   await knex.schema.dropTableIfExists("articles");
   await knex.schema.dropTableIfExists("authors");
   await knex.schema.dropTableIfExists("sources");
-};
+}
