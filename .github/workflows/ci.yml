@@ -21,6 +21,7 @@ jobs:
           POSTGRES_USER: ${{ secrets.DB_USER }}
           POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
           POSTGRES_DB: ${{ secrets.TEST_DB_NAME }}
+          POSTGRES_HOST_AUTH_METHOD: md5
         ports:
           - 5432:5432
         options: >-
@@ -45,6 +46,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Debug DATABASE_URL
+        run: |
+          echo "DATABASE_URL is: postgres://${{ secrets.DB_USER }}:********@localhost:5432/${{ secrets.TEST_DB_NAME }}"
+
       - name: Wait for PostgreSQL to be ready
         run: |
           for i in {1..30}; do
@@ -56,7 +61,7 @@ jobs:
 
       - name: Run migrations
         env:
-          DATABASE_URL: "postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:5432/${{ secrets.TEST_DB_NAME }}"
+          DATABASE_URL: "postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:5432/${{ secrets.TEST_DB_NAME }}?sslmode=disable"
         run: |
           npx knex migrate:latest --env test --knexfile ./src/config/knexfile.js
 
