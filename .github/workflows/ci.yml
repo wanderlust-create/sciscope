@@ -64,8 +64,8 @@ jobs:
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "TEST_DB_NAME=${{ secrets.TEST_DB_NAME }}" >> .env
-          echo "DATABASE_URL=postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:5432/${{ secrets.TEST_DB_NAME }}?sslmode=disable" >> .env
           echo "NEWS_API_KEY=${{ secrets.NEWS_API_KEY }}" >> .env
+          echo "DATABASE_URL=postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:5432/${{ secrets.TEST_DB_NAME }}?sslmode=disable" >> .env
 
       - name: Run migrations
         run: |
