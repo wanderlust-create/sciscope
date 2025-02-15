@@ -1,5 +1,5 @@
-import NewsService from "../../../services/newsService.js";
 import { jest } from "@jest/globals";
+import NewsService from "../../../src/services/newsService.js";
 
 const mockNews = [
   {
@@ -30,7 +30,7 @@ describe("News Service", () => {
       .mockRejectedValueOnce(new Error("Failed to fetch news"));
 
     await expect(NewsService.fetchScienceNews()).rejects.toThrow(
-      "Failed to fetch news",
+      "Failed to fetch news"
     );
   });
 });
