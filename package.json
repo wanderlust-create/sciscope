@@ -15,7 +15,8 @@
     "rollback": "knex migrate:rollback --knexfile ./db/knexfile.js",
     "seed": "knex seed:run --knexfile ./db/knexfile.js",
     "docker:up": "docker-compose up --build",
-    "docker:down": "docker-compose down"
+    "docker:down": "docker-compose down",
+    "schema": "pg_dump --dbname=sciscope_db --schema-only > db/schemas/schema.sql"
   },
   "dependencies": {
     "axios": "^1.7.9",
