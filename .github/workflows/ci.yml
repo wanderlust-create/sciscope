@@ -59,9 +59,14 @@ jobs:
           done
           echo "Postgres failed to start" && exit 1
 
+      - name: Create .env file
+        run: |
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "TEST_DB_NAME=${{ secrets.TEST_DB_NAME }}" >> .env
+          echo "DATABASE_URL=postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:5432/${{ secrets.TEST_DB_NAME }}?sslmode=disable" >> .env
+
       - name: Run migrations
-        env:
-          DATABASE_URL: "postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:5432/${{ secrets.TEST_DB_NAME }}?sslmode=disable"
         run: |
           npx knex migrate:latest --env test --knexfile ./src/config/knexfile.js
 
