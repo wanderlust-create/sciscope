@@ -18,10 +18,10 @@ describe("User Model", () => {
   // 🔹 Test Required Fields
   test("should require email and username", async () => {
     await expect(
-      User.query().insert({ password_hash: "password123" }),
+      User.query().insert({ password_hash: "password123" })
     ).rejects.toThrow();
     await expect(
-      User.query().insert({ username: "testuser" }),
+      User.query().insert({ username: "testuser" })
     ).rejects.toThrow();
   });
 
@@ -38,7 +38,7 @@ describe("User Model", () => {
         username: "user2",
         email: "test@example.com",
         password_hash: await bcrypt.hash("password456", 10),
-      }),
+      })
     ).rejects.toThrow(/duplicate key value violates unique constraint/);
   });
 
@@ -55,22 +55,32 @@ describe("User Model", () => {
         username: "duplicateuser",
         email: "user2@example.com",
         password_hash: await bcrypt.hash("password456", 10),
-      }),
+      })
     ).rejects.toThrow(/duplicate key value violates unique constraint/);
   });
 
   // 🔹 Test Password Hashing
   test("should hash the password before saving", async () => {
+    const rawPassword = "securepass"; // Store raw password for comparison
+
     const user = await User.query().insert({
       username: "secureuser",
       email: "secure@example.com",
-      password_hash: await bcrypt.hash("securepass", 10),
+      password_hash: await bcrypt.hash(rawPassword, 10),
     });
 
     const dbUser = await db("users")
       .where({ email: "secure@example.com" })
       .first();
-    expect(dbUser.password_hash).not.toBe("securepass");
+
+    console.log("DEBUG: Retrieved User from DB →", dbUser);
+
+    expect(dbUser).toBeDefined();
+    expect(dbUser.passwordHash).toBeDefined();
+    expect(dbUser.passwordHash).not.toBe(rawPassword);
+
+    const isMatch = await bcrypt.compare(rawPassword, dbUser.passwordHash);
+    expect(isMatch).toBe(true); // ✅ Hashed password should match original input
   });
 
   // 🔹 Test Invalid Email Format
@@ -80,7 +90,7 @@ describe("User Model", () => {
         username: "invalidemail",
         email: "not-an-email",
         password_hash: await bcrypt.hash("password123", 10),
-      }),
+      })
     ).rejects.toThrow();
   });
 
