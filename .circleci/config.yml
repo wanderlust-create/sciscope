@@ -57,6 +57,12 @@ jobs:
               sleep 1
             done
             echo "Postgres failed to start" && exit 1
+      - run:
+          name: Force Create Database If Missing
+          command: |
+            echo "Checking if database exists..."
+            psql -h db -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = '$POSTGRES_DB';" | grep -q 1 ||
+            psql -h db -U postgres -c "CREATE DATABASE $POSTGRES_DB OWNER $POSTGRES_USER;"
 
       - run:
           name: Verify Postgres Users
