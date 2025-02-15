@@ -75,14 +75,11 @@ jobs:
             psql -h db -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_database WHERE datname = '$POSTGRES_DB';" | grep -q 1 ||
             psql -h db -U "$POSTGRES_USER" -c "CREATE DATABASE $POSTGRES_DB;"
       - run:
-          name: Ensure Knex is Installed
+          name: Ensure Knex is Installed Locally
           command: |
-            if ! npx knex --version > /dev/null 2>&1; then
-              echo "Knex is missing. Installing globally..."
-              npm install -g knex
-            else
-              echo "Knex is already installed."
-            fi
+            cd ~/project  # Ensure we're in the project directory
+            npm install knex
+
 
       - run:
           name: Run Database Migrations
