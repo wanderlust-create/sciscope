@@ -20,136 +20,102 @@ jobs:
           POSTGRES_PASSWORD: $DB_PASSWORD
           POSTGRES_DB: $TEST_DB_NAME
           POSTGRES_HOST_AUTH_METHOD: md5
-    steps:
-      - checkout
+steps:
+  - checkout
 
-      - run:
-          name: Create test-results directory
-          command: mkdir -p ./test-results/
+  - run:
+      name: Create test-results directory
+      command: mkdir -p ./test-results/
 
-      - run:
-          name: Print environment variables in hex
-          command: |
-            for var in DB_USER DB_PASSWORD TEST_DB_NAME DB_HOST; do
-              echo "$var in raw form (hex):"
-              echo -n "${!var}" | xxd
-              echo ""
-            done
+  - run:
+      name: Print environment variables in hex
+      command: |
+        for var in DB_USER DB_PASSWORD TEST_DB_NAME DB_HOST; do
+          echo "$var in raw form (hex):"
+          echo -n "${!var}" | xxd
+          echo ""
+        done
 
-      - run:
-          name: Debug Environment Variables
-          command: env | sort
+  - run:
+      name: Debug Environment Variables
+      command: env | sort
 
-      - run:
-          name: Print environment var
-          command: echo "DB_USER=${DB_USER}"
+  - run:
+      name: Print environment var
+      command: echo "DB_USER=${DB_USER}"
 
-      - run:
-          name: Create .env file
-          command: |
-            echo "DB_USER=${DB_USER}" >> .env
-            echo "DB_PORT=${DB_PORT}" >> .env
-            echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
-            echo "TEST_DB_NAME=${TEST_DB_NAME}" >> .env
+  - run:
+      name: Create .env file
+      command: |
+        echo "DB_USER=${DB_USER}" >> .env
+        echo "DB_PORT=${DB_PORT}" >> .env
+        echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+        echo "TEST_DB_NAME=${TEST_DB_NAME}" >> .env
 
-      - node/install-packages:
-          pkg-manager: npm
+  - node/install-packages:
+      pkg-manager: npm
 
-      - run:
-          name: Wait for PostgreSQL to be ready
-          command: |
-            for i in {1..30}; do
-              nc -z db 5432 && echo "Postgres is ready" && exit 0
-              echo "Waiting for Postgres..."
-              sleep 1
-            done
-            echo "Postgres failed to start" && exit 1
+  - run:
+      name: Wait for PostgreSQL to be ready
+      command: |
+        for i in {1..30}; do
+          nc -z db 5432 && echo "Postgres is ready" && exit 0
+          echo "Waiting for Postgres..."
+          sleep 1
+        done
+        echo "Postgres failed to start" && exit 1
 
-      - run:
-          name: Debug DB env
-          command: |
-            echo "DB_USER=$DB_USER"
-            echo "DB_PASSWORD=$DB_PASSWORD"
-            echo "TEST_DB_NAME=$TEST_DB_NAME"
-            echo "DB_HOST=$DB_HOST"
+  - run:
+      name: Debug DB env
+      command: |
+        echo "DB_USER=$DB_USER"
+        echo "DB_PASSWORD=$DB_PASSWORD"
+        echo "TEST_DB_NAME=$TEST_DB_NAME"
+        echo "DB_HOST=$DB_HOST"
 
-      - run:
-          name: Install PostgreSQL client
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y postgresql-client
+  - run:
+      name: Install PostgreSQL Client
+      command: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      - run:
-          name: psql check
-          command: |
-            psql -h db -U "$DB_USER" -c 'SELECT version();' "$TEST_DB_NAME"
+  - run:
+      name: Force Create PostgreSQL User
+      command: |
+        psql -h db -U postgres -d "$TEST_DB_NAME" -c "DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'postgres') THEN CREATE ROLE postgres WITH LOGIN SUPERUSER PASSWORD '$DB_PASSWORD'; END IF; END $$;"
 
-      - run:
-          name: Debug Environment Variables
-          command: env | grep POSTGRES || true
+  - run:
+      name: Verify Postgres Users
+      command: |
+        psql -h db -U postgres -d "$TEST_DB_NAME" -c '\du'
 
-      - run:
-          name: Run Database Migrations
-          command: npx knex migrate:latest --env test --knexfile ./src/config/knexfile.js
+  - run:
+      name: Reset Postgres Password
+      command: |
+        psql -h db -U postgres -d "$TEST_DB_NAME" -c "ALTER ROLE postgres WITH PASSWORD '$DB_PASSWORD';"
 
-      - run:
-          command: npm install jest-junit
+  - run:
+      name: psql check
+      command: |
+        psql -h db -U "$DB_USER" -d "$TEST_DB_NAME" -c 'SELECT version();'
 
-      - run:
-          name: Run Tests
-          command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
+  - run:
+      name: Debug Environment Variables
+      command: env | grep POSTGRES || true
 
-      - store_test_results:
-          path: ./test-results/
+  - run:
+      name: Run Database Migrations
+      command: npx knex migrate:latest --env test --knexfile ./src/config/knexfile.js
 
-      - save_cache:
-          key: v1-npm-deps-{{ checksum "package-lock.json" }}
-          paths:
-            - ~/.npm
+  - run:
+      command: npm install jest-junit
 
-  build-node:
-    docker:
-      - image: circleci/node:16
-    steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          command: npm run build
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      - run:
-          name: Copy artifacts
-          command: |
-            # Make sure these directories exist before copying:
-            mkdir -p build dist public .output .next .docusaurus
-            cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
-      - save_cache:
-          key: v1-npm-deps-{{ checksum "package-lock.json" }}
-          paths:
-            - ~/.npm
+  - run:
+      name: Run Tests
+      command: npm run test --ci --runInBand --reporters=default --reporters=jest-junit
 
-  deploy:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - run:
-          name: deploy
-          command: |
-            echo "Deploying application..."
-            # e.g. ./deploy.sh
-            # If you actually have a deploy.sh script, uncomment:
-            # ./deploy.sh
+  - store_test_results:
+      path: ./test-results/
 
-workflows:
-  build-and-test:
-    jobs:
-      - test-node
-      - build-node:
-          requires:
-            - test-node
+  - save_cache:
+      key: v1-npm-deps-{{ checksum "package-lock.json" }}
+      paths:
+        - ~/.npm
