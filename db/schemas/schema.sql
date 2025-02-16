@@ -101,6 +101,41 @@ ALTER SEQUENCE public.authors_id_seq OWNED BY public.authors.id;
 
 
 --
+-- Name: blacklisted_tokens; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.blacklisted_tokens (
+    id integer NOT NULL,
+    token character varying(255) NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.blacklisted_tokens OWNER TO postgres;
+
+--
+-- Name: blacklisted_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.blacklisted_tokens_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.blacklisted_tokens_id_seq OWNER TO postgres;
+
+--
+-- Name: blacklisted_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.blacklisted_tokens_id_seq OWNED BY public.blacklisted_tokens.id;
+
+
+--
 -- Name: bookmark_group_assignments; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -369,6 +404,13 @@ ALTER TABLE ONLY public.authors ALTER COLUMN id SET DEFAULT nextval('public.auth
 
 
 --
+-- Name: blacklisted_tokens id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.blacklisted_tokens ALTER COLUMN id SET DEFAULT nextval('public.blacklisted_tokens_id_seq'::regclass);
+
+
+--
 -- Name: bookmark_group_assignments id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -439,6 +481,22 @@ ALTER TABLE ONLY public.articles
 
 ALTER TABLE ONLY public.authors
     ADD CONSTRAINT authors_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: blacklisted_tokens blacklisted_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.blacklisted_tokens
+    ADD CONSTRAINT blacklisted_tokens_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: blacklisted_tokens blacklisted_tokens_token_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.blacklisted_tokens
+    ADD CONSTRAINT blacklisted_tokens_token_unique UNIQUE (token);
 
 
 --
