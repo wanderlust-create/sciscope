@@ -1,19 +1,19 @@
-import dotenv from "dotenv";
-import { knexSnakeCaseMappers } from "objection";
-import path from "path";
-import { fileURLToPath } from "url";
+import dotenv from 'dotenv';
+import { knexSnakeCaseMappers } from 'objection';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load .env file
-dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const config = {
   development: {
-    client: "postgresql",
+    client: 'postgresql',
     connection: {
-      host: process.env.DB_HOST || "127.0.0.1",
+      host: process.env.DB_HOST || '127.0.0.1',
       port: process.env.DB_PORT || 5432,
       database: process.env.DB_NAME,
       user: process.env.DB_USER,
@@ -21,13 +21,13 @@ const config = {
     },
     pool: { min: 2, max: 10 },
     migrations: {
-      directory: path.resolve(__dirname, "../../db/migrations"),
-      tableName: "knex_migrations",
+      directory: path.resolve(__dirname, '../../db/migrations'),
+      tableName: 'knex_migrations',
     },
     ...knexSnakeCaseMappers(),
   },
   test: {
-    client: "postgresql",
+    client: 'postgresql',
     connection: {
       host: process.env.DB_HOST,
       port: process.env.DB_PORT || 5432,
@@ -36,8 +36,8 @@ const config = {
       password: process.env.DB_PASSWORD,
     },
     migrations: {
-      directory: path.resolve(__dirname, "../../db/migrations"),
-      tableName: "knex_migrations",
+      directory: path.resolve(__dirname, '../../db/migrations'),
+      tableName: 'knex_migrations',
     },
     ...knexSnakeCaseMappers(),
   },

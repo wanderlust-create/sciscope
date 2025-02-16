@@ -1,30 +1,44 @@
-import { Model } from "objection";
+import { Model } from 'objection';
 
 class User extends Model {
   static get tableName() {
-    return "users";
+    return 'users';
   }
 
   static get jsonSchema() {
     return {
-      type: "object",
-      required: ["username", "email"],
+      type: 'object',
+      required: ['username', 'email'],
 
       properties: {
-        id: { type: "integer" },
-        username: { type: "string", minLength: 3, maxLength: 255 },
-        email: { type: "string", format: "email" },
-        password_hash: { type: ["string", "null"] },
-        oauth_provider: { type: ["string", "null"] },
-        oauth_id: { type: ["string", "null"] },
+        id: { type: 'integer' },
+        username: { type: 'string', minLength: 3, maxLength: 255 },
+        email: { type: 'string', format: 'email' },
+        password_hash: { type: ['string', 'null'] }, // 🔹 DB uses this
+        oauth_provider: { type: ['string', 'null'] },
+        oauth_id: { type: ['string', 'null'] },
       },
     };
+  }
+
+  static get virtualAttributes() {
+    return ['passwordHash'];
+  }
+
+  // ✅ Virtual Getter for JS-friendly property
+  get passwordHash() {
+    return this.password_hash;
+  }
+
+  // ✅ Virtual Setter for consistency
+  set passwordHash(value) {
+    this.password_hash = value;
   }
 
   static get modifiers() {
     return {
       selectWithoutPassword(query) {
-        query.select("id", "username", "email", "oauth_provider", "oauth_id");
+        query.select('id', 'username', 'email', 'oauth_provider', 'oauth_id');
       },
     };
   }
@@ -33,15 +47,13 @@ class User extends Model {
     const data = args.inputItems?.[0];
 
     if (!data) {
-      throw new Error("beforeInsert received no data!");
+      throw new Error('beforeInsert received no data!');
     }
 
-    const { password_hash, oauth_provider } = data;
+    const { passwordHash, oauth_provider } = data; // 🔹 Use `passwordHash`
 
-    if (!password_hash && !oauth_provider) {
-      throw new Error(
-        "Either `password_hash` or `oauth_provider` is required.",
-      );
+    if (!passwordHash && !oauth_provider) {
+      throw new Error('Either `passwordHash` or `oauth_provider` is required.');
     }
   }
 }
