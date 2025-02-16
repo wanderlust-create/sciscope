@@ -9,8 +9,9 @@ const app = createServer();
 beforeAll(async () => {
   await db.migrate.latest();
 });
+
 afterEach(async () => {
-  await db('users').del(); // Clears all users between tests
+  await db('users').del();
 });
 
 afterAll(async () => {
@@ -18,10 +19,6 @@ afterAll(async () => {
 }, 10000);
 
 describe('Authentication Controller', () => {
-  beforeEach(async () => {
-    await db('users').del();
-  });
-
   // 🔹 Email & Password Signup
   test('should sign up a user with email & password', async () => {
     const res = await request(app).post('/api/v1/auth/signup').send({
@@ -40,7 +37,7 @@ describe('Authentication Controller', () => {
     await User.query().insert({
       username: 'existinguser',
       email: 'duplicate@example.com',
-      password_hash: 'hashedpassword',
+      password_hash: await bcrypt.hash('securepassword123', 10),
     });
 
     const res = await request(app).post('/api/v1/auth/signup').send({
@@ -124,6 +121,7 @@ describe('Authentication Controller', () => {
     expect(res.body).toHaveProperty('token');
   });
 
+  // 🔹 Logout & Token Blacklisting
   test('should log out a user and blacklist the token', async () => {
     const signupRes = await request(app).post('/api/v1/auth/signup').send({
       username: 'testuser',
@@ -131,8 +129,12 @@ describe('Authentication Controller', () => {
       password: 'securepassword123',
     });
 
+    // ✅ Ensure token was returned
+    expect(signupRes.status).toBe(201);
+    expect(signupRes.body).toHaveProperty('token');
     const token = signupRes.body.token;
 
+    // ✅ Logout request
     const logoutRes = await request(app)
       .post('/api/v1/auth/logout')
       .set('Authorization', `Bearer ${token}`);
@@ -140,7 +142,13 @@ describe('Authentication Controller', () => {
     expect(logoutRes.status).toBe(200);
     expect(logoutRes.body).toHaveProperty('message', 'Logout successful');
 
-    // Try using the token again
+    // ✅ Check if token is blacklisted
+    const blacklistedToken = await db('blacklisted_tokens')
+      .where({ token })
+      .first();
+    expect(blacklistedToken).toBeDefined(); // ✅ Ensure token is in the blacklist
+
+    // ✅ Try using the token again on a protected route
     const protectedRes = await request(app)
       .get('/api/v1/protected-route')
       .set('Authorization', `Bearer ${token}`);
