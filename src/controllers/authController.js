@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import logger from '../loaders/logger.js';
 import User from '../models/User.js';
+import db from '../config/db.js';
 import {
   findUserByEmail,
   generateToken,
@@ -113,6 +114,26 @@ const AuthController = {
       });
     } catch (error) {
       logger.error('❌ Error in OAuth login', { error: error.message });
+      return res.status(500).json({ error: 'Server error' });
+    }
+  },
+  // 🔹 Logout
+  async logout(req, res) {
+    logger.info('📨 Received logout request');
+    try {
+      const token = req.headers.authorization?.split(' ')[1];
+
+      if (!token) {
+        return res.status(400).json({ error: 'No token provided' });
+      }
+      // Add token to the blacklist
+      await db('blacklisted_tokens').insert({ token });
+
+      logger.info('🚪 User logged out, token blacklisted');
+
+      return res.status(200).json({ message: 'Logout successful' });
+    } catch (error) {
+      logger.error('❌ Error in logout', { error: error.message });
       return res.status(500).json({ error: 'Server error' });
     }
   },
