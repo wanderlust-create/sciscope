@@ -18,10 +18,10 @@ describe("User Model", () => {
   // 🔹 Test Required Fields
   test("should require email and username", async () => {
     await expect(
-      User.query().insert({ password_hash: "password123" }),
+      User.query().insert({ password_hash: "password123" })
     ).rejects.toThrow();
     await expect(
-      User.query().insert({ username: "testuser" }),
+      User.query().insert({ username: "testuser" })
     ).rejects.toThrow();
   });
 
@@ -55,7 +55,7 @@ describe("User Model", () => {
         username: "duplicateuser",
         email: "user2@example.com",
         password_hash: await bcrypt.hash("password456", 10),
-      }),
+      })
     ).rejects.toThrow(/duplicate key value violates unique constraint/);
   });
 
@@ -88,7 +88,7 @@ describe("User Model", () => {
         username: "invalidemail",
         email: "not-an-email",
         password_hash: await bcrypt.hash("password123", 10),
-      }),
+      })
     ).rejects.toThrow();
   });
 
