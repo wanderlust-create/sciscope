@@ -1,6 +1,6 @@
-import axios from "axios";
-import dotenv from "dotenv";
-import logger from "../loaders/logger.js";
+import axios from 'axios';
+import dotenv from 'dotenv';
+import logger from '../loaders/logger.js';
 
 dotenv.config();
 
@@ -19,15 +19,15 @@ export async function fetchScienceNews() {
 
     if (response.status !== 200) {
       logger.error(`❌ API Error: ${response.status} - ${response.statusText}`);
-      throw new Error("Failed to fetch news");
+      throw new Error('Failed to fetch news');
     }
 
     return response.data.articles || [];
   } catch (error) {
     logger.error(
-      `❌ Error fetching news: ${error.response?.status} - ${error.response?.statusText || error.message}`,
+      `❌ Error fetching news: ${error.response?.status} - ${error.response?.statusText || error.message}`
     );
-    throw new Error("Failed to fetch news");
+    throw new Error('Failed to fetch news');
   }
 }
 
