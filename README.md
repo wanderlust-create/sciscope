@@ -78,20 +78,36 @@
 
 ```
 SciScope/
-│── src/
-│   ├── config/            # Database and environment configuration
-│   ├── controllers/       # Handles business logic
-│   ├── db/                # Database migrations and seeds
-│   ├── loaders/           # App initialization and server setup
-│   ├── middleware/        # Authentication & error handling
-│   ├── models/            # Database models using Objection.js
-│   ├── routes/            # API route definitions
-│   ├── services/          # External API integrations (news, etc.)
-│   ├── tests/             # Unit and integration tests
-│── .env                   # Environment variables
-│── package.json           # Project dependencies
-│── knexfile.js            # Knex configuration
-│── README.md              # Project documentation
+│── .github/
+│   ├── workflows/
+│   │   ├── ci.yml
+│── coverage/                # Test coverage reports
+│── db/                      # Database-related files
+│   ├── migrations/          # Database migration files
+│   ├── schemas/             # Database schemas
+│── logs/                    # Application logs
+│── node_modules/            # Installed dependencies
+│── src/                     # Application source code
+│   ├── config/              # Configuration files (knex, env loader, etc.)
+│   ├── controllers/         # Route controllers
+│   ├── loaders/             # Server initialization & app setup
+│   ├── logs/                # Log handling
+│   ├── middleware/          # Middleware (auth, error handling, etc.)
+│   ├── models/              # Database models (Objection.js)
+│   ├── routes/              # API route definitions
+│   ├── services/            # Business logic & external API calls
+│   ├── utils/               # Utility functions
+│── tests/                   # Automated tests
+│   ├── api/                 # API endpoint tests
+│   ├── integration/         # Integration tests
+│   ├── unit/                # Unit tests
+│   │   ├── models/          # Model unit tests
+│   │   ├── services/        # Service unit tests
+│   ├── globalTeardown.js    # Jest global teardown script
+│   ├── setupTests.js        # Jest setup
+│── .dockerignore            # Docker ignore file
+│── app.js                   # App entry point
+
 ```
 
 ---
