@@ -123,4 +123,29 @@ describe('Authentication Controller', () => {
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('token');
   });
+
+  test('should log out a user and blacklist the token', async () => {
+    const signupRes = await request(app).post('/api/v1/auth/signup').send({
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'securepassword123',
+    });
+
+    const token = signupRes.body.token;
+
+    const logoutRes = await request(app)
+      .post('/api/v1/auth/logout')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(logoutRes.status).toBe(200);
+    expect(logoutRes.body).toHaveProperty('message', 'Logout successful');
+
+    // Try using the token again
+    const protectedRes = await request(app)
+      .get('/api/v1/protected-route')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(protectedRes.status).toBe(401);
+    expect(protectedRes.body).toHaveProperty('error', 'Token has been revoked');
+  });
 });
