@@ -6,8 +6,10 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --forceExit",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --testPathIgnorePatterns=realApi.test.js --forceExit",
+    "test:all": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --forceExit",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:real": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --forceExit tests/integration/newsService.realApi.test.js tests/integration/fetchAndStore.realApi.test.js",
     "lint": "eslint .",
     "format": "prettier --write .",
     "migrate-make": "knex migrate:make init --knexfile src/config/knexfile.js",
