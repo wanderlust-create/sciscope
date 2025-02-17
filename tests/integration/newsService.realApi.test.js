@@ -1,9 +1,17 @@
 import axios from 'axios';
 import { fetchScienceNews } from '../../src/services/newsService';
+import db from '../../src/config/db.js';
 
-describe('News Service (Integration Test)', () => {
-  afterAll(() => {
-    axios.CancelToken.source().cancel('Test cleanup');
+describe('Real API Call (News Service)', () => {
+  let cancelTokenSource;
+
+  beforeAll(() => {
+    cancelTokenSource = axios.CancelToken.source();
+  });
+
+  afterAll(async () => {
+    cancelTokenSource.cancel('Test cleanup'); // ✅ Cancel any pending requests
+    await db.destroy(); // ✅ Properly close DB connection
   });
 
   it('should fetch real science news from the API', async () => {
