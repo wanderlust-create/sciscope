@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 
-export function generateMockArticlesResponse(numArticles = 20) {
+export function generateMockArticlesResponse(numArticles = 5) {
   const articles = Array.from({ length: numArticles }).map(() => ({
     source: {
       id: faker.helpers.maybe(() => faker.string.alphanumeric(10), {
@@ -23,6 +23,6 @@ export function generateMockArticlesResponse(numArticles = 20) {
   return {
     status: 'ok',
     totalResults: numArticles,
-    articles, // ✅ Correct: articles is a direct array, not nested again
+    articles,
   };
 }
