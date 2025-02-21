@@ -1,7 +1,7 @@
 import axios from 'axios';
-import db from '../../src/config/db.js';
-import logger from '../../src/loaders/logger.js';
-import { fetchAndStoreArticles } from '../../src/services/articleService.js';
+import db from '../../../src/config/db.js';
+import logger from '../../../src/loaders/logger.js';
+import { fetchAndStoreArticles } from '../../../src/services/articleService.js';
 
 describe('Fetch & Store Articles (Real API Call)', () => {
   let cancelTokenSource;

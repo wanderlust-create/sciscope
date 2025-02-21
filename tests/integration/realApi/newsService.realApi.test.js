@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { fetchScienceNews } from '../../src/services/newsService';
-import db from '../../src/config/db.js';
+import { fetchScienceNews } from '../../../src/services/newsService.js';
+import db from '../../../src/config/db.js';
 
 describe('Real API Call (News Service)', () => {
   let cancelTokenSource;
