@@ -7,17 +7,17 @@ import { generateMockArticlesResponse } from '../mocks/generateMockArticles.js';
 
 axios.get = jest.fn();
 
+beforeAll(async () => {
+  logger.info('🔄 Initializing test database...');
+  await db('articles').del();
+});
+
+afterAll(async () => {
+  logger.info('🔻 Closing database connection...');
+  await db.destroy();
+});
+
 describe('Fetch & Store Articles (Mocked API Call)', () => {
-  beforeAll(async () => {
-    logger.info('🔄 Initializing test database...');
-    await db('articles').del();
-  });
-
-  afterAll(async () => {
-    logger.info('🔻 Closing database connection...');
-    await db.destroy();
-  });
-
   it('should fetch and store only new articles without duplication', async () => {
     // ✅ Step 1: Fetch & store initial 20 articles
     const initialMockResponse = generateMockArticlesResponse(20);

@@ -1,19 +1,18 @@
 import axios from 'axios';
-import { fetchScienceNews } from '../../../src/services/newsService.js';
 import db from '../../../src/config/db.js';
+import { fetchScienceNews } from '../../../src/services/newsService.js';
+
+let cancelTokenSource;
+beforeAll(() => {
+  cancelTokenSource = axios.CancelToken.source();
+});
+
+afterAll(async () => {
+  cancelTokenSource.cancel('Test cleanup'); // ✅ Cancel any pending requests
+  await db.destroy(); // ✅ Properly close DB connection
+});
 
 describe('Real API Call (News Service)', () => {
-  let cancelTokenSource;
-
-  beforeAll(() => {
-    cancelTokenSource = axios.CancelToken.source();
-  });
-
-  afterAll(async () => {
-    cancelTokenSource.cancel('Test cleanup'); // ✅ Cancel any pending requests
-    await db.destroy(); // ✅ Properly close DB connection
-  });
-
   it('should fetch real science news from the API', async () => {
     const news = await fetchScienceNews();
     expect(Array.isArray(news)).toBe(true);

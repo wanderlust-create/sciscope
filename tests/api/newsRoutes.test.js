@@ -1,7 +1,8 @@
+import { jest } from '@jest/globals';
 import request from 'supertest';
+import db from '../../src/config/db.js';
 import createServer from '../../src/loaders/server.js';
 import NewsService from '../../src/services/newsService.js';
-import { jest } from '@jest/globals';
 
 const app = createServer();
 let server;
@@ -10,8 +11,14 @@ beforeAll(() => {
   server = app.listen(8080);
 });
 
-afterAll((done) => {
-  server.close(done);
+afterAll(async () => {
+  if (server) {
+    await new Promise((resolve) => server.close(resolve));
+    console.log('✅ Server closed.');
+  }
+
+  await db('articles').del();
+  await db.destroy();
 });
 
 const mockNews = [

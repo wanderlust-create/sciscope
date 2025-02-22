@@ -6,19 +6,19 @@ import { generateMockArticlesResponse } from '../mocks/generateMockArticles.js';
 
 axios.get = jest.fn();
 
+beforeEach(async () => {
+  await db('articles').del();
+});
+
+afterEach(async () => {
+  await db('articles').del();
+});
+
+afterAll(async () => {
+  await db.destroy();
+});
+
 describe('Article Service (Unit Test)', () => {
-  beforeEach(async () => {
-    await db('articles').del();
-  });
-
-  afterEach(async () => {
-    await db('articles').del();
-  });
-
-  afterAll(async () => {
-    await db.destroy();
-  });
-
   it('should fetch and store new articles', async () => {
     const mockArticleResponse = generateMockArticlesResponse(1);
     axios.get.mockResolvedValueOnce({ data: mockArticleResponse });
@@ -69,17 +69,13 @@ describe('Article Service (Unit Test)', () => {
 
     // ✅ Generate and fetch an older article
     const newArticle = generateMockArticlesResponse(1).articles[0];
-    console.log(JSON.stringify(newArticle, null, 2));
-
     newArticle.publishedAt = new Date('2025-01-17T12:00:00Z').toISOString();
-    console.log(JSON.stringify(newArticle, null, 2));
 
     axios.get.mockResolvedValueOnce({ data: newArticle });
-
     await fetchAndStoreArticles();
 
     const storedArticles = await db('articles').orderBy('publishedAt', 'desc');
-
+    // ✅ Check that older article did not get saved
     expect(storedArticles.length).toBe(1); // older article did not get saved
     expect(storedArticles).not.toEqual(
       expect.arrayContaining([expect.objectContaining(newArticle)])
