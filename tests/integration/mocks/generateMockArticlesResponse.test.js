@@ -1,4 +1,10 @@
+import { afterAll } from '@jest/globals';
+import db from '../../../src/config/db.js';
 import { generateMockArticlesResponse } from '../../mocks/generateMockArticles.js';
+
+afterAll(async () => {
+  await db.destroy();
+});
 
 describe('generateMockArticlesResponse', () => {
   it('should generate the correct structure with the expected number of articles', () => {
@@ -9,7 +15,7 @@ describe('generateMockArticlesResponse', () => {
     expect(mockResponse).toHaveProperty('totalResults', numArticles);
     expect(mockResponse).toHaveProperty('articles');
 
-    // Ensure `articles` is an array and contains the correct number of articles
+    // Ensure articles is an array and contains the correct number of articles
     expect(Array.isArray(mockResponse.articles)).toBe(true);
     expect(mockResponse.articles.length).toBe(numArticles);
 
@@ -24,7 +30,7 @@ describe('generateMockArticlesResponse', () => {
     expect(firstArticle).toHaveProperty('urlToImage');
     expect(firstArticle).toHaveProperty('publishedAt');
 
-    // Optional: Check if `publishedAt` is a valid date
+    // Optional: Check if publishedAt is a valid date
     expect(new Date(firstArticle.publishedAt).toString()).not.toBe(
       'Invalid Date'
     );
