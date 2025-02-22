@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 import db from '../../../src/config/db.js';
-import NewsService from '../../../src/services/newsService.js';
+import NewsService from '../../../src/services/newsApiService.js';
 
 afterAll(async () => {
   await db.destroy();
