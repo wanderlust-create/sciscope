@@ -1,4 +1,4 @@
-import NewsService from '../services/newsService.js';
+import NewsService from '../services/newsApiService.js';
 
 const getNews = async (req, res) => {
   try {
