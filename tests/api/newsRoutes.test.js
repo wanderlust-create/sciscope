@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 import request from 'supertest';
 import db from '../../src/config/db.js';
 import createServer from '../../src/loaders/server.js';
-import NewsService from '../../src/services/newsService.js';
+import NewsService from '../../src/services/newsApiService.js';
 
 const app = createServer();
 let server;
