@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 
-export function generateMockArticlesResponse(numArticles = 5) {
+export function generateMockArticlesResponse(numArticles = 5, keyword = '') {
   const articles = Array.from({ length: numArticles }).map(() => ({
     source: {
       id: faker.helpers.maybe(() => faker.string.alphanumeric(10), {
@@ -11,7 +11,9 @@ export function generateMockArticlesResponse(numArticles = 5) {
     author: faker.helpers.maybe(() => faker.person.fullName(), {
       probability: 0.8,
     }),
-    title: faker.lorem.sentence(),
+    title: keyword
+      ? `${keyword} ${faker.lorem.words(3)}`
+      : faker.lorem.sentence(),
     description: faker.lorem.paragraph(),
     url: faker.internet.url(),
     urlToImage: faker.image.url(),
