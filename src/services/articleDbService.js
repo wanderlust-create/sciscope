@@ -2,9 +2,9 @@ import db from '../config/db.js';
 import logger from '../loaders/logger.js';
 
 /**
- * Search for articles in the database.
+ * Searches for articles in the database using a case-insensitive match.
  * @param {string} query - The search keyword(s).
- * @returns {Promise<Object[]>} Articles from the DB.
+ * @returns {Promise<Object[]>} - List of matching articles from the database.
  */
 export async function searchArticlesInDB(query) {
   if (!query) {
@@ -24,8 +24,8 @@ export async function searchArticlesInDB(query) {
 }
 
 /**
- * Store articles in the database (avoiding duplicates).
- * @param {Object[]} articles - Articles to store.
+ * Stores new articles in the database, ensuring no duplicates.
+ * @param {Object} apiResponse - The response from the news API.
  */
 export async function storeArticlesInDB(apiResponse) {
   const articles = apiResponse.articles;
@@ -36,6 +36,7 @@ export async function storeArticlesInDB(apiResponse) {
   }
 
   try {
+    // Retrieve the latest stored article's published date to prevent duplicate insertions
     const latestPublishedAt = await db('articles')
       .max('published_at as maxPublishedAt')
       .first()
@@ -43,6 +44,7 @@ export async function storeArticlesInDB(apiResponse) {
         res?.maxPublishedAt ? new Date(res.maxPublishedAt) : null
       );
 
+    // Filter out older articles and format new ones
     const newArticles = filterNewArticles(articles, latestPublishedAt).map(
       formatArticle
     );
@@ -52,6 +54,7 @@ export async function storeArticlesInDB(apiResponse) {
       return;
     }
 
+    // Insert new articles into the database
     await insertArticles(newArticles);
     logger.info(`✅ Stored ${newArticles.length} new articles.`);
   } catch (error) {
@@ -60,10 +63,10 @@ export async function storeArticlesInDB(apiResponse) {
 }
 
 /**
- * Filters out articles that are not new (already exist in DB).
- * @param {Object[]} articles - Raw articles from API.
- * @param {Date|null} latestPublishedAt - Latest stored article timestamp.
- * @returns {Object[]} Filtered new articles.
+ * Filters out articles that are already stored in the database.
+ * @param {Object[]} articles - Raw articles from the API.
+ * @param {Date|null} latestPublishedAt - Timestamp of the most recent stored article.
+ * @returns {Object[]} - A list of new articles to store.
  * @private
  */
 function filterNewArticles(articles, latestPublishedAt) {
@@ -76,9 +79,9 @@ function filterNewArticles(articles, latestPublishedAt) {
 }
 
 /**
- * Format API articles for database storage.
- * @param {Object} article - Raw article from API.
- * @returns {Object} Formatted article.
+ * Formats API response articles to match the database schema.
+ * @param {Object} article - Raw article from the API.
+ * @returns {Object} - A formatted article ready for insertion.
  * @private
  */
 function formatArticle(article) {
@@ -94,7 +97,7 @@ function formatArticle(article) {
 }
 
 /**
- * Inserts formatted articles into the database.
+ * Inserts new articles into the database while preventing duplicate URLs.
  * @param {Object[]} articles - Articles to insert.
  * @returns {Promise<void>}
  * @private
