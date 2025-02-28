@@ -1,4 +1,5 @@
-import { searchArticles as searchArticlesService } from '../services/articleSearchService.js';
+import articleSearchService from '../services/articleSearchService.js';
+import logger from '../loaders/logger.js';
 
 /**
  * Handles searching for articles.
@@ -13,10 +14,13 @@ export async function searchArticles(req, res) {
       return res.status(400).json({ error: 'Query parameter is required.' });
     }
 
-    const articles = await searchArticlesService(query);
+    const articles = await articleSearchService.searchArticles(query);
     res.status(200).json(articles);
   } catch (error) {
-    console.error('❌ Error searching articles:', error);
+    logger.error(`❌ Error searching articles: ${error.message}`, {
+      stack: error.stack,
+    });
+
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
