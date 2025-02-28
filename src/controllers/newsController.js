@@ -1,3 +1,4 @@
+import logger from '../loaders/logger.js';
 import newsApiService from '../services/newsApiService.js';
 
 /**
@@ -10,8 +11,11 @@ export async function getScienceNews(req, res) {
     const news = await newsApiService.fetchScienceNews();
     res.status(200).json(news);
   } catch (error) {
-    console.error('❌ Error fetching science news:', error);
-    res.status(500).json({ error: 'Failed to fetch news' });
+    logger.error(`❌ Error fetching science news: ${error.message}`, {
+      stack: error.stack,
+    });
+
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 }
 
