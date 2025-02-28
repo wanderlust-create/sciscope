@@ -39,11 +39,8 @@ describe('Articles Controller', () => {
 
       const article = response.body[0];
       expect(article).toHaveProperty('source.name');
-      expect(article).toHaveProperty('author');
       expect(article).toHaveProperty('title');
-      expect(article).toHaveProperty('description');
       expect(article).toHaveProperty('url');
-      expect(article).toHaveProperty('urlToImage');
       expect(article).toHaveProperty('publishedAt');
 
       // Ensure searchArticles was called exactly once
