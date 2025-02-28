@@ -2,17 +2,18 @@ import { faker } from '@faker-js/faker';
 
 export function generateMockSavedArticles(numArticles = 5) {
   return Array.from({ length: numArticles }).map(() => ({
-    source: { name: faker.company.name() }, // ✅ Matches API format
+    source: { name: faker.company.name() },
     author: faker.helpers.maybe(() => faker.person.fullName(), {
       probability: 0.8,
     }), // ✅ Matches API format
     title: faker.lorem.sentence(),
-    description: faker.lorem.paragraph(),
+    description: faker.helpers.maybe(() => faker.lorem.paragraph(), {
+      probability: 0.9,
+    }), // ✅ Now allows `null`
     url: faker.internet.url(),
-    urlToImage: faker.image.url(), // ✅ Matches API format
+    urlToImage: faker.helpers.maybe(() => faker.image.url(), {
+      probability: 0.8,
+    }), // ✅ Now allows `null`
     publishedAt: faker.date.recent({ days: 30 }).toISOString(),
-    content: faker.helpers.maybe(() => faker.lorem.paragraphs(2), {
-      probability: 0.7,
-    }),
   }));
 }
