@@ -36,3 +36,4 @@ export async function searchArticles(query) {
 
   return dbResults;
 }
+export default { searchArticles };
