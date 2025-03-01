@@ -44,8 +44,12 @@ export function generateMockArticlesResponse(
   });
 
   return {
-    status: 'ok',
-    totalResults: numArticles,
-    articles, // Ensure articles are not nested under another 'articles' key
+    status: 200,
+    statusText: 'OK',
+    data: {
+      status: 'ok',
+      totalResults: numArticles,
+      articles,
+    },
   };
 }
