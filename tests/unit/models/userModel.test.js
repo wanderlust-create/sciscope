@@ -5,13 +5,12 @@ import User from '../../../src/models/User.js';
 beforeAll(async () => {
   await db.migrate.latest();
 });
+afterEach(async () => {
+  await db('users').del(); // Clears all users between tests
+});
 
 afterAll(async () => {
   await db.destroy();
-});
-
-afterEach(async () => {
-  await db('users').del(); // Clears all users between tests
 });
 
 describe('User Model', () => {

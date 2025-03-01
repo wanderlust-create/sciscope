@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import NewsController from '../../controllers/newsController.js';
+import newsController from '../../controllers/newsController.js';
 
 const route = Router();
 
-route.get('/', NewsController.getNews);
+route.get('/', newsController.getScienceNews);
 
 export default route;

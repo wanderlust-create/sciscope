@@ -6,17 +6,19 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --forceExit",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --testPathIgnorePatterns=realApi --detectOpenHandles",
+    "test:all": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:real": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles tests/integration/realApi/",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "migrate-make": "knex migrate:make init --knexfile src/config/knexfile.js",
+    "migrate-make": "knex migrate:make $(date +%Y%m%d_%H%M%S)_migration --knexfile src/config/knexfile.js",
     "migrate": "knex migrate:latest --knexfile src/config/knexfile.js",
     "rollback": "knex migrate:rollback --knexfile src/config/knexfile.js",
     "seed": "knex seed:run --knexfile src/config/knexfile.js",
     "docker:up": "docker-compose up --build",
     "docker:down": "docker-compose down",
-    "schema": "pg_dump --dbname=sciscope_db --schema-only > db/schemas/schema.sql"
+    "schema": "PGPASSWORD=$DB_PASSWORD pg_dump --dbname=$DB_NAME --schema-only > db/schemas/schema.sql"
   },
   "dependencies": {
     "axios": "^1.7.9",
@@ -42,6 +44,7 @@
   "devDependencies": {
     "@babel/core": "^7.26.9",
     "@babel/preset-env": "^7.26.9",
+    "@faker-js/faker": "^9.5.0",
     "babel-jest": "^29.7.0",
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^9.1.0",

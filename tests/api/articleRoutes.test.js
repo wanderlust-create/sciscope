@@ -2,10 +2,9 @@ import { jest } from '@jest/globals';
 import request from 'supertest';
 import db from '../../src/config/db.js';
 import createServer from '../../src/loaders/server.js';
-import { default as newsApiService } from '../../src/services/newsApiService.js';
+import { default as articleSearchService } from '../../src/services/articleSearchService.js';
 import { generateMockSavedArticles } from '../mocks/generateMockSavedArticles.js';
-
-const fetchScienceNews = jest.spyOn(newsApiService, 'fetchScienceNews');
+const searchArticles = jest.spyOn(articleSearchService, 'searchArticles');
 
 const app = createServer();
 let server;
@@ -17,20 +16,21 @@ beforeAll(() => {
 afterAll(async () => {
   if (server) {
     await new Promise((resolve) => server.close(resolve));
-    console.log('✅ Server closed.');
   }
-
   await db('articles').del();
   await db.destroy();
 });
 
-describe('News Controller', () => {
-  describe('GET /api/v1/news', () => {
-    it('should return 200 OK and a list of science news articles', async () => {
-      const mockedScienceNews = generateMockSavedArticles(6);
-      fetchScienceNews.mockResolvedValue(mockedScienceNews);
+describe('Articles Controller', () => {
+  describe('GET /api/v1/articles/search', () => {
+    it('should return 200 OK and a list of articles matching the query', async () => {
+      const mockedArticles = generateMockSavedArticles(6, 'mars');
 
-      const response = await request(app).get(`/api/v1/news`);
+      searchArticles.mockResolvedValue(mockedArticles);
+
+      const response = await request(app).get(
+        '/api/v1/articles/search?query=mars'
+      );
       console.log('Response:', response.body);
 
       expect(response.status).toBe(200);
@@ -43,15 +43,17 @@ describe('News Controller', () => {
       expect(article).toHaveProperty('url');
       expect(article).toHaveProperty('publishedAt');
 
-      expect(fetchScienceNews).toHaveBeenCalledTimes(1);
-
-      expect(fetchScienceNews).toHaveBeenCalledWith();
+      // Ensure searchArticles was called exactly once
+      expect(searchArticles).toHaveBeenCalledTimes(1);
+      expect(searchArticles).toHaveBeenCalledWith('mars');
     });
 
-    it('should return 500 Internal Server Error when the News API fails', async () => {
-      fetchScienceNews.mockRejectedValueOnce(new Error('API Error'));
+    it('should return 500 Internal Server Error when the search fails', async () => {
+      searchArticles.mockRejectedValueOnce(new Error('Search Error'));
 
-      const response = await request(app).get('/api/v1/news');
+      const response = await request(app).get(
+        '/api/v1/articles/search?query=mars'
+      );
       expect(response.status).toBe(500);
       expect(response.body).toStrictEqual({ error: 'Internal Server Error' });
     });
