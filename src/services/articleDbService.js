@@ -2,6 +2,31 @@ import db from '../config/db.js';
 import logger from '../loaders/logger.js';
 
 /**
+ * Retrieves recent articles from the database, optionally filtering by age.
+ * @param {number} [maxAgeHours] - Optional: Maximum article age in hours.
+ * @param {number} [limit=10] - Optional: Number of articles to return (default: 10).
+ * @returns {Promise<Object[]>} - List of recent articles.
+ */
+export async function fetchRecentArticles(maxAgeHours = null, limit = 10) {
+  try {
+    let query = db('articles').orderBy('published_at', 'desc').limit(limit);
+
+    if (maxAgeHours) {
+      const cutoffTime = new Date();
+      cutoffTime.setHours(cutoffTime.getHours() - maxAgeHours);
+      query = query.where('published_at', '>=', cutoffTime);
+    }
+
+    return await query;
+  } catch (error) {
+    logger.error(`❌ Error fetching recent articles: ${error.message}`, {
+      stack: error.stack,
+    });
+    throw error;
+  }
+}
+
+/**
  * Searches for articles in the database using a case-insensitive match.
  * @param {string} query - The search keyword(s).
  * @returns {Promise<Object[]>} - List of matching articles from the database.
