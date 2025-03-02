@@ -27,7 +27,7 @@ afterAll(async () => {
 describe('newsApiService', () => {
   it('should fetch science news successfully', async () => {
     const mockApiResponse = generateMockArticlesResponse(3);
-    axios.get.mockResolvedValue(mockApiResponse);
+    axios.get.mockResolvedValueOnce(mockApiResponse);
 
     const news = await fetchScienceNews();
 
@@ -70,8 +70,9 @@ describe('newsApiService', () => {
     expect(axios.get).toHaveBeenCalledTimes(1);
     expect(logger.warn).toHaveBeenCalledWith(
       '⚠️ No articles returned from News API for science news.'
-    ); // ✅ Ensure warning is logged
+    );
   });
+
   it('should handle unexpected API response structure', async () => {
     axios.get.mockResolvedValueOnce({
       status: 200,
@@ -80,11 +81,50 @@ describe('newsApiService', () => {
     });
 
     await expect(fetchScienceNews()).rejects.toThrow(
-      'Failed to fetch science news'
+      'Failed to fetch science news. Unexpected response format.'
     );
 
     expect(logger.error).toHaveBeenCalledWith(
-      expect.stringContaining('Error fetching science news')
-    ); // Ensures errors are logged
+      expect.stringContaining('❌ Malformed API response for science news:'),
+      expect.any(Object) // Accept any object (e.g., the malformed API response)
+    );
+  });
+
+  it('should handle 401 Unauthorized API key error', async () => {
+    axios.get.mockResolvedValueOnce({
+      status: 401,
+      statusText: 'Unauthorized',
+    });
+
+    await expect(fetchScienceNews()).rejects.toThrow(
+      'Invalid API key. Please verify your NEWS_API_KEY.'
+    );
+
+    expect(logger.error).toHaveBeenNthCalledWith(
+      1,
+      '❌ Invalid API key. Please verify your NEWS_API_KEY.'
+    );
+
+    expect(logger.error).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('❌ Error fetching science news:')
+    );
+  });
+
+  it('should throw an error for non-200 API responses', async () => {
+    axios.get.mockResolvedValueOnce({
+      status: 500,
+      statusText: 'Server Error',
+    });
+
+    await expect(fetchScienceNews()).rejects.toThrow(
+      'Failed to fetch science news. API responded with 500'
+    );
+
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining(
+        '❌ Failed to fetch science news. API responded with 500'
+      )
+    );
   });
 });
