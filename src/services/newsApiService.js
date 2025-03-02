@@ -58,22 +58,17 @@ export const fetchArticles = async (url, context) => {
     const response = await axios.get(url, { validateStatus: () => true });
 
     if (response.status === 401) {
-      logger.error(
-        '❌ Invalid API key. Check your NEWS_API_KEY in the .env file.'
-      );
-      throw new Error('Invalid API key. Please verify your NEWS_API_KEY.');
+      const errorMessage = 'Invalid API key. Please verify your NEWS_API_KEY.';
+      logger.error(`❌ ${errorMessage}`);
+      throw new Error(errorMessage); // ✅ Preserve the specific error message
     }
 
     if (response.status !== 200) {
-      logger.error(
-        `❌ API Error (${context}): ${response.status} - ${response.statusText}`
-      );
-      throw new Error(
-        `Failed to fetch ${context}. API responded with ${response.status}`
-      );
+      const errorMessage = `Failed to fetch ${context}. API responded with ${response.status}`;
+      logger.error(`❌ ${errorMessage}`);
+      throw new Error(errorMessage);
     }
 
-    // Validate response structure
     const { data } = response;
     if (!data || data.status !== 'ok' || !Array.isArray(data.articles)) {
       logger.error(`❌ Malformed API response for ${context}:`, data);
@@ -88,7 +83,17 @@ export const fetchArticles = async (url, context) => {
     return data;
   } catch (error) {
     logger.error(`❌ Error fetching ${context}: ${error.message}`);
-    throw new Error(`Failed to fetch ${context}`);
+
+    // ✅ Only overwrite errors that are NOT already API-specific
+    if (
+      !error.message.includes('Invalid API key') &&
+      !error.message.includes('API responded with') &&
+      !error.message.includes('Unexpected response format')
+    ) {
+      throw new Error(`Failed to fetch ${context}`);
+    }
+
+    throw error; // ✅ Preserve the original error message
   }
 };
 
