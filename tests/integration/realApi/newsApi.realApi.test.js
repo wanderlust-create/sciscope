@@ -46,7 +46,7 @@ describe('Real API Call (News Service)', () => {
     );
 
     await expect(fetchScienceNews()).rejects.toThrow(
-      'Failed to fetch science news'
+      'Invalid API key. Please verify your NEWS_API_KEY.'
     );
   });
 });

@@ -31,7 +31,7 @@ export async function searchArticles(query) {
     await storeArticlesInDB(apiResults);
 
     // Merge database and API results for the final response
-    dbResults = [...dbResults, ...apiResults.articles];
+    dbResults = [...dbResults, ...apiResults.data.articles];
   }
 
   return dbResults;

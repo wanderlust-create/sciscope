@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { afterEach, jest } from '@jest/globals';
 import db from '../../../src/config/db.js';
 import { storeArticlesInDB } from '../../../src/services/articleDbService.js';
 import {
@@ -14,9 +14,12 @@ beforeEach(async () => {
   jest.clearAllMocks();
   await db('articles').del();
 });
+afterEach(async () => {
+  await db('articles').del(); // Clear test data
+});
 
 afterAll(async () => {
-  await db.destroy();
+  await db.destroy(); // Close the connection pool only once
 });
 
 describe('Article Search Service (Unit Test)', () => {
@@ -30,6 +33,7 @@ describe('Article Search Service (Unit Test)', () => {
     await storeArticlesInDB(mockArticles);
 
     const results = await searchArticles('space');
+    console.log('Results:', results);
 
     // Expect correct number of results from DB
     expect(results).toHaveLength(MIN_DB_RESULTS);
