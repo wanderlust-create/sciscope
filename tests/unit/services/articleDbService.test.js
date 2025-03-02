@@ -6,15 +6,15 @@ import {
 import { generateMockArticlesResponse } from '../../mocks/generateMockArticles.js';
 
 beforeEach(async () => {
-  await db('articles').del(); // Clear DB before each test
+  await db('articles').del();
 });
 
 afterEach(async () => {
-  await db('articles').del(); // Cleanup after each test
+  await db('articles').del();
 });
 
 afterAll(async () => {
-  await db.destroy(); // Close DB connection after all tests
+  await db.destroy();
 });
 
 describe('Article DB Service (Unit Test)', () => {
@@ -48,24 +48,30 @@ describe('Article DB Service (Unit Test)', () => {
     const latestPublishedAt = latestArticle
       ? new Date(latestArticle.publishedAt)
       : null;
-    console.log(JSON.stringify(latestPublishedAt, null, 2));
 
     // Retain 5 articles already stored & generate 7 new ones
     const retainedArticles = storedArticles.slice(0, 5);
     const newMockResponse = generateMockArticlesResponse(7);
 
-    newMockResponse.articles.forEach((article, index) => {
+    newMockResponse.data.articles.forEach((article, index) => {
       article.publishedAt = latestPublishedAt
         ? new Date(
             latestPublishedAt.getTime() + (index + 1) * 1000
           ).toISOString()
         : new Date().toISOString();
     });
+    const totalResults =
+      retainedArticles.length + newMockResponse.data.articles.length;
+    const articles = [...retainedArticles, ...newMockResponse.data.articles];
     // Send new mock Api response with old and new articles
     const newMockApi = {
-      status: 'ok',
-      totalResults: retainedArticles.length + newMockResponse.articles.length,
-      articles: [...retainedArticles, ...newMockResponse.articles],
+      status: 200,
+      statusText: 'OK',
+      data: {
+        status: 'ok',
+        totalResults: totalResults,
+        articles: articles,
+      },
     };
     await storeArticlesInDB(newMockApi);
 
@@ -78,8 +84,8 @@ describe('Article DB Service (Unit Test)', () => {
       .sort();
 
     const sortedExpectedUrls = [
-      ...initialMockResponse.articles,
-      ...newMockResponse.articles,
+      ...initialMockResponse.data.articles,
+      ...newMockResponse.data.articles,
     ]
       .map((article) => article.url)
       .sort();
@@ -91,9 +97,9 @@ describe('Article DB Service (Unit Test)', () => {
     const mockArticles = generateMockArticlesResponse(20);
     await storeArticlesInDB(mockArticles);
 
-    const query = mockArticles.articles[0].title.split(' ')[0]; // Pick a word from title
+    const query = mockArticles.data.articles[0].title.split(' ')[0]; // Pick a word from title
     const results = await searchArticlesInDB(query);
-
+    expect(Array.isArray(results)).toBe(true);
     expect(results.length).toBeGreaterThan(0);
   });
 });
