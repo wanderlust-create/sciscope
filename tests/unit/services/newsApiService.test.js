@@ -2,7 +2,10 @@ import { jest } from '@jest/globals';
 import axios from 'axios';
 import db from '../../../src/config/db.js';
 import logger from '../../../src/loaders/logger.js';
-import { default as newsApiService } from '../../../src/services/newsApiService.js';
+import {
+  default as newsApiService,
+  searchNewsByQuery,
+} from '../../../src/services/newsApiService.js';
 import { generateMockArticlesResponse } from '../../mocks/generateMockArticles.js';
 
 const fetchScienceNews = jest.spyOn(newsApiService, 'fetchScienceNews');
@@ -132,5 +135,14 @@ describe('newsApiService', () => {
     expect(() => newsApiService.searchNewsByQuery()).toThrow(
       'Query parameter is required for searching news.'
     );
+  });
+  it('should call fetchArticles when a valid query is provided', async () => {
+    const mockApiResponse = generateMockArticlesResponse(3);
+    axios.get.mockResolvedValue(mockApiResponse);
+
+    const results = await searchNewsByQuery('NASA');
+
+    expect(results).toEqual(mockApiResponse.data);
+    expect(axios.get).toHaveBeenCalledTimes(1);
   });
 });
