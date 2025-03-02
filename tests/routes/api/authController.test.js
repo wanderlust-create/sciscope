@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
 import request from 'supertest';
-import db from '../../src/config/db.js';
-import createServer from '../../src/loaders/server.js';
-import User from '../../src/models/User.js';
+import db from '../../../src/config/db.js';
+import createServer from '../../../src/loaders/server.js';
+import User from '../../../src/models/User.js';
 
 const app = createServer();
 

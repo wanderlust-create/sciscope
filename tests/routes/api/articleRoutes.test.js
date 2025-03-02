@@ -1,9 +1,9 @@
 import { jest } from '@jest/globals';
 import request from 'supertest';
-import db from '../../src/config/db.js';
-import createServer from '../../src/loaders/server.js';
-import { default as articleSearchService } from '../../src/services/articleSearchService.js';
-import { generateMockSavedArticles } from '../mocks/generateMockSavedArticles.js';
+import db from '../../../src/config/db.js';
+import createServer from '../../../src/loaders/server.js';
+import { default as articleSearchService } from '../../../src/services/articleSearchService.js';
+import { generateMockSavedArticles } from '../../mocks/generateMockSavedArticles.js';
 const searchArticles = jest.spyOn(articleSearchService, 'searchArticles');
 
 const app = createServer();
