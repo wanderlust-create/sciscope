@@ -127,4 +127,10 @@ describe('newsApiService', () => {
       )
     );
   });
+
+  it('should throw an error if search query is missing', () => {
+    expect(() => newsApiService.searchNewsByQuery()).toThrow(
+      'Query parameter is required for searching news.'
+    );
+  });
 });
