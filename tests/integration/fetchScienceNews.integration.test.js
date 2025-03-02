@@ -30,6 +30,7 @@ describe('fetchGeneralScienceNews', () => {
     fetchScienceNews.mockResolvedValueOnce(mockApiResponse);
 
     const results = await fetchGeneralScienceNews();
+
     expect(results).toHaveLength(10);
     expect(fetchScienceNews).toHaveBeenCalledTimes(1);
 
@@ -40,7 +41,7 @@ describe('fetchGeneralScienceNews', () => {
     const sortedFinalStoredUrls = finalStoredArticles
       .map((article) => article.url)
       .sort();
-    const sortedExpectedUrls = [...mockApiResponse.articles]
+    const sortedExpectedUrls = [...mockApiResponse.data.articles]
       .map((article) => article.url)
       .sort();
     expect(sortedFinalStoredUrls).toEqual(sortedExpectedUrls);
@@ -98,11 +99,23 @@ describe('fetchGeneralScienceNews', () => {
 
   it('should handle an empty API response gracefully', async () => {
     const loggerSpy = jest.spyOn(logger, 'info');
-    fetchScienceNews.mockResolvedValueOnce({ articles: [] });
+
+    fetchScienceNews.mockResolvedValueOnce({
+      status: 200,
+      statusText: 'OK',
+      data: {
+        status: 'ok',
+        totalResults: 0,
+        articles: [],
+      },
+    });
     const results = await fetchGeneralScienceNews();
 
     expect(results).toEqual([]);
     expect(fetchScienceNews).toHaveBeenCalledTimes(1);
+    expect(loggerSpy).toHaveBeenCalledWith(
+      '📡 No recent articles found. Fetching fresh news from API...'
+    );
 
     // Ensure no data was stored in DB
     const finalStoredArticles = await db('articles').select('*');
@@ -111,7 +124,5 @@ describe('fetchGeneralScienceNews', () => {
     expect(loggerSpy).toHaveBeenCalledWith(
       '📭 No articles provided for insertion.'
     );
-
-    loggerSpy.mockRestore();
   });
 });
