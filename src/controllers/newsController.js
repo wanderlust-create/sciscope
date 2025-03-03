@@ -1,5 +1,5 @@
 import logger from '../loaders/logger.js';
-import newsApiService from '../services/newsApiService.js';
+import newsService from '../services/newsService.js';
 
 /**
  * Fetches the latest science news from the API.
@@ -8,7 +8,7 @@ import newsApiService from '../services/newsApiService.js';
  */
 export async function getScienceNews(req, res) {
   try {
-    const news = await newsApiService.fetchScienceNews();
+    const news = await newsService.processNewsRequest();
     res.status(200).json(news);
   } catch (error) {
     logger.error(`❌ Error fetching science news: ${error.message}`, {
