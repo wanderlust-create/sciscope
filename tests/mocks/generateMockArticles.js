@@ -44,12 +44,8 @@ export function generateMockArticlesResponse(
   });
 
   return {
-    status: 200,
-    statusText: 'OK',
-    data: {
-      status: 'ok',
-      totalResults: numArticles,
-      articles,
-    },
+    status: 'ok',
+    totalResults: numArticles,
+    articles,
   };
 }
