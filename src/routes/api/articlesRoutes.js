@@ -1,8 +1,8 @@
 import express from 'express';
-import articleController from '../../controllers/articleController';
+import queryController from '../../controllers/queryController';
 
 const router = express.Router();
 
-router.get('/search', articleController.searchArticles);
+router.get('/', queryController.getNewsByQuery);
 
 export default router;
