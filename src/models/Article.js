@@ -1,5 +1,6 @@
 import { Model } from 'objection';
 import db from '../config/db.js';
+import Bookmark from './Bookmark.js';
 
 Model.knex(db);
 
@@ -26,8 +27,6 @@ class Article extends Model {
   }
 
   static get relationMappings() {
-    const Bookmark = require('./Bookmark');
-
     return {
       bookmarks: {
         relation: Model.HasManyRelation,
