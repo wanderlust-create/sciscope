@@ -2,7 +2,7 @@ import db from '../../../src/config/db.js';
 import {
   searchArticlesInDB,
   storeArticlesInDB,
-} from '../../../src/services/articleDbService.js';
+} from '../../../src/services/dbService.js';
 import { generateMockArticlesResponse } from '../../mocks/generateMockArticles.js';
 
 beforeEach(async () => {
@@ -53,7 +53,7 @@ describe('Article DB Service (Unit Test)', () => {
     const retainedArticles = storedArticles.slice(0, 5);
     const newMockResponse = generateMockArticlesResponse(7);
 
-    newMockResponse.data.articles.forEach((article, index) => {
+    newMockResponse.articles.forEach((article, index) => {
       article.publishedAt = latestPublishedAt
         ? new Date(
             latestPublishedAt.getTime() + (index + 1) * 1000
@@ -61,17 +61,13 @@ describe('Article DB Service (Unit Test)', () => {
         : new Date().toISOString();
     });
     const totalResults =
-      retainedArticles.length + newMockResponse.data.articles.length;
-    const articles = [...retainedArticles, ...newMockResponse.data.articles];
+      retainedArticles.length + newMockResponse.articles.length;
+    const articles = [...retainedArticles, ...newMockResponse.articles];
     // Send new mock Api response with old and new articles
     const newMockApi = {
-      status: 200,
-      statusText: 'OK',
-      data: {
-        status: 'ok',
-        totalResults: totalResults,
-        articles: articles,
-      },
+      status: 'ok',
+      totalResults: totalResults,
+      articles: articles,
     };
     await storeArticlesInDB(newMockApi);
 
@@ -84,8 +80,8 @@ describe('Article DB Service (Unit Test)', () => {
       .sort();
 
     const sortedExpectedUrls = [
-      ...initialMockResponse.data.articles,
-      ...newMockResponse.data.articles,
+      ...initialMockResponse.articles,
+      ...newMockResponse.articles,
     ]
       .map((article) => article.url)
       .sort();
@@ -97,7 +93,7 @@ describe('Article DB Service (Unit Test)', () => {
     const mockArticles = generateMockArticlesResponse(20);
     await storeArticlesInDB(mockArticles);
 
-    const query = mockArticles.data.articles[0].title.split(' ')[0]; // Pick a word from title
+    const query = mockArticles.articles[0].title.split(' ')[0]; // Pick a word from title
     const results = await searchArticlesInDB(query);
     expect(Array.isArray(results)).toBe(true);
     expect(results.length).toBeGreaterThan(0);
