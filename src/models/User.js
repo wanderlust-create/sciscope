@@ -1,4 +1,5 @@
 import { Model } from 'objection';
+import Bookmark from './Bookmark.js'; // ✅ Import Bookmark model
 
 class User extends Model {
   static get tableName() {
@@ -17,6 +18,19 @@ class User extends Model {
         password_hash: { type: ['string', 'null'] }, // 🔹 DB uses this
         oauth_provider: { type: ['string', 'null'] },
         oauth_id: { type: ['string', 'null'] },
+      },
+    };
+  }
+
+  static get relationMappings() {
+    return {
+      bookmarks: {
+        relation: Model.HasManyRelation,
+        modelClass: Bookmark,
+        join: {
+          from: 'users.id',
+          to: 'user_bookmarks.user_id',
+        },
       },
     };
   }
