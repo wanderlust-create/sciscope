@@ -53,7 +53,7 @@ export async function searchArticlesInDB(query) {
  * @param {Object} apiResponse - The response from the news API.
  */
 export async function storeArticlesInDB(apiResponse) {
-  const articles = apiResponse.data.articles;
+  const articles = apiResponse.articles;
   if (!articles || !Array.isArray(articles) || articles.length === 0) {
     logger.info('📭 No articles provided for insertion.');
     return;

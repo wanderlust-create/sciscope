@@ -1,6 +1,6 @@
 import logger from '../loaders/logger.js';
-import { fetchRecentArticles, storeArticlesInDB } from './articleDbService.js';
-import newsApiService from './newsApiService.js';
+import apiService from './apiService.js';
+import { fetchRecentArticles, storeArticlesInDB } from './dbService.js';
 
 const MAX_AGE_HOURS = 3; // Consider articles "fresh" if they're within the last 3 hours.
 
@@ -8,7 +8,7 @@ const MAX_AGE_HOURS = 3; // Consider articles "fresh" if they're within the last
  * Fetches general science news, prioritizing database results to reduce API calls.
  * @returns {Promise<Object[]>} Science news articles.
  */
-export async function fetchGeneralScienceNews() {
+export async function processNewsRequest() {
   try {
     logger.info('🔎 Checking database for recent science news...');
 
@@ -24,18 +24,20 @@ export async function fetchGeneralScienceNews() {
 
     // Step 2: If not enough recent articles, fetch fresh ones from the API
     logger.info('📡 No recent articles found. Fetching fresh news from API...');
-    const apiResults = await newsApiService.fetchScienceNews();
+    const apiResults = await apiService.fetchScienceNews();
 
     // Step 3: Store fresh API articles in the DB for future use
     await storeArticlesInDB(apiResults);
 
-    return apiResults.data.articles;
+    return apiResults.articles;
   } catch (error) {
     logger.error(`❌ Error fetching general science news: ${error.message}`, {
       stack: error.stack,
     });
-    throw new Error('Failed to fetch general science news.');
+
+    // ✅ Preserve and rethrow the original error message
+    throw new Error(error.message || 'Failed to fetch general science news.');
   }
 }
 
-export default { fetchGeneralScienceNews };
+export default { processNewsRequest };

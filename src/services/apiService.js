@@ -62,15 +62,16 @@ export const fetchArticles = async (url, context) => {
       logger.error(`❌ ${errorMessage}`);
       throw new Error(errorMessage); // ✅ Preserve the specific error message
     }
-
-    if (response.status !== 200) {
+    if (response.status !== 200 && response.status !== 'ok') {
       const errorMessage = `Failed to fetch ${context}. API responded with ${response.status}`;
       logger.error(`❌ ${errorMessage}`);
       throw new Error(errorMessage);
     }
 
-    const { data } = response;
+    const data = response.data || response;
+
     if (!data || data.status !== 'ok' || !Array.isArray(data.articles)) {
+      console.log('INSIDE');
       logger.error(`❌ Malformed API response for ${context}:`, data);
       throw new Error(
         `Failed to fetch ${context}. Unexpected response format.`

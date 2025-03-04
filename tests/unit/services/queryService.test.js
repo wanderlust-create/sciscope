@@ -1,14 +1,14 @@
 import { afterEach, jest } from '@jest/globals';
 import db from '../../../src/config/db.js';
-import { storeArticlesInDB } from '../../../src/services/articleDbService.js';
+import { default as apiService } from '../../../src/services/apiService.js';
+import { storeArticlesInDB } from '../../../src/services/dbService.js';
 import {
   MIN_DB_RESULTS,
-  searchArticles,
-} from '../../../src/services/articleSearchService.js';
-import { default as newsApiService } from '../../../src/services/newsApiService.js';
+  processQueryRequest,
+} from '../../../src/services/queryService.js';
 import { generateMockArticlesResponse } from '../../mocks/generateMockArticles.js';
-const searchNewsByQuery = jest.spyOn(newsApiService, 'searchNewsByQuery');
-const fetchArticles = jest.spyOn(newsApiService, 'fetchArticles');
+const searchNewsByQuery = jest.spyOn(apiService, 'searchNewsByQuery');
+const fetchArticles = jest.spyOn(apiService, 'fetchArticles');
 
 beforeEach(async () => {
   jest.clearAllMocks();
@@ -32,7 +32,7 @@ describe('Article Search Service (Unit Test)', () => {
     const mockArticles = generateMockArticlesResponse(MIN_DB_RESULTS, 'space');
     await storeArticlesInDB(mockArticles);
 
-    const results = await searchArticles('space');
+    const results = await processQueryRequest('space');
     console.log('Results:', results);
 
     // Expect correct number of results from DB
@@ -62,7 +62,7 @@ describe('Article Search Service (Unit Test)', () => {
     const mockApiResponse = generateMockArticlesResponse(stillNeed, 'krebs');
     searchNewsByQuery.mockResolvedValue(mockApiResponse);
 
-    const results = await searchArticles('krebs');
+    const results = await processQueryRequest('krebs');
 
     // Step 4: Verify total articles (DB + API)
     expect(results).toHaveLength(MIN_DB_RESULTS);
@@ -91,7 +91,7 @@ describe('Article Search Service (Unit Test)', () => {
     searchNewsByQuery.mockResolvedValue(mockApiArticles);
 
     // Step 3: Call search function
-    const results = await searchArticles('NASA');
+    const results = await processQueryRequest('NASA');
 
     // Step 4: Validate API response was used as the data source
     expect(results).toHaveLength(MIN_DB_RESULTS);

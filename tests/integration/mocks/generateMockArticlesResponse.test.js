@@ -12,19 +12,16 @@ describe('generateMockArticlesResponse', () => {
     const mockResponse = generateMockArticlesResponse(numArticles);
 
     // ✅ Ensure correct top-level structure
-    expect(mockResponse).toHaveProperty('status', 200);
-    expect(mockResponse).toHaveProperty('statusText', 'OK');
-    expect(mockResponse).toHaveProperty('data');
-    expect(mockResponse.data).toHaveProperty('status', 'ok');
-    expect(mockResponse.data).toHaveProperty('totalResults', numArticles);
-    expect(mockResponse.data).toHaveProperty('articles');
+    expect(mockResponse).toHaveProperty('status', 'ok');
+    expect(mockResponse).toHaveProperty('totalResults', numArticles);
+    expect(mockResponse).toHaveProperty('articles');
 
     // ✅ Ensure articles is an array with the correct number of elements
-    expect(Array.isArray(mockResponse.data.articles)).toBe(true);
-    expect(mockResponse.data.articles.length).toBe(numArticles);
+    expect(Array.isArray(mockResponse.articles)).toBe(true);
+    expect(mockResponse.articles.length).toBe(numArticles);
 
     // ✅ Verify structure of the first article
-    const firstArticle = mockResponse.data.articles[0];
+    const firstArticle = mockResponse.articles[0];
     expect(firstArticle).toHaveProperty('source');
     expect(firstArticle.source).toHaveProperty('name');
 
@@ -43,7 +40,7 @@ describe('generateMockArticlesResponse', () => {
   it('should not nest articles under another articles key', () => {
     const mockResponse = generateMockArticlesResponse(5);
 
-    // ❌ This should NOT exist: mockResponse.data.articles.articles
-    expect(mockResponse.data.articles).not.toHaveProperty('articles');
+    // ❌ This should NOT exist: mockResponse.articles.articles
+    expect(mockResponse.articles).not.toHaveProperty('articles');
   });
 });
