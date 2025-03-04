@@ -24,6 +24,9 @@ const config = {
       directory: path.resolve(__dirname, '../../db/migrations'),
       tableName: 'knex_migrations',
     },
+    seeds: {
+      directory: path.resolve(__dirname, '../../db/seeds'),
+    },
     ...knexSnakeCaseMappers(),
   },
   test: {
@@ -39,7 +42,11 @@ const config = {
       directory: path.resolve(__dirname, '../../db/migrations'),
       tableName: 'knex_migrations',
     },
+    seeds: {
+      directory: path.resolve(__dirname, '../../db/seeds'),
+    },
     ...knexSnakeCaseMappers(),
   },
 };
+
 export default config;
