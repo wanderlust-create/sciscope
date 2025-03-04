@@ -1,12 +1,12 @@
 import { jest } from '@jest/globals';
 import db from '../../src/config/db.js';
 import logger from '../../src/loaders/logger.js';
-import { storeArticlesInDB } from '../../src/services/articleDbService.js';
-import { fetchGeneralScienceNews } from '../../src/services/generalNewsService.js';
-import { default as newsApiService } from '../../src/services/newsApiService.js';
+import { default as apiService } from '../../src/services/apiService.js';
+import { storeArticlesInDB } from '../../src/services/dbService.js';
+import { processNewsRequest } from '../../src/services/newsService.js';
 import { generateMockArticlesResponse } from '../mocks/generateMockArticles.js';
 
-const fetchScienceNews = jest.spyOn(newsApiService, 'fetchScienceNews');
+const fetchScienceNews = jest.spyOn(apiService, 'fetchScienceNews');
 
 beforeEach(async () => {
   await db('articles').del();
@@ -21,7 +21,7 @@ afterAll(async () => {
   await db.destroy();
 });
 
-describe('fetchGeneralScienceNews', () => {
+describe('processNewsRequest', () => {
   it('should fetch and cache new science articles when DB has no recent data', async () => {
     const initialStoredArticles = await db('articles').select('*');
     expect(initialStoredArticles.length).toBe(0);
@@ -29,7 +29,7 @@ describe('fetchGeneralScienceNews', () => {
     const mockApiResponse = generateMockArticlesResponse(10);
     fetchScienceNews.mockResolvedValueOnce(mockApiResponse);
 
-    const results = await fetchGeneralScienceNews();
+    const results = await processNewsRequest();
 
     expect(results).toHaveLength(10);
     expect(fetchScienceNews).toHaveBeenCalledTimes(1);
@@ -41,7 +41,7 @@ describe('fetchGeneralScienceNews', () => {
     const sortedFinalStoredUrls = finalStoredArticles
       .map((article) => article.url)
       .sort();
-    const sortedExpectedUrls = [...mockApiResponse.data.articles]
+    const sortedExpectedUrls = [...mockApiResponse.articles]
       .map((article) => article.url)
       .sort();
     expect(sortedFinalStoredUrls).toEqual(sortedExpectedUrls);
@@ -61,7 +61,7 @@ describe('fetchGeneralScienceNews', () => {
     expect(storedArticles.length).toBe(5);
 
     // Ensure returned articles are actually within the time limit
-    const results = await fetchGeneralScienceNews();
+    const results = await processNewsRequest();
     expect(results).toHaveLength(5);
     expect(fetchScienceNews).not.toHaveBeenCalled();
 
@@ -78,10 +78,7 @@ describe('fetchGeneralScienceNews', () => {
     const loggerSpy = jest.spyOn(logger, 'error');
     fetchScienceNews.mockRejectedValueOnce(new Error('API Error'));
 
-    await expect(fetchGeneralScienceNews()).rejects.toThrow(
-      'Failed to fetch general science news.'
-    );
-
+    await expect(processNewsRequest()).rejects.toThrow('API Error');
     // Ensure the error is logged
     expect(loggerSpy).toHaveBeenCalledWith(
       expect.stringContaining(
@@ -101,15 +98,12 @@ describe('fetchGeneralScienceNews', () => {
     const loggerSpy = jest.spyOn(logger, 'info');
 
     fetchScienceNews.mockResolvedValueOnce({
-      status: 200,
-      statusText: 'OK',
-      data: {
-        status: 'ok',
-        totalResults: 0,
-        articles: [],
-      },
+      status: 'ok',
+      totalResults: 0,
+      articles: [],
     });
-    const results = await fetchGeneralScienceNews();
+    const results = await processNewsRequest();
+    console.log('Results:', results);
 
     expect(results).toEqual([]);
     expect(fetchScienceNews).toHaveBeenCalledTimes(1);
