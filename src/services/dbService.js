@@ -2,6 +2,23 @@ import db from '../config/db.js';
 import logger from '../loaders/logger.js';
 
 /**
+ * Retrieves a single article from the database by ID.
+ * @param {number} id - The article ID.
+ * @returns {Promise<Object|null>} - The article or null if not found.
+ */
+export async function getArticleById(id) {
+  try {
+    const article = await db('articles').where({ id }).first();
+    return article || null;
+  } catch (error) {
+    logger.error(`❌ Error fetching article by ID: ${error.message}`, {
+      stack: error.stack,
+    });
+    throw error;
+  }
+}
+
+/**
  * Retrieves recent articles from the database, optionally filtering by age.
  * @param {number} [maxAgeHours] - Optional: Maximum article age in hours.
  * @param {number} [limit=10] - Optional: Number of articles to return (default: 10).
@@ -130,4 +147,4 @@ function insertArticles(articles) {
   return db('articles').insert(articles).onConflict('url').merge();
 }
 
-export default { searchArticlesInDB, storeArticlesInDB };
+export default { searchArticlesInDB, storeArticlesInDB, getArticleById };
