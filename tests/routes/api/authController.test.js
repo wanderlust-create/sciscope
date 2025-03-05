@@ -22,10 +22,13 @@ describe('Authentication Controller', () => {
   // 🔹 Email & Password Signup
   test('should sign up a user with email & password', async () => {
     const res = await request(app).post('/api/v1/auth/signup').send({
-      username: 'testuser',
-      email: 'test@example.com',
+      username: 'testuser27',
+      email: 'test@example27.com',
       password: 'securepassword123',
     });
+
+    console.log('RES:,res.status', res.status);
+    console.log('RES:,res.body', res.body);
 
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('message', 'Signup successful!');
