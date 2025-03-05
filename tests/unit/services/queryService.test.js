@@ -33,7 +33,6 @@ describe('Article Search Service (Unit Test)', () => {
     await storeArticlesInDB(mockArticles);
 
     const results = await processQueryRequest('space');
-    console.log('Results:', results);
 
     // Expect correct number of results from DB
     expect(results).toHaveLength(MIN_DB_RESULTS);
