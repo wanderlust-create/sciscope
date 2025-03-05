@@ -27,9 +27,6 @@ describe('Authentication Controller', () => {
       password: 'securepassword123',
     });
 
-    console.log('RES:,res.status', res.status);
-    console.log('RES:,res.body', res.body);
-
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('message', 'Signup successful!');
     expect(res.body).toHaveProperty('token');
