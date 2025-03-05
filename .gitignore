@@ -25,4 +25,7 @@ Thumbs.db
 .idea/
 *.swp  # Vim swap files
 
+# Temporary files
+scripts/debug/*.js
+
 

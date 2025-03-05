@@ -39,7 +39,6 @@ describe('News Controller', () => {
       processNewsRequest.mockResolvedValue(mockRecentArticles);
 
       const response = await request(app).get(`/api/v1/news`);
-      console.log('Response:', response.body);
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body.articles)).toBe(true);

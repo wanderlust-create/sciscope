@@ -33,7 +33,7 @@ describe('apiService', () => {
     axios.get.mockResolvedValueOnce(mockApiResponse);
 
     const news = await fetchScienceNews();
-    console.log('News:', news);
+
     expect(news.status).toBe('ok');
     expect(news.articles).toHaveLength(3);
     expect(news.articles).toEqual(mockApiResponse.articles);
