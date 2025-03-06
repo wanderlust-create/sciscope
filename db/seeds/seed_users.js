@@ -1,3 +1,6 @@
+import { faker } from '@faker-js/faker';
+import bcrypt from 'bcrypt';
+
 export async function seed(knex) {
   await knex('users').del();
 
@@ -27,3 +30,4 @@ export async function seed(knex) {
 
   await knex('users').insert(users);
 }
+export default { seed };
