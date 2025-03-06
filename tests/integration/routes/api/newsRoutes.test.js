@@ -1,9 +1,9 @@
 import { jest } from '@jest/globals';
 import request from 'supertest';
-import db from '../../../src/config/db.js';
-import createServer from '../../../src/loaders/server.js';
-import { default as newsService } from '../../../src/services/newsService.js';
-import { generateMockArticlesResponse } from '../../mocks/generateMockArticles.js';
+import db from '../../../../src/config/db.js';
+import createServer from '../../../../src/loaders/server.js';
+import { default as newsService } from '../../../../src/services/newsService.js';
+import { generateMockArticlesResponse } from '../../../mocks/generateMockArticles.js';
 
 const processNewsRequest = jest.spyOn(newsService, 'processNewsRequest');
 

@@ -1,8 +1,8 @@
 import request from 'supertest';
-import db from '../../../src/config/db.js';
-import createServer from '../../../src/loaders/server.js';
-import { storeArticlesInDB } from '../../../src/services/dbService.js';
-import { generateMockArticlesResponse } from '../../mocks/generateMockArticles.js';
+import db from '../../../../src/config/db.js';
+import createServer from '../../../../src/loaders/server.js';
+import { storeArticlesInDB } from '../../../../src/services/dbService.js';
+import { generateMockArticlesResponse } from '../../../mocks/generateMockArticles.js';
 
 const app = createServer();
 let server;

@@ -1,10 +1,10 @@
 import { jest } from '@jest/globals';
-import db from '../../src/config/db.js';
-import logger from '../../src/loaders/logger.js';
-import { default as apiService } from '../../src/services/apiService.js';
-import { storeArticlesInDB } from '../../src/services/dbService.js';
-import { processNewsRequest } from '../../src/services/newsService.js';
-import { generateMockArticlesResponse } from '../mocks/generateMockArticles.js';
+import db from '../../../src/config/db.js';
+import logger from '../../../src/loaders/logger.js';
+import { default as apiService } from '../../../src/services/apiService.js';
+import { storeArticlesInDB } from '../../../src/services/dbService.js';
+import { processNewsRequest } from '../../../src/services/newsService.js';
+import { generateMockArticlesResponse } from '../../mocks/generateMockArticles.js';
 
 const fetchScienceNews = jest.spyOn(apiService, 'fetchScienceNews');
 

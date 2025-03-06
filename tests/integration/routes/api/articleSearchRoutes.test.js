@@ -1,9 +1,9 @@
 import { jest } from '@jest/globals';
 import request from 'supertest';
-import db from '../../../src/config/db.js';
-import createServer from '../../../src/loaders/server.js';
-import { default as queryService } from '../../../src/services/queryService.js';
-import { generateMockSavedArticles } from '../../mocks/generateMockSavedArticles.js';
+import db from '../../../../src/config/db.js';
+import createServer from '../../../../src/loaders/server.js';
+import { default as queryService } from '../../../../src/services/queryService.js';
+import { generateMockSavedArticles } from '../../../mocks/generateMockSavedArticles.js';
 const processQueryRequest = jest.spyOn(queryService, 'processQueryRequest');
 
 const app = createServer();
