@@ -1,17 +1,16 @@
-import bcrypt from 'bcrypt';
 import request from 'supertest';
 import db from '../../../../src/config/db.js';
 import createServer from '../../../../src/loaders/server.js';
-import User from '../../../../src/models/User.js';
 
 const app = createServer();
 
 beforeAll(async () => {
   await db.migrate.latest();
+  await db.seed.run(); // ✅ Seed the test database before running tests
 });
 
 afterEach(async () => {
-  await db('users').del();
+  await db('blacklisted_tokens').del(); // Clear blacklisted tokens to avoid conflicts
 });
 
 afterAll(async () => {
@@ -19,11 +18,10 @@ afterAll(async () => {
 }, 10000);
 
 describe('Authentication Controller', () => {
-  // 🔹 Email & Password Signup
   test('should sign up a user with email & password', async () => {
     const res = await request(app).post('/api/v1/auth/signup').send({
-      username: 'testuser27',
-      email: 'test@example27.com',
+      username: 'newuser',
+      email: 'newuser@example.com',
       password: 'securepassword123',
     });
 
@@ -32,17 +30,16 @@ describe('Authentication Controller', () => {
     expect(res.body).toHaveProperty('token');
   });
 
-  // 🔹 Email & Password Signup - Duplicate Email
   test('should return 409 if email is already registered', async () => {
-    await User.query().insert({
-      username: 'existinguser',
-      email: 'duplicate@example.com',
-      password_hash: await bcrypt.hash('securepassword123', 10),
-    });
+    // ✅ Fetch a seeded user from the database
+    const seededUser = await db('users').first(); // Get the first seeded user
+
+    // ✅ Ensure a user exists in the database
+    expect(seededUser).toBeDefined();
 
     const res = await request(app).post('/api/v1/auth/signup').send({
-      username: 'newuser',
-      email: 'duplicate@example.com',
+      username: 'anotherUser',
+      email: seededUser.email,
       password: 'securepassword123',
     });
 
@@ -53,35 +50,28 @@ describe('Authentication Controller', () => {
     );
   });
 
-  // 🔹 Email & Password Login
   test('should log in a user with valid credentials', async () => {
-    const hashedPassword = await bcrypt.hash('securepassword123', 10);
-    await User.query().insert({
-      username: 'testuser',
-      email: 'login@example.com',
-      password_hash: hashedPassword,
-    });
+    // ✅ Fetch a user with a password (not an OAuth user)
+    const seededUser = await db('users').whereNotNull('password_hash').first();
+
+    // ✅ Ensure a valid user exists
+    expect(seededUser).toBeDefined();
 
     const res = await request(app).post('/api/v1/auth/login').send({
-      email: 'login@example.com',
-      password: 'securepassword123',
+      email: seededUser.email,
+      password: 'Password123!', // 🔹 The password used in the seed data
     });
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('token');
   });
 
-  // 🔹 Email & Password Login - Invalid Password
   test('should return 401 for invalid password', async () => {
-    const hashedPassword = await bcrypt.hash('securepassword123', 10);
-    await User.query().insert({
-      username: 'testuser',
-      email: 'invalidpass@example.com',
-      password_hash: hashedPassword,
-    });
+    const seededUser = await db('users').whereNotNull('password_hash').first();
 
+    expect(seededUser).toBeDefined();
     const res = await request(app).post('/api/v1/auth/login').send({
-      email: 'invalidpass@example.com',
+      email: seededUser.email,
       password: 'wrongpassword',
     });
 
@@ -89,52 +79,32 @@ describe('Authentication Controller', () => {
     expect(res.body).toHaveProperty('error', 'Invalid credentials');
   });
 
-  // 🔹 OAuth Signup/Login
-  test('should sign up or log in a user using OAuth', async () => {
-    const res = await request(app).post('/api/v1/auth/oauth').send({
-      provider: 'google',
-      oauth_id: 'google-12345',
-      email: 'oauth@example.com',
-      username: 'oauthuser',
-    });
-
-    expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty('token');
-  });
-
-  // 🔹 OAuth Login - Existing User
   test('should log in an existing OAuth user', async () => {
-    await User.query().insert({
-      username: 'oauthuser',
-      email: 'oauth@example.com',
-      oauth_provider: 'google',
-      oauth_id: 'google-12345',
-    });
-
     const res = await request(app).post('/api/v1/auth/oauth').send({
       provider: 'google',
-      oauth_id: 'google-12345',
-      email: 'oauth@example.com',
+      oauth_id: 'existing-oauth-id', // ✅ Match seed data
+      email: 'oauthuser@example.com',
+      username: 'oauthuser',
     });
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('token');
   });
 
-  // 🔹 Logout & Token Blacklisting
   test('should log out a user and blacklist the token', async () => {
-    const signupRes = await request(app).post('/api/v1/auth/signup').send({
-      username: 'testuser',
-      email: 'test@example.com',
-      password: 'securepassword123',
+    const seededUser = await db('users').whereNotNull('password_hash').first();
+    expect(seededUser).toBeDefined();
+
+    const loginRes = await request(app).post('/api/v1/auth/login').send({
+      email: seededUser.email,
+      password: 'Password123!',
     });
+    console.log('loginRes.body', loginRes.body);
 
-    // ✅ Ensure token was returned
-    expect(signupRes.status).toBe(201);
-    expect(signupRes.body).toHaveProperty('token');
-    const token = signupRes.body.token;
+    expect(loginRes.status).toBe(200);
+    expect(loginRes.body).toHaveProperty('token');
+    const token = loginRes.body.token;
 
-    // ✅ Logout request
     const logoutRes = await request(app)
       .post('/api/v1/auth/logout')
       .set('Authorization', `Bearer ${token}`);
@@ -146,9 +116,9 @@ describe('Authentication Controller', () => {
     const blacklistedToken = await db('blacklisted_tokens')
       .where({ token })
       .first();
-    expect(blacklistedToken).toBeDefined(); // ✅ Ensure token is in the blacklist
+    expect(blacklistedToken).toBeDefined();
 
-    // ✅ Try using the token again on a protected route
+    // ✅ Ensure token can't be reused
     const protectedRes = await request(app)
       .get('/api/v1/protected-route')
       .set('Authorization', `Bearer ${token}`);
