@@ -98,7 +98,7 @@ describe('Bookmark API Endpoints', () => {
     const res = await request(app)
       .delete(`/api/v1/bookmarks/${bookmark.id}`)
       .set('Authorization', token);
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(204);
 
     const checkBookmark = await Bookmark.query().findById(bookmark.id);
     expect(checkBookmark).toBeUndefined();
