@@ -6,7 +6,7 @@ export async function seed(knex) {
 
   const users = [];
 
-  // ✅ Always insert at least **one** user with a password
+  // Always insert at least **one** user with a password
   users.push({
     username: 'testuser',
     email: 'testuser@example.com',
@@ -14,8 +14,16 @@ export async function seed(knex) {
     oauth_provider: null,
     oauth_id: null,
   });
+  // Always insert at least **one** known OAuth user
+  users.push({
+    username: 'oauthuser',
+    email: 'oauthuser@example.com',
+    password_hash: null, // No password for OAuth users
+    oauth_provider: 'google',
+    oauth_id: 'existing-oauth-id', // ✅ Known OAuth ID
+  });
 
-  // 🔹 Insert 4 more users (random OAuth or password users)
+  // Insert 4 more users (random OAuth or password users)
   for (let i = 0; i < 4; i++) {
     const useOAuth = faker.datatype.boolean(); // 50% chance of using OAuth
 
@@ -30,4 +38,3 @@ export async function seed(knex) {
 
   await knex('users').insert(users);
 }
-export default { seed };
