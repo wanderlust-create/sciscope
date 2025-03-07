@@ -1,18 +1,30 @@
 import logger from '../loaders/logger.js';
 import Article from '../models/Article.js';
 import Bookmark from '../models/Bookmark.js';
+import { applyPagination } from '../utils/pagination.js';
 
 /**
  * Retrieves all bookmarks for a specific user.
  * @param {number} userId - The user's ID.
  * @returns {Promise<Array>} - List of bookmarked articles.
  */
-export async function getBookmarks(userId) {
+export async function getBookmarks(userId, page = 1, limit = 10) {
   try {
-    return await Bookmark.query()
+    // ✅ Get total count of bookmarks
+    const total = await Bookmark.query()
       .where({ user_id: userId })
-      .withGraphFetched('article') // Fetch related article details
-      .orderBy('bookmarked_at', 'desc');
+      .resultSize();
+
+    // ✅ Apply pagination
+    const paginatedBookmarks = await applyPagination(
+      Bookmark.query()
+        .where({ user_id: userId })
+        .withGraphFetched('article') // Ensure articles are included
+        .orderBy('bookmarked_at', 'desc'),
+      { page, limit }
+    );
+
+    return { total, bookmarks: paginatedBookmarks };
   } catch (error) {
     logger.error(`❌ Error fetching bookmarks: ${error.message}`);
     throw new Error('Failed to retrieve bookmarks.');
