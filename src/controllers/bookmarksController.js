@@ -4,15 +4,26 @@ import bookmarkService from '../services/bookmarkService.js';
 /**
  * Fetches all bookmarks for the authenticated user.
  */
+/**
+ * Fetches paginated bookmarks for the authenticated user.
+ */
 export async function getBookmarks(req, res) {
   try {
-    const userId = req.user.id; // Extract user ID from auth middleware
-    const bookmarks = await bookmarkService.getBookmarks(userId);
-    res.status(200).json(bookmarks);
+    const userId = req.user.id;
+    const { page = 1, limit = 10 } = req.query;
+
+    const paginatedBookmarks = await bookmarkService.getBookmarks(
+      userId,
+      Number(page),
+      Number(limit)
+    );
+
+    res.status(200).json(paginatedBookmarks);
   } catch (error) {
     logger.error(`❌ Error fetching bookmarks: ${error.message}`, {
       stack: error.stack,
     });
+
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
