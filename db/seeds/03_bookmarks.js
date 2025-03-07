@@ -11,7 +11,9 @@ export async function seed(knex) {
 
   const bookmarks = [];
   for (const user of users) {
-    const randomArticles = articles.sort(() => 0.5 - Math.random()).slice(0, 3); // Each user bookmarks 3 articles
+    const randomArticles = articles
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 20); // Each user bookmarks 10 articles
     for (const article of randomArticles) {
       bookmarks.push({
         user_id: user.id,

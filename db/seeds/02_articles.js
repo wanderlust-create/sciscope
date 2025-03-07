@@ -4,7 +4,7 @@ export async function seed(knex) {
   await knex('articles').del();
 
   const articles = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 50; i++) {
     articles.push({
       title: faker.lorem.sentence(),
       description: faker.lorem.paragraph(),
