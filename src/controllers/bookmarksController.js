@@ -2,9 +2,6 @@ import logger from '../loaders/logger.js';
 import bookmarkService from '../services/bookmarkService.js';
 
 /**
- * Fetches all bookmarks for the authenticated user.
- */
-/**
  * Fetches paginated bookmarks for the authenticated user.
  */
 export async function getBookmarks(req, res) {
