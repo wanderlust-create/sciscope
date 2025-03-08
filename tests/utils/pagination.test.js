@@ -1,30 +1,38 @@
 import { jest } from '@jest/globals';
-import db from '../../src/config/db.js';
+import knex from '../../src/config/db.js';
 import { applyPagination } from '../../src/utils/pagination.js';
 
-beforeEach(async () => {
-  await db('articles').del();
+beforeAll(async () => {
+  await knex.destroy();
 });
 
 afterAll(async () => {
-  await db('articles').del();
-  await db.destroy();
+  await knex.destroy();
 });
 
 describe('Pagination Utility', () => {
-  test('should apply pagination correctly', () => {
-    const query = {
+  let query;
+
+  beforeEach(() => {
+    query = {
       limit: jest.fn().mockReturnThis(),
       offset: jest.fn().mockReturnThis(),
       orderBy: jest.fn().mockReturnThis(),
     };
+  });
 
-    const page = 2;
-    const limit = 10;
-    const sortBy = 'created_at';
-    const order = 'desc';
+  afterAll(async () => {
+    jest.restoreAllMocks();
+    knex.destroy();
+  });
 
-    applyPagination(query, { page, limit, sortBy, order });
+  test('should apply pagination correctly', () => {
+    applyPagination(query, {
+      page: 2,
+      limit: 10,
+      sortBy: 'created_at',
+      order: 'desc',
+    });
 
     expect(query.limit).toHaveBeenCalledWith(10);
     expect(query.offset).toHaveBeenCalledWith(10); // Page 2 starts at index 10
@@ -32,12 +40,6 @@ describe('Pagination Utility', () => {
   });
 
   test('should default to page 1 and limit 10 if not provided', () => {
-    const query = {
-      limit: jest.fn().mockReturnThis(),
-      offset: jest.fn().mockReturnThis(),
-      orderBy: jest.fn().mockReturnThis(),
-    };
-
     applyPagination(query, {});
 
     expect(query.limit).toHaveBeenCalledWith(10);
@@ -46,15 +48,31 @@ describe('Pagination Utility', () => {
   });
 
   test('should prevent negative or zero values for page and limit', () => {
-    const query = {
-      limit: jest.fn().mockReturnThis(),
-      offset: jest.fn().mockReturnThis(),
-      orderBy: jest.fn().mockReturnThis(),
-    };
-
     applyPagination(query, { page: -1, limit: 0 });
 
     expect(query.limit).toHaveBeenCalledWith(10); // Default limit
     expect(query.offset).toHaveBeenCalledWith(0); // Default offset
+  });
+
+  test('should allow sorting by a different column', () => {
+    applyPagination(query, {
+      page: 1,
+      limit: 5,
+      sortBy: 'title',
+      order: 'asc',
+    });
+
+    expect(query.orderBy).toHaveBeenCalledWith('title', 'asc'); // Sorting by title
+  });
+
+  test('should allow descending sorting order', () => {
+    applyPagination(query, {
+      page: 1,
+      limit: 5,
+      sortBy: 'title',
+      order: 'desc',
+    });
+
+    expect(query.orderBy).toHaveBeenCalledWith('title', 'desc'); // Sorting Z → A
   });
 });
