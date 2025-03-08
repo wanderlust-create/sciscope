@@ -95,7 +95,7 @@ describe('Article DB Service (Unit Test)', () => {
 
     const query = mockArticles.articles[0].title.split(' ')[0]; // Pick a word from title
     const results = await searchArticlesInDB(query);
-    expect(Array.isArray(results)).toBe(true);
-    expect(results.length).toBeGreaterThan(0);
+    expect(Array.isArray(results.articles)).toBe(true);
+    expect(results.articles.length).toBeGreaterThan(0);
   });
 });
