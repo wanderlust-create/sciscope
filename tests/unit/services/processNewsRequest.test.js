@@ -103,7 +103,6 @@ describe('processNewsRequest', () => {
       articles: [],
     });
     const results = await processNewsRequest();
-    console.log('Results:', results);
 
     expect(results).toEqual([]);
     expect(fetchScienceNews).toHaveBeenCalledTimes(1);

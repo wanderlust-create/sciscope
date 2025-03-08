@@ -99,7 +99,6 @@ describe('Authentication Controller', () => {
       email: seededUser.email,
       password: 'Password123!',
     });
-    console.log('loginRes.body', loginRes.body);
 
     expect(loginRes.status).toBe(200);
     expect(loginRes.body).toHaveProperty('token');
