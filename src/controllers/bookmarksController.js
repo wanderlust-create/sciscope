@@ -3,6 +3,8 @@ import bookmarkService from '../services/bookmarkService.js';
 
 /**
  * Fetches paginated bookmarks for the authenticated user.
+ * @param {Object} req - Express request object with pagination query.
+ * @param {Object} res - Express response object.
  */
 export async function getBookmarks(req, res) {
   try {
@@ -27,6 +29,8 @@ export async function getBookmarks(req, res) {
 
 /**
  * Creates a new bookmark for the logged-in user.
+ * @param {Object} req - Express request object with article ID.
+ * @param {Object} res - Express response object.
  */
 export async function createBookmark(req, res) {
   try {
@@ -59,6 +63,8 @@ export async function createBookmark(req, res) {
 
 /**
  * Deletes a bookmark by ID for the logged-in user.
+ * @param {Object} req - Express request object with search query.
+ * @param {Object} res - Express response object.
  */
 export async function deleteBookmark(req, res) {
   try {
