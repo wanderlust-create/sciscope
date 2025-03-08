@@ -1,5 +1,14 @@
 import { jest } from '@jest/globals';
+import knex from '../../src/config/db.js';
 import { applyPagination } from '../../src/utils/pagination.js';
+
+beforeAll(async () => {
+  await knex.destroy();
+});
+
+afterAll(async () => {
+  await knex.destroy();
+});
 
 describe('Pagination Utility', () => {
   let query;
@@ -14,6 +23,7 @@ describe('Pagination Utility', () => {
 
   afterAll(async () => {
     jest.restoreAllMocks();
+    knex.destroy();
   });
 
   test('should apply pagination correctly', () => {
