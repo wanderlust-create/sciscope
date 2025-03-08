@@ -8,9 +8,9 @@ const API_KEY = process.env.NEWS_API_KEY;
 const BASE_URL = 'https://newsapi.org/v2';
 
 /**
- * Constructs a NewsAPI URL with query parameters.
+ * Constructs a NewsAPI URL with keyword parameters.
  * @param {string} endpoint - API endpoint ('top-headlines' or 'everything').
- * @param {Object} params - Query parameters for the request.
+ * @param {Object} params - keyword parameters for the request.
  * @returns {string} - Fully formatted API URL.
  */
 const getNewsApiUrl = (endpoint, params = {}) =>
@@ -27,22 +27,22 @@ export const fetchScienceNews = () =>
   );
 
 /**
- * Fetches news articles based on a search query.
- * @param {string} query - Search keyword(s).
+ * Fetches news articles based on a search keyword.
+ * @param {string} keyword - Search keyword(s).
  * @param {number} [pageSize=10] - Number of results to fetch.
  * @returns {Promise<Object>} - NewsAPI response containing articles.
  */
-export const searchNewsByQuery = (query, pageSize = 10) => {
-  if (!query)
-    throw new Error('Query parameter is required for searching news.');
+export const searchNewsByKeyword = (keyword, pageSize = 10) => {
+  if (!keyword)
+    throw new Error('Keyword parameter is required for searching news.');
 
   return fetchArticles(
     getNewsApiUrl('everything', {
-      q: encodeURIComponent(query),
+      q: encodeURIComponent(keyword),
       language: 'en',
       pageSize,
     }),
-    `search query: "${query}" with pageSize: ${pageSize}`
+    `search keyword: "${keyword}" with pageSize: ${pageSize}`
   );
 };
 
@@ -71,7 +71,6 @@ export const fetchArticles = async (url, context) => {
     const data = response.data || response;
 
     if (!data || data.status !== 'ok' || !Array.isArray(data.articles)) {
-      console.log('INSIDE');
       logger.error(`❌ Malformed API response for ${context}:`, data);
       throw new Error(
         `Failed to fetch ${context}. Unexpected response format.`
@@ -98,4 +97,4 @@ export const fetchArticles = async (url, context) => {
   }
 };
 
-export default { fetchScienceNews, searchNewsByQuery, fetchArticles };
+export default { fetchScienceNews, searchNewsByKeyword, fetchArticles };
