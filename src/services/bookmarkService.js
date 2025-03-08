@@ -6,6 +6,8 @@ import { applyPagination } from '../utils/pagination.js';
 /**
  * Retrieves all bookmarks for a specific user.
  * @param {number} userId - The user's ID.
+ * @param {number} [page=1] - Page number for pagination (default: 1).
+ * @param {number} [limit=10] - Number of bookmarks per page (default: 10).
  * @returns {Promise<Array>} - List of bookmarked articles.
  */
 export async function getBookmarks(userId, page = 1, limit = 10) {
