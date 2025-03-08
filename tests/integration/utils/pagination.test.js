@@ -10,6 +10,7 @@ beforeAll(async () => {
   server = app.listen(8080);
   await knex.migrate.latest();
   await knex.seed.run();
+  console.log('🔺Locale:', process.env.LANG, process.env.LC_ALL);
 });
 
 beforeEach(async () => {
