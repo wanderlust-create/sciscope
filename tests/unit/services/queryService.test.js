@@ -7,25 +7,26 @@ import {
   processQueryRequest,
 } from '../../../src/services/queryService.js';
 import { generateMockArticlesResponse } from '../../mocks/generateMockArticles.js';
-const searchNewsByQuery = jest.spyOn(apiService, 'searchNewsByQuery');
+
+const searchNewsByKeyword = jest.spyOn(apiService, 'searchNewsByKeyword');
 const fetchArticles = jest.spyOn(apiService, 'fetchArticles');
 
 beforeEach(async () => {
   jest.clearAllMocks();
   await db('articles').del();
 });
+
 afterEach(async () => {
-  await db('articles').del(); // Clear test data
+  await db('articles').del();
 });
 
 afterAll(async () => {
-  await db.destroy(); // Close the connection pool only once
+  await db.destroy();
 });
 
 describe('Article Search Service (Unit Test)', () => {
   /**
-   * ✅ Test: Ensures that when sufficient articles exist in the DB,
-   * the system does NOT call the external API and only returns DB results.
+   * ✅ Test: Ensures that when DB has enough articles, API is NOT called.
    */
   it('should return articles from DB if sufficient results exist', async () => {
     // Insert sufficient articles into the database
@@ -35,11 +36,11 @@ describe('Article Search Service (Unit Test)', () => {
     const results = await processQueryRequest('space');
 
     // Expect correct number of results from DB
-    expect(results).toHaveLength(MIN_DB_RESULTS);
-    expect(searchNewsByQuery).not.toHaveBeenCalled(); // API call should NOT be triggered
+    expect(results.articles).toHaveLength(MIN_DB_RESULTS);
+    expect(searchNewsByKeyword).not.toHaveBeenCalled(); // API should NOT be triggered
 
-    // Ensure each article contains the expected keyword
-    results.forEach((article) => {
+    // Ensure articles contain the keyword
+    results.articles.forEach((article) => {
       const text =
         `${article.title} ${article.description} ${article.content || ''}`.toLowerCase();
       expect(text).toContain('space');
@@ -47,36 +48,37 @@ describe('Article Search Service (Unit Test)', () => {
   });
 
   /**
-   * ✅ Test: Ensures that when DB results are insufficient,
-   * the system fetches missing articles from the external API.
+   * ✅ Test: Ensures that if DB results are insufficient, API fetches more.
    */
   it('should fetch from API when DB results are insufficient', async () => {
-    const tooFew = 4;
-    // Step 1: Insert fewer than the minimum required articles into DB
+    const tooFew = MIN_DB_RESULTS - 2;
+
+    // Step 1: Insert fewer articles into DB
     const tooFewMockDbArticles = generateMockArticlesResponse(tooFew, 'krebs');
     await storeArticlesInDB(tooFewMockDbArticles);
 
-    // Step 2: Mock API response to provide missing articles
+    // Step 2: Mock API response for missing articles
     const stillNeed = MIN_DB_RESULTS - tooFew;
     const mockApiResponse = generateMockArticlesResponse(stillNeed, 'krebs');
-    searchNewsByQuery.mockResolvedValue(mockApiResponse);
+    searchNewsByKeyword.mockResolvedValue(mockApiResponse);
 
+    // Step 3: Process search request
     const results = await processQueryRequest('krebs');
 
     // Step 4: Verify total articles (DB + API)
-    expect(results).toHaveLength(MIN_DB_RESULTS);
+    expect(results.total_count).toBe(MIN_DB_RESULTS);
+    expect(results.articles).toHaveLength(MIN_DB_RESULTS);
 
-    // Step 5: Ensure the external API was called to fetch exactly the missing amount
-    expect(searchNewsByQuery).toHaveBeenCalledWith('krebs', stillNeed);
-    expect(searchNewsByQuery).toHaveBeenCalledTimes(1);
+    // Step 5: Ensure API was called for missing amount
+    expect(searchNewsByKeyword).toHaveBeenCalledWith('krebs', stillNeed);
+    expect(searchNewsByKeyword).toHaveBeenCalledTimes(1);
 
     // Ensure fetchArticles (low-level API fetcher) was NOT called separately
     expect(fetchArticles).not.toHaveBeenCalled();
   });
 
   /**
-   * ✅ Test: Ensures that when no relevant articles exist in the database,
-   * the system fetches articles entirely from the external API.
+   * ✅ Test: Ensures that if no relevant DB articles exist, API provides results.
    */
   it('should return API articles even if DB is empty', async () => {
     // Step 1: Ensure database is empty
@@ -87,14 +89,14 @@ describe('Article Search Service (Unit Test)', () => {
       MIN_DB_RESULTS,
       'NASA'
     );
-    searchNewsByQuery.mockResolvedValue(mockApiArticles);
+    searchNewsByKeyword.mockResolvedValue(mockApiArticles);
 
     // Step 3: Call search function
     const results = await processQueryRequest('NASA');
 
-    // Step 4: Validate API response was used as the data source
-    expect(results).toHaveLength(MIN_DB_RESULTS);
-    expect(searchNewsByQuery).toHaveBeenCalledWith('NASA', MIN_DB_RESULTS);
-    expect(searchNewsByQuery).toHaveBeenCalledTimes(1);
+    // Step 4: Validate API response was used
+    expect(results.articles).toHaveLength(MIN_DB_RESULTS);
+    expect(searchNewsByKeyword).toHaveBeenCalledWith('NASA', MIN_DB_RESULTS);
+    expect(searchNewsByKeyword).toHaveBeenCalledTimes(1);
   });
 });
