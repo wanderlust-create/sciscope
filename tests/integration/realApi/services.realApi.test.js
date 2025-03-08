@@ -64,7 +64,8 @@ describe('SERVICE should fetch real science news from the API', () => {
       '../../../src/services/queryService.js'
     );
 
-    const articles = await processQueryRequest('nasa');
+    const response = await processQueryRequest('nasa');
+    const { articles } = response;
 
     expect(Array.isArray(articles)).toBe(true);
     expect(articles.length).toBeGreaterThan(0);
