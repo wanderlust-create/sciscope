@@ -4,7 +4,7 @@ import db from '../../../src/config/db.js';
 import logger from '../../../src/loaders/logger.js';
 import {
   default as apiService,
-  searchNewsByQuery,
+  searchNewsByKeyword,
 } from '../../../src/services/apiService.js';
 import { generateMockArticlesResponse } from '../../mocks/generateMockArticles.js';
 
@@ -117,14 +117,14 @@ describe('apiService', () => {
     );
     expect(logger.error).toHaveBeenCalledWith(
       expect.stringContaining(
-        '❌ Failed to fetch science news. API responded with 500'
+        'Failed to fetch science news. API responded with 500'
       )
     );
   });
 
   it('should throw an error if search query is missing', () => {
-    expect(() => apiService.searchNewsByQuery()).toThrow(
-      'Query parameter is required for searching news.'
+    expect(() => apiService.searchNewsByKeyword()).toThrow(
+      'Keyword parameter is required for searching news.'
     );
   });
 
@@ -132,7 +132,7 @@ describe('apiService', () => {
     const mockApiResponse = generateMockArticlesResponse(3);
     axios.get.mockResolvedValue(mockApiResponse);
 
-    const results = await searchNewsByQuery('NASA');
+    const results = await searchNewsByKeyword('NASA');
     expect(results).toEqual(mockApiResponse);
     expect(axios.get).toHaveBeenCalledTimes(1);
   });
@@ -144,7 +144,7 @@ describe('apiService', () => {
       articles: [],
     });
 
-    const results = await searchNewsByQuery('nonexistent-topic');
+    const results = await searchNewsByKeyword('nonexistent-topic');
     expect(results.articles).toEqual([]);
     expect(axios.get).toHaveBeenCalledTimes(1);
   });

@@ -45,20 +45,41 @@ export async function fetchRecentArticles(maxAgeHours = null, limit = 10) {
 
 /**
  * Searches for articles in the database using a case-insensitive match.
- * @param {string} query - The search keyword(s).
- * @returns {Promise<Object[]>} - List of matching articles from the database.
+ * @param {string} keyword - The search keyword(s).
+ * @param {number} page - Page number for pagination.
+ * @param {number} limit - Number of articles per page.
+ * @returns {Promise<Object>} - Paginated search results.
  */
-export async function searchArticlesInDB(query) {
-  if (!query) {
-    throw new Error('Query is required for searching articles.');
+export async function searchArticlesInDB(keyword, page = 1, limit = 10) {
+  if (!keyword) {
+    throw new Error('Keyword is required for searching articles.');
   }
+
   try {
-    return await db('articles')
-      .where('title', 'ILIKE', `%${query}%`)
-      .orWhere('description', 'ILIKE', `%${query}%`)
-      .orWhere('content', 'ILIKE', `%${query}%`)
-      .orderBy('published_at', 'desc')
-      .limit(10);
+    // Fetch ALL matching articles
+    const allResults = await db('articles')
+      .where('title', 'ILIKE', `%${keyword}%`)
+      .orWhere('description', 'ILIKE', `%${keyword}%`)
+      .orWhere('content', 'ILIKE', `%${keyword}%`)
+      .orderBy('published_at', 'desc');
+
+    // Cap total results at 100
+    const totalResults = allResults.length;
+    const cappedTotal = Math.min(totalResults, 100);
+
+    // Paginate results in-memory
+    const validPage = Math.max(1, parseInt(page, 10) || 1);
+    const validLimit = Math.max(1, parseInt(limit, 10) || 10);
+    const offset = (validPage - 1) * validLimit;
+
+    const paginatedResults = allResults.slice(offset, offset + validLimit);
+
+    return {
+      total_count: cappedTotal,
+      total_pages: Math.ceil(cappedTotal / validLimit),
+      current_page: validPage,
+      articles: paginatedResults,
+    };
   } catch (error) {
     logger.error(`❌ Error searching articles in DB: ${error.message}`);
     throw error;

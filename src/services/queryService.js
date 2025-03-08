@@ -6,37 +6,53 @@ export const MIN_DB_RESULTS = 6; // Minimum articles required before fetching fr
 
 /**
  * Searches for articles in the database and fetches additional ones from the API if needed.
- * @param {string} query - The search keyword(s).
+ * @param {string} keyword - The search keyword(s).
  * @returns {Promise<Object[]>} Articles from the database or API fallback.
  */
-export async function processQueryRequest(query) {
-  if (!query) {
-    throw new Error('Query parameter is required for searching news.');
+export async function processQueryRequest(keyword, page = 1, limit = 10) {
+  let finalTotalCount = 0;
+  if (!keyword) {
+    throw new Error('Keyword parameter is required for searching news.');
   }
 
-  // Step 1: Attempt to retrieve articles from the database
-  let dbResults = await searchArticlesInDB(query);
+  // Step 1: Retrieve paginated articles from the database
+  let dbResults = await searchArticlesInDB(keyword, page, limit);
+  let origTotalCount = dbResults.total_count; // Initial DB count
 
   // Step 2: Determine if additional articles need to be fetched
-  const missingArticles = MIN_DB_RESULTS - dbResults.length;
+  const missingArticles = MIN_DB_RESULTS - origTotalCount;
   if (missingArticles > 0) {
     logger.info(
       `⚡ Need ${missingArticles} more articles, fetching from API...`
     );
 
-    // If needed, fetch additional articles from the external API
-    const apiResults = await newsApiService.searchNewsByQuery(
-      query,
+    // Fetch additional articles from the external API
+    const apiResults = await newsApiService.searchNewsByKeyword(
+      keyword,
       missingArticles
     );
 
-    // Persist new articles to the database, ensuring no duplicates
+    // Store new articles in the database
     await storeArticlesInDB(apiResults);
 
-    // Merge database and API results for the final response
-    dbResults = [...dbResults, ...apiResults.articles];
+    // Re-fetch updated DB results to get the most recent count
+    dbResults = await searchArticlesInDB(keyword, page, limit);
+
+    // ✅ Update finalTotalCount **only if more articles were fetched**
+    finalTotalCount = Math.min(
+      origTotalCount + apiResults.articles.length,
+      100
+    );
+  } else {
+    finalTotalCount = origTotalCount; // ✅ Keep the original total if no API fetch
   }
 
-  return dbResults;
+  return {
+    ...dbResults,
+    total_count: finalTotalCount,
+    total_pages: Math.ceil(finalTotalCount / limit),
+    current_page: page,
+  };
 }
+
 export default { processQueryRequest };

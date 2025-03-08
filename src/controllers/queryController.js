@@ -11,13 +11,19 @@ import queryService from '../services/queryService.js';
 export async function getNewsByQuery(req, res) {
   logger.info(req.body);
   try {
-    const { query } = req.query;
-    if (!query) {
-      return res.status(400).json({ error: 'Query parameter is required.' });
+    const { keyword, page = 1, limit = 10 } = req.query;
+
+    if (!keyword) {
+      return res.status(400).json({ error: 'Keyword parameter is required.' });
     }
 
-    const articles = await queryService.processQueryRequest(query);
-    res.status(200).json(articles);
+    const paginatedArticles = await queryService.processQueryRequest(
+      keyword,
+      Number(page),
+      Number(limit)
+    );
+
+    res.status(200).json(paginatedArticles);
   } catch (error) {
     logger.error(`❌ Error searching articles: ${error.message}`, {
       stack: error.stack,

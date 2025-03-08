@@ -25,13 +25,13 @@ afterAll(async () => {
   await db.destroy();
 });
 
-describe('GET /api/v1/articles/:id', () => {
+describe('GET /api/v1/search/:id', () => {
   it('should return a single article when it exists', async () => {
     const mockArticles = generateMockArticlesResponse(1);
     await storeArticlesInDB(mockArticles);
     const article = await db('articles').select('*').first();
 
-    const res = await request(app).get(`/api/v1/articles/${article.id}`);
+    const res = await request(app).get(`/api/v1/search/${article.id}`);
 
     expect(res.body).toHaveProperty('id', article.id);
     expect(res.body).toHaveProperty('title', mockArticles.articles[0].title);
@@ -49,7 +49,7 @@ describe('GET /api/v1/articles/:id', () => {
 
   it('should return 404 if the article does not exist', async () => {
     // Act: Request non-existent article
-    const res = await request(app).get('/api/v1/articles/999999');
+    const res = await request(app).get('/api/v1/search/999999');
 
     // Assert: Correct 404 response
     expect(res.status).toBe(404);
