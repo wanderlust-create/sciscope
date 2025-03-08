@@ -43,9 +43,9 @@ describe('🔬 Real API Tests', () => {
     expect(response.body[0]).toHaveProperty('publishedAt');
   });
 
-  test('Fetches news by query (GET /api/v1/articles)', async () => {
+  test('Fetches news by query (GET /api/v1/search)', async () => {
     const response = await supertest(app)
-      .get('/api/v1/articles')
+      .get('/api/v1/search')
       .query({ query: 'space' })
       .expect(200);
 
@@ -58,9 +58,9 @@ describe('🔬 Real API Tests', () => {
     expect(response.body[0]).toHaveProperty('publishedAt');
   });
 
-  test('Fails when no query is provided (GET /api/v1/articles)', async () => {
+  test('Fails when no query is provided (GET /api/v1/search)', async () => {
     const response = await supertest(app)
-      .get('/api/v1/articles') // No query provided
+      .get('/api/v1/search') // No query provided
       .expect(400); // Expect a 400 Bad Request
 
     expect(response.body).toHaveProperty(
