@@ -36,7 +36,7 @@ describe('GET /api/v1/news Pagination', () => {
       3 // Ensures articles are within the last 3 hours
     );
 
-    storeArticlesInDB(mockRecentArticles);
+    await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news?page=1&limit=5');
 
@@ -56,7 +56,7 @@ describe('GET /api/v1/news Pagination', () => {
       3
     );
 
-    storeArticlesInDB(mockRecentArticles);
+    await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news?page=2&limit=5');
 
@@ -74,7 +74,7 @@ describe('GET /api/v1/news Pagination', () => {
       3
     );
 
-    storeArticlesInDB(mockRecentArticles);
+    await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news?page=999&limit=5');
 
@@ -92,7 +92,7 @@ describe('GET /api/v1/news Pagination', () => {
       3
     );
 
-    storeArticlesInDB(mockRecentArticles);
+    await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news');
 
@@ -111,7 +111,7 @@ describe('GET /api/v1/news Pagination', () => {
       3
     );
 
-    storeArticlesInDB(mockRecentArticles);
+    await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news?page=1&limit=5');
 
