@@ -35,12 +35,12 @@ describe('Real API Tests', () => {
   test('Fetches real science news (GET /api/v1/news)', async () => {
     const response = await supertest(app).get('/api/v1/news').expect(200);
 
-    expect(response.body).toBeInstanceOf(Array);
-    expect(response.body.length).toBeGreaterThan(0);
-    expect(response.body[0]).toHaveProperty('title');
-    expect(response.body[0]).toHaveProperty('description');
-    expect(response.body[0]).toHaveProperty('url');
-    expect(response.body[0]).toHaveProperty('publishedAt');
+    expect(response.body.articles).toBeInstanceOf(Array);
+    expect(response.body.articles.length).toBeGreaterThan(0);
+    expect(response.body.articles[0]).toHaveProperty('title');
+    expect(response.body.articles[0]).toHaveProperty('description');
+    expect(response.body.articles[0]).toHaveProperty('url');
+    expect(response.body.articles[0]).toHaveProperty('publishedAt');
   });
 
   test('Fetches news by query (GET /api/v1/search)', async () => {
