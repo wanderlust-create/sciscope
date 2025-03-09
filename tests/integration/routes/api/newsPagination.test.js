@@ -7,7 +7,8 @@ import { generateMockArticlesResponse } from '../../../mocks/generateMockArticle
 const app = createServer();
 let server;
 
-beforeAll(() => {
+beforeAll(async () => {
+  await db('articles').del();
   server = app.listen(8080);
 });
 
