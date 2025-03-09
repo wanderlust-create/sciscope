@@ -2,42 +2,63 @@ import logger from '../loaders/logger.js';
 import apiService from './apiService.js';
 import { fetchRecentArticles, storeArticlesInDB } from './dbService.js';
 
+export const MIN_DB_RESULTS = 6; // Minimum articles required before fetching from API
 const MAX_AGE_HOURS = 3; // Consider articles "fresh" if they're within the last 3 hours.
 
 /**
- * Fetches general science news, prioritizing database results to reduce API calls.
- * @returns {Promise<Object[]>} Science news articles.
+ * Fetches general science news, prioritizing database results and adding pagination.
+ * @param {number} page - The requested page number.
+ * @param {number} limit - The number of articles per page.
+ * @returns {Promise<Object>} Paginated articles from the database or API.
  */
-export async function processNewsRequest() {
+export async function processNewsRequest(page = 1, limit = 10) {
+  let finalTotalCount = 0;
   try {
-    logger.info('🔎 Checking database for recent science news...');
+    logger.info('Checking database for recent science news...');
 
-    // Step 1: Check if we have recent articles in the database
-    const recentArticles = await fetchRecentArticles(MAX_AGE_HOURS, 10);
+    // Retrieve paginated recent articles from the database
+    let dbResults = await fetchRecentArticles(MAX_AGE_HOURS, page, limit);
+    let origTotalCount = dbResults.total_count; // Initial DB count
 
-    if (recentArticles.length > 0) {
+    // Determine if additional articles need to be fetched
+    const missingArticles = MIN_DB_RESULTS - origTotalCount;
+    if (missingArticles > 0) {
       logger.info(
-        `✅ Found ${recentArticles.length} recent articles in DB. Returning from cache.`
+        `⚡ Need ${missingArticles} more articles, fetching from API...`
       );
-      return recentArticles;
+
+      // Fetch additional articles from the external API
+      const apiResults = await apiService.fetchScienceNews(missingArticles);
+
+      // Store new articles in the database
+      await storeArticlesInDB(apiResults);
+
+      // Re-fetch updated DB results to get the most recent count
+      dbResults = await fetchRecentArticles(MAX_AGE_HOURS, page, limit);
+
+      // Update finalTotalCount **only if more articles were fetched**
+      finalTotalCount = Math.min(
+        origTotalCount + apiResults.articles.length,
+        100
+      );
+    } else {
+      finalTotalCount = origTotalCount; // ✅ Keep the original total if no API fetch
     }
 
-    // Step 2: If not enough recent articles, fetch fresh ones from the API
-    logger.info('📡 No recent articles found. Fetching fresh news from API...');
-    const apiResults = await apiService.fetchScienceNews();
-
-    // Step 3: Store fresh API articles in the DB for future use
-    await storeArticlesInDB(apiResults);
-
-    return apiResults.articles;
+    return {
+      ...dbResults,
+      total_count: finalTotalCount,
+      total_pages: Math.ceil(finalTotalCount / limit),
+      current_page: page,
+    };
   } catch (error) {
     logger.error(`❌ Error fetching general science news: ${error.message}`, {
       stack: error.stack,
     });
 
-    // ✅ Preserve and rethrow the original error message
+    // Preserve and rethrow the original error message
     throw new Error(error.message || 'Failed to fetch general science news.');
   }
 }
 
-export default { processNewsRequest };
+export default { processNewsRequest, MIN_DB_RESULTS };
