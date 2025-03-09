@@ -8,15 +8,17 @@
  * @param {string} [options.order='desc'] - The sorting order ('asc' or 'desc').
  * @returns {Promise<Array>} - The paginated results.
  */
-export async function applyPagination(
+export function applyPagination(
   query,
   { page = 1, limit = 10, sortBy = 'id', order = 'desc' }
 ) {
-  // Ensure page and limit are positive integers
-  const validPage = Math.max(1, parseInt(page, 10) || 1);
-  const validLimit = Math.max(1, parseInt(limit, 10) || 10);
+  const parsedPage = Number(page);
+  const parsedLimit = Number(limit);
+
+  const validPage = parsedPage > 0 ? parsedPage : 1;
+  const validLimit = parsedLimit > 0 ? parsedLimit : 10;
+
   const offset = (validPage - 1) * validLimit;
 
-  // Apply pagination and sorting
-  return await query.limit(validLimit).offset(offset).orderBy(sortBy, order);
+  return query.limit(validLimit).offset(offset).orderBy(sortBy, order);
 }

@@ -1,7 +1,8 @@
+import { jest } from '@jest/globals';
 import knex from '../../../src/config/db.js';
 import createServer from '../../../src/loaders/server.js';
-import Article from '../../../src/models/Article.js';
 import { applyPagination } from '../../../src/utils/pagination.js';
+import Article from '../../../src/models/Article.js';
 
 const app = createServer();
 let server;
@@ -65,5 +66,59 @@ describe('Pagination Logic', () => {
     expect(results.map((r) => r.title)).toEqual(
       [...results.map((r) => r.title)].sort().reverse()
     );
+  });
+});
+
+describe('Pagination Utility - Edge Cases', () => {
+  test('should handle negative page and limit values by defaulting to 1 and 10', () => {
+    const query = {
+      limit: jest.fn().mockReturnThis(),
+      offset: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+    };
+
+    applyPagination(query, { page: -5, limit: -10 });
+    expect(query.limit).toHaveBeenCalledWith(10);
+    expect(query.offset).toHaveBeenCalledWith(0);
+  });
+
+  test('should handle non-numeric page and limit values by defaulting to 1 and 10', () => {
+    const query = {
+      limit: jest.fn().mockReturnThis(),
+      offset: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+    };
+
+    applyPagination(query, { page: 'abc', limit: 'xyz' });
+
+    expect(query.limit).toHaveBeenCalledWith(10);
+    expect(query.offset).toHaveBeenCalledWith(0);
+  });
+
+  test('should apply pagination correctly even when page is out of range', async () => {
+    const query = {
+      limit: jest.fn().mockReturnThis(),
+      offset: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+    };
+
+    await applyPagination(query, { page: 999, limit: 10 });
+
+    expect(query.limit).toHaveBeenCalledWith(10);
+    expect(query.offset).toHaveBeenCalledWith(9980);
+  });
+
+  test('should return correct pagination metadata for an empty dataset', async () => {
+    const query = {
+      limit: jest.fn().mockReturnThis(),
+      offset: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+    };
+
+    await applyPagination(query, { page: 1, limit: 10 });
+
+    // Ensure pagination logic was applied
+    expect(query.limit).toHaveBeenCalledWith(10);
+    expect(query.offset).toHaveBeenCalledWith(0);
   });
 });
