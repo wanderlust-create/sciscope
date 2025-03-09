@@ -39,7 +39,7 @@ describe('apiService', () => {
     expect(news.articles).toEqual(mockApiResponse.articles);
     expect(axios.get).toHaveBeenCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(
-      expect.stringContaining('/top-headlines'),
+      expect.stringContaining('/everything'),
       expect.any(Object)
     );
   });
