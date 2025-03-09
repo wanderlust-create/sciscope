@@ -53,7 +53,6 @@ describe('SERVICE should fetch real science news from the API', () => {
     );
 
     const news = await processNewsRequest();
-    console.log('NEWS from test', news.articles.length);
 
     expect(typeof news).toBe('object');
     expect(news).toHaveProperty('total_count');
@@ -83,7 +82,6 @@ describe('SERVICE should fetch real science news from the API', () => {
 
     const response = await processQueryRequest('nasa');
     const { articles } = response;
-    console.log('RESPONSE from test', response.articles.length);
 
     expect(Array.isArray(articles)).toBe(true);
     expect(articles.length).toBeGreaterThan(0);
