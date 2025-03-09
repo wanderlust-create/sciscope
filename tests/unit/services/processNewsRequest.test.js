@@ -3,7 +3,10 @@ import db from '../../../src/config/db.js';
 import logger from '../../../src/loaders/logger.js';
 import { default as apiService } from '../../../src/services/apiService.js';
 import { storeArticlesInDB } from '../../../src/services/dbService.js';
-import { processNewsRequest } from '../../../src/services/newsService.js';
+import {
+  MIN_DB_RESULTS,
+  processNewsRequest,
+} from '../../../src/services/newsService.js';
 import { generateMockArticlesResponse } from '../../mocks/generateMockArticles.js';
 
 const fetchScienceNews = jest.spyOn(apiService, 'fetchScienceNews');
@@ -31,7 +34,7 @@ describe('processNewsRequest', () => {
 
     const results = await processNewsRequest();
 
-    expect(results).toHaveLength(10);
+    expect(results.articles).toHaveLength(10);
     expect(fetchScienceNews).toHaveBeenCalledTimes(1);
 
     const finalStoredArticles = await db('articles').select('*');
@@ -49,7 +52,7 @@ describe('processNewsRequest', () => {
 
   it('should return only articles published within the defined timeframe (no API call)', async () => {
     const mockDbArticles = generateMockArticlesResponse(
-      5,
+      MIN_DB_RESULTS + 1,
       null,
       true,
       false,
@@ -58,16 +61,16 @@ describe('processNewsRequest', () => {
     await storeArticlesInDB(mockDbArticles);
 
     const storedArticles = await db('articles').select('*');
-    expect(storedArticles.length).toBe(5);
+    expect(storedArticles.length).toBe(MIN_DB_RESULTS + 1);
 
     // Ensure returned articles are actually within the time limit
     const results = await processNewsRequest();
-    expect(results).toHaveLength(5);
+    expect(results.articles).toHaveLength(MIN_DB_RESULTS + 1);
     expect(fetchScienceNews).not.toHaveBeenCalled();
 
     // Check that all articles are within the last 3 hours
     const now = new Date();
-    results.forEach((article) => {
+    results.articles.forEach((article) => {
       expect(new Date(article.publishedAt).getTime()).toBeGreaterThanOrEqual(
         now - 3 * 60 * 60 * 1000 // 3 hours ago in milliseconds
       );
@@ -104,10 +107,12 @@ describe('processNewsRequest', () => {
     });
     const results = await processNewsRequest();
 
-    expect(results).toEqual([]);
+    expect(results.articles).toEqual([]);
     expect(fetchScienceNews).toHaveBeenCalledTimes(1);
     expect(loggerSpy).toHaveBeenCalledWith(
-      '📡 No recent articles found. Fetching fresh news from API...'
+      expect.stringContaining(
+        `⚡ Need ${MIN_DB_RESULTS} more articles, fetching from API`
+      )
     );
 
     // Ensure no data was stored in DB

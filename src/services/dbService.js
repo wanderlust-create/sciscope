@@ -19,14 +19,20 @@ export async function getArticleById(id) {
 }
 
 /**
- * Retrieves recent articles from the database, optionally filtering by age.
- * @param {number} [maxAgeHours] - Optional: Maximum article age in hours.
- * @param {number} [limit=10] - Optional: Number of articles to return (default: 10).
- * @returns {Promise<Object[]>} - List of recent articles.
+ * Fetches recent articles from the database with optional age filtering and in-memory pagination.
+ * @param {number|null} maxAgeHours - Maximum age of articles in hours (null for no filter).
+ * @param {number} page - The requested page number.
+ * @param {number} limit - The number of articles per page.
+ * @returns {Promise<Object>} - Paginated recent articles.
  */
-export async function fetchRecentArticles(maxAgeHours = null, limit = 10) {
+export async function fetchRecentArticles(
+  maxAgeHours = null,
+  page = 1,
+  limit = 10
+) {
   try {
-    let query = db('articles').orderBy('published_at', 'desc').limit(limit);
+    // Fetch ALL matching articles in one DB call
+    let query = db('articles').orderBy('published_at', 'desc');
 
     if (maxAgeHours) {
       const cutoffTime = new Date();
@@ -34,7 +40,25 @@ export async function fetchRecentArticles(maxAgeHours = null, limit = 10) {
       query = query.where('published_at', '>=', cutoffTime);
     }
 
-    return await query;
+    const allResults = await query;
+
+    // Cap total results at 100
+    const totalResults = allResults.length;
+    const cappedTotal = Math.min(totalResults, 100);
+
+    // Paginate results in-memory
+    const validPage = Math.max(1, parseInt(page, 10) || 1);
+    const validLimit = Math.max(1, parseInt(limit, 10) || 10);
+    const offset = (validPage - 1) * validLimit;
+
+    const paginatedResults = allResults.slice(offset, offset + validLimit);
+
+    return {
+      total_count: cappedTotal,
+      total_pages: Math.ceil(cappedTotal / validLimit),
+      current_page: validPage,
+      articles: paginatedResults,
+    };
   } catch (error) {
     logger.error(`❌ Error fetching recent articles: ${error.message}`, {
       stack: error.stack,
@@ -168,4 +192,9 @@ function insertArticles(articles) {
   return db('articles').insert(articles).onConflict('url').merge();
 }
 
-export default { searchArticlesInDB, storeArticlesInDB, getArticleById };
+export default {
+  searchArticlesInDB,
+  storeArticlesInDB,
+  getArticleById,
+  fetchRecentArticles,
+};

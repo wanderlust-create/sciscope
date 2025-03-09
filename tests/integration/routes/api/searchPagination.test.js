@@ -11,11 +11,6 @@ beforeAll(async () => {
   await knex.seed.run();
 });
 
-beforeEach(async () => {
-  // await knex.migrate.latest();
-  // await knex.seed.run();
-});
-
 afterAll(async () => {
   if (server) {
     await new Promise((resolve) => server.close(resolve));

@@ -8,8 +8,12 @@ import newsService from '../services/newsService.js';
  */
 export async function getScienceNews(req, res) {
   try {
-    const news = await newsService.processNewsRequest();
-    res.status(200).json(news);
+    const { page = 1, limit = 10 } = req.query;
+    const paginatedNews = await newsService.processNewsRequest(
+      Number(page),
+      Number(limit)
+    );
+    res.status(200).json(paginatedNews);
   } catch (error) {
     logger.error(`❌ Error fetching science news: ${error.message}`, {
       stack: error.stack,
