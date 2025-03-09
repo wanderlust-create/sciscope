@@ -26,43 +26,45 @@ export async function getArticleById(id) {
  * @returns {Promise<Object>} - Paginated recent articles.
  */
 export async function fetchRecentArticles(
-  maxAgeHours = null,
+  maxAgeHours = 300, // Default: 12.5 days
   page = 1,
   limit = 10
 ) {
   try {
-    // Fetch ALL matching articles in one DB call
-    let query = db('articles').orderBy('published_at', 'desc');
-
-    if (maxAgeHours) {
-      const cutoffTime = new Date();
-      cutoffTime.setHours(cutoffTime.getHours() - maxAgeHours);
-      query = query.where('published_at', '>=', cutoffTime);
+    // 🕒 Step 1: Calculate cutoff time
+    const now = new Date();
+    if (isNaN(maxAgeHours) || maxAgeHours <= 0) {
+      throw new Error('Invalid maxAgeHours value');
     }
 
-    const allResults = await query;
+    const cutoffTime = new Date(now.getTime() - maxAgeHours * 60 * 60 * 1000);
 
-    // Cap total results at 100
-    const totalResults = allResults.length;
-    const cappedTotal = Math.min(totalResults, 100);
+    // 🗂️ Step 2: Fetch filtered & paginated articles from DB
+    const query = db('articles')
+      .where('published_at', '>=', cutoffTime.toISOString()) // Filter by cutoff
+      .orderBy('published_at', 'desc') // Sort newest first
+      .limit(limit)
+      .offset((Math.max(1, page) - 1) * limit); // SQL pagination
 
-    // Paginate results in-memory
-    const validPage = Math.max(1, parseInt(page, 10) || 1);
-    const validLimit = Math.max(1, parseInt(limit, 10) || 10);
-    const offset = (validPage - 1) * validLimit;
+    const articles = await query;
 
-    const paginatedResults = allResults.slice(offset, offset + validLimit);
+    // 🏆 Step 3: Get total count (without pagination)
+    const [{ count }] = await db('articles')
+      .where('published_at', '>=', cutoffTime.toISOString())
+      .count();
 
+    const totalResults = parseInt(count, 10);
+    const totalPages = Math.ceil(totalResults / limit);
+
+    // 📦 Step 4: Return structured response
     return {
-      total_count: cappedTotal,
-      total_pages: Math.ceil(cappedTotal / validLimit),
-      current_page: validPage,
-      articles: paginatedResults,
+      total_count: totalResults,
+      total_pages: totalPages,
+      current_page: page,
+      articles,
     };
   } catch (error) {
-    logger.error(`❌ Error fetching recent articles: ${error.message}`, {
-      stack: error.stack,
-    });
+    logger.error(`❌ Error fetching recent articles: ${error.message}`);
     throw error;
   }
 }
@@ -122,7 +124,7 @@ export async function storeArticlesInDB(apiResponse) {
   }
 
   try {
-    // Retrieve the latest stored article's published date to prevent duplicate insertions
+    // Retrieve the latest stored article's published date
     const latestPublishedAt = await db('articles')
       .max('published_at as maxPublishedAt')
       .first()
@@ -130,17 +132,26 @@ export async function storeArticlesInDB(apiResponse) {
         res?.maxPublishedAt ? new Date(res.maxPublishedAt) : null
       );
 
-    // Filter out older articles and format new ones
-    const newArticles = filterNewArticles(articles, latestPublishedAt).map(
-      formatArticle
+    // ✅ Remove duplicate URLs (keep only the first occurrence)
+    const uniqueArticles = Object.values(
+      articles.reduce((acc, article) => {
+        acc[article.url] = article; // Uses URL as a unique key
+        return acc;
+      }, {})
     );
+
+    // ✅ Filter out older articles and format new ones
+    const newArticles = filterNewArticles(
+      uniqueArticles,
+      latestPublishedAt
+    ).map(formatArticle);
 
     if (!newArticles.length) {
       logger.info('📭 No new articles to insert.');
       return;
     }
 
-    // Insert new articles into the database
+    // ✅ Insert articles (all URLs are now unique)
     await insertArticles(newArticles);
     logger.info(`✅ Stored ${newArticles.length} new articles.`);
   } catch (error) {
