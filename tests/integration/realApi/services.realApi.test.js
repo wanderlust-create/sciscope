@@ -1,11 +1,12 @@
 import { jest } from '@jest/globals';
 import axios from 'axios';
 import db from '../../../src/config/db.js';
+import { fetchScienceNews } from '../../../src/services/apiService.js';
 
 let cancelTokenSource;
 let originalApiKey;
 
-beforeAll(() => {
+beforeAll(async () => {
   cancelTokenSource = axios.CancelToken.source();
   originalApiKey = process.env.NEWS_API_KEY;
 });
@@ -25,20 +26,19 @@ afterAll(async () => {
     console.log('✅ Database connection closed.');
   }
 
-  // **Ensure Express server is closed**
+  // Ensure Express server is closed
   if (global.__SERVER__ && typeof global.__SERVER__.close === 'function') {
     await new Promise((resolve) => global.__SERVER__.close(resolve));
     console.log('✅ Server closed.');
   }
 
-  // Jest sometimes fails to fully exit due to lingering async operations or open handles.
-  // This small delay ensures all logs print and allows any pending cleanup tasks to complete
-  // before forcefully exiting the process. Without it, tests may hang indefinitely.
-  // Keeping this as a last resort to ensure a smooth shutdown.
+  // Jest sometimes fails to exit due to lingering handles, so force exit.
   setTimeout(() => process.exit(0), 1000);
 });
 
-beforeEach(() => {
+beforeEach(async () => {
+  // Instead of destroying DB, clear tables
+  await db.raw('TRUNCATE TABLE articles RESTART IDENTITY CASCADE');
   jest.resetModules();
 });
 
@@ -54,9 +54,25 @@ describe('SERVICE should fetch real science news from the API', () => {
 
     const news = await processNewsRequest();
 
-    expect(Array.isArray(news)).toBe(true);
-    expect(news.length).toBeGreaterThan(0);
-    expect(news[0]).toHaveProperty('title');
+    expect(typeof news).toBe('object');
+    expect(news).toHaveProperty('total_count');
+    expect(news).toHaveProperty('total_pages');
+    expect(news).toHaveProperty('current_page');
+    expect(news).toHaveProperty('articles');
+    expect(news.total_count).toBeGreaterThan(0);
+    expect(news.total_pages).toBeGreaterThan(0);
+    expect(news.current_page).toBe(1); // or test with different pages
+    expect(Array.isArray(news.articles)).toBe(true);
+    expect(news.articles.length).toBeGreaterThan(0);
+    const article = news.articles[0];
+    expect(article).toHaveProperty('title');
+    expect(article).toHaveProperty('description');
+    expect(article).toHaveProperty('url');
+    expect(article).toHaveProperty('publishedAt');
+    expect(article).toHaveProperty('sourceName');
+    expect(typeof article.title).toBe('string');
+    expect(typeof article.url).toBe('string');
+    expect(typeof article.publishedAt.toISOString()).toBe('string');
   });
 
   it('Real API Call (processQueryRequest)', async () => {
@@ -71,17 +87,22 @@ describe('SERVICE should fetch real science news from the API', () => {
     expect(articles.length).toBeGreaterThan(0);
     expect(articles[0]).toHaveProperty('title');
   });
+  describe('Real API Call (Invalid API Key)', () => {
+    let originalApiKey;
 
-  it('should handle API failure correctly', async () => {
-    process.env.NEWS_API_KEY = 'INVALID_KEY';
+    beforeAll(() => {
+      originalApiKey = process.env.NEWS_API_KEY;
+      process.env.NEWS_API_KEY = 'INVALID_KEY'; // Temporarily use an invalid key
+    });
 
-    // Re-import the module so the new API key is used
-    const { processNewsRequest } = await import(
-      '../../../src/services/newsService.js'
-    );
+    afterAll(() => {
+      process.env.NEWS_API_KEY = originalApiKey; // Restore the original API key
+    });
 
-    await expect(processNewsRequest()).rejects.toThrow(
-      'Invalid API key. Please verify your NEWS_API_KEY.'
-    );
+    it('should return an error when using an invalid API key', async () => {
+      await expect(fetchScienceNews()).rejects.toThrow(
+        'Invalid API key. Please verify your NEWS_API_KEY.'
+      );
+    });
   });
 });
