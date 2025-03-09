@@ -32,6 +32,8 @@ export async function processNewsRequest(page = 1, limit = 10) {
 
       // Store new articles in the database
       await storeArticlesInDB(apiResults);
+      console.log('DB RESULTS:', dbResults);
+      console.log('DB RESULTS:', dbResults.articles);
 
       // Re-fetch updated DB results to get the most recent count
       dbResults = await fetchRecentArticles(MAX_AGE_HOURS, page, limit);
