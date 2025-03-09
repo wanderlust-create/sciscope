@@ -3,7 +3,7 @@ import apiService from './apiService.js';
 import { fetchRecentArticles, storeArticlesInDB } from './dbService.js';
 
 export const MIN_DB_RESULTS = 6; // Minimum articles required before fetching from API
-const MAX_AGE_HOURS = 3; // Consider articles "fresh" if they're within the last 3 hours.
+const MAX_AGE_HOURS = 300; // Consider articles "fresh" if they're within the last 3 hours.
 
 /**
  * Fetches general science news, prioritizing database results and adding pagination.
@@ -18,7 +18,7 @@ export async function processNewsRequest(page = 1, limit = 10) {
 
     // Retrieve paginated recent articles from the database
     let dbResults = await fetchRecentArticles(MAX_AGE_HOURS, page, limit);
-    let origTotalCount = dbResults.total_count; // Initial DB count
+    let origTotalCount = dbResults.total_count || 0;
 
     // Determine if additional articles need to be fetched
     const missingArticles = MIN_DB_RESULTS - origTotalCount;
@@ -32,8 +32,6 @@ export async function processNewsRequest(page = 1, limit = 10) {
 
       // Store new articles in the database
       await storeArticlesInDB(apiResults);
-      console.log('DB RESULTS:', dbResults);
-      console.log('DB RESULTS:', dbResults.articles);
 
       // Re-fetch updated DB results to get the most recent count
       dbResults = await fetchRecentArticles(MAX_AGE_HOURS, page, limit);
