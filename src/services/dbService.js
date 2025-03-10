@@ -183,14 +183,20 @@ function filterNewArticles(articles, latestPublishedAt) {
  */
 function formatArticle(article) {
   return {
-    title: article.title,
-    description: article.description || 'No description available',
-    url: article.url,
-    url_to_image: article.urlToImage || null,
+    title: truncateString(article.title, 255),
+    description: truncateString(
+      article.description || 'No description available',
+      500
+    ),
+    url: truncateString(article.url, 500),
+    url_to_image: truncateString(article.urlToImage || null, 500),
     published_at: article.publishedAt,
-    author_name: article.author || 'Unknown',
-    source_name: article.source?.name || 'Unknown',
+    author_name: truncateString(article.author || 'Unknown', 100),
+    source_name: truncateString(article.source?.name || 'Unknown', 100),
   };
+}
+function truncateString(str, maxLength = 255) {
+  return str?.length > maxLength ? str.substring(0, maxLength) : str;
 }
 
 /**
