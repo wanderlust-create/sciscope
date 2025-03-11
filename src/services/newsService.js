@@ -3,7 +3,7 @@ import apiService from './apiService.js';
 import { fetchRecentArticles, storeArticlesInDB } from './dbService.js';
 
 export const MIN_DB_RESULTS = 6; // Minimum articles required before fetching from API
-const MAX_AGE_HOURS = 300; // Consider articles "fresh" if they're within the last 3 hours.
+const MAX_AGE_HOURS = 300;
 
 /**
  * Fetches general science news, prioritizing database results and adding pagination.
