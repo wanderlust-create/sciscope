@@ -1,7 +1,7 @@
 import NodeCache from 'node-cache';
 import logger from '../loaders/logger.js';
 
-// ⚡ Set up cache with 1-hour TTL (3600 seconds)
+// ⚡ Set up cache with default TTL of 15 minutes (900 seconds)
 const cache = new NodeCache({ stdTTL: 3600, checkperiod: 300 });
 
 /**
