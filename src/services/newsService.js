@@ -1,9 +1,11 @@
 import logger from '../loaders/logger.js';
 import apiService from './apiService.js';
-import { fetchRecentArticles, storeArticlesInDB } from './dbService.js';
+import dbService from './dbService.js';
+import { flushCache, getCache, setCache } from './cacheService.js';
 
 export const MIN_DB_RESULTS = 6; // Minimum articles required before fetching from API
 const MAX_AGE_HOURS = 300;
+const CACHE_KEY = 'recent_articles';
 
 /**
  * Fetches general science news, prioritizing database results and adding pagination.
@@ -13,37 +15,55 @@ const MAX_AGE_HOURS = 300;
  */
 export async function processNewsRequest(page = 1, limit = 10) {
   let finalTotalCount = 0;
+  console.log('Process news request!!!');
   try {
+    // Check cache first
+    const cachedArticles = getCache(CACHE_KEY);
+    if (cachedArticles) {
+      logger.info('⚡ Serving news from cache');
+      return cachedArticles;
+    }
+    console.log('cachedArticles:', cachedArticles);
     logger.info('Checking database for recent science news...');
 
     // Retrieve paginated recent articles from the database
-    let dbResults = await fetchRecentArticles(MAX_AGE_HOURS, page, limit);
+    let dbResults = await dbService.fetchRecentArticles(
+      MAX_AGE_HOURS,
+      page,
+      limit
+    );
     let origTotalCount = dbResults.total_count || 0;
 
-    // Determine if additional articles need to be fetched
+    // Determine if additional articles are needed
     const missingArticles = MIN_DB_RESULTS - origTotalCount;
     if (missingArticles > 0) {
       logger.info(
         `⚡ Need ${missingArticles} more articles, fetching from API...`
       );
 
-      // Fetch additional articles from the external API
+      // Fetch additional articles from API
       const apiResults = await apiService.fetchScienceNews(missingArticles);
 
-      // Store new articles in the database
-      await storeArticlesInDB(apiResults);
+      // Store new articles in DB & clear cache
+      await dbService.storeArticlesInDB(apiResults);
+      flushCache(); // ✅ Clear cache when new articles are added
 
-      // Re-fetch updated DB results to get the most recent count
-      dbResults = await fetchRecentArticles(MAX_AGE_HOURS, page, limit);
-
-      // Update finalTotalCount **only if more articles were fetched**
-      finalTotalCount = Math.min(
-        origTotalCount + apiResults.articles.length,
-        100
+      // Re-fetch updated DB results
+      dbResults = await dbService.fetchRecentArticles(
+        MAX_AGE_HOURS,
+        page,
+        limit
       );
-    } else {
-      finalTotalCount = origTotalCount; // ✅ Keep the original total if no API fetch
     }
+
+    // Cache the final DB response
+    setCache(CACHE_KEY, dbResults, 3600); // Store for 1 hour
+
+    // Return final results
+    finalTotalCount = Math.min(
+      origTotalCount + (dbResults?.articles?.length || 0),
+      100
+    );
 
     return {
       ...dbResults,
@@ -52,12 +72,10 @@ export async function processNewsRequest(page = 1, limit = 10) {
       current_page: page,
     };
   } catch (error) {
-    logger.error(`❌ Error fetching general science news: ${error.message}`, {
+    logger.error(`❌ Error fetching science news: ${error.message}`, {
       stack: error.stack,
     });
-
-    // Preserve and rethrow the original error message
-    throw new Error(error.message || 'Failed to fetch general science news.');
+    throw new Error(error.message || 'Failed to fetch science news.');
   }
 }
 
