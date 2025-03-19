@@ -10,7 +10,7 @@ const cache = new NodeCache({ stdTTL: 3600, checkperiod: 300 });
  * @param {any} value - The value to store
  * @param {number} [ttl] - Optional custom TTL in seconds
  */
-export const setCache = (key, value, ttl = 900) => {
+export const setCache = (key, value, ttl = 3600) => {
   const success = cache.set(key, value, ttl);
   if (success) logger.info(`🟢 Cached: ${key} (TTL: ${ttl}s)`);
   return success;
@@ -22,7 +22,9 @@ export const setCache = (key, value, ttl = 900) => {
  * @returns {any|null} - Cached value or null if not found
  */
 export const getCache = (key) => {
+  // console.log('key:', key);
   const value = cache.get(key);
+  // console.log('value:', value);
   if (value) {
     logger.info(`⚡ Cache Hit: ${key}`);
     return value;
