@@ -3,6 +3,7 @@ import db from '../../../../src/config/db.js';
 import createServer from '../../../../src/loaders/server.js';
 import { storeArticlesInDB } from '../../../../src/services/dbService.js';
 import { generateMockArticlesResponse } from '../../../mocks/generateMockArticles.js';
+import { flushCache } from '../../../../src/services/cacheService.js';
 
 const app = createServer();
 let server;
@@ -13,6 +14,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  flushCache();
   await db('articles').del();
 });
 
