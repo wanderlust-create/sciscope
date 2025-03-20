@@ -27,7 +27,9 @@ describe('CacheService', () => {
   it('should return null for expired or missing keys', async () => {
     setCache('expiredKey', 'someValue', 1);
     await new Promise((resolve) => setTimeout(resolve, 1500));
+    // expired key
     expect(getCache('expiredKey')).toBeNull();
+    // key that does not exist returns null instead of an error
     expect(getCache('nonExistentKey')).toBeNull();
   });
 
