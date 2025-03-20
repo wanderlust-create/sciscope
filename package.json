@@ -7,7 +7,7 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --verbose --bail=0 --testPathIgnorePatterns=realApi --detectOpenHandles",
-    "test:all": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles",
+    "test:all": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --verbose --bail=0 --detectOpenHandles",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "test:real": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles --verbose --bail=0 tests/integration/realApi/",
     "lint": "eslint .",
