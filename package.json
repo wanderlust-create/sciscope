@@ -6,10 +6,10 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --verbose --bail=0 --testPathIgnorePatterns=realApi --detectOpenHandles",
-    "test:all": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --verbose --bail=0 --detectOpenHandles",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --testPathIgnorePatterns=realApi --detectOpenHandles",
+    "test:all": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
-    "test:real": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles --verbose --bail=0 tests/integration/realApi/",
+    "test:real": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles tests/integration/realApi/",
     "lint": "eslint .",
     "format": "prettier --write .",
     "migrate-make": "knex migrate:make $(date +%Y%m%d_%H%M%S)_migration --knexfile src/config/knexfile.js",
