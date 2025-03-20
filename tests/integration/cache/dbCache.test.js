@@ -42,17 +42,27 @@ describe('News Caching (Database Articles)', () => {
     flushCache();
     const fetchRecentArticlesSpy = jest.spyOn(dbService, 'fetchRecentArticles');
 
-    const cachedDbArticles = {
-      total_count: 5,
-      articles: [{ title: 'From DB' }],
-    };
-    setCache(CACHE_KEY, cachedDbArticles, 3600); // 1-hour TTL
+    // 🔹 Step 1: Store mock articles in the DB so they are formatted correctly
+    const mockArticles = generateMockArticlesResponse(25);
+    await storeArticlesInDB(mockArticles);
+    const articlesInDb = await db('articles').select('*');
+
+    setCache(CACHE_KEY, articlesInDb, 3600);
 
     const result = await processNewsRequest(1, 6);
 
-    expect(getCache(CACHE_KEY)).toEqual(cachedDbArticles); // Should return cached data
-    expect(fetchRecentArticlesSpy).not.toHaveBeenCalled(); // DB should NOT be queried
-    expect(result).toEqual(cachedDbArticles);
+    // Validate that the function returns cached results
+    expect(getCache(CACHE_KEY)).toEqual(articlesInDb); // ✅ Cache should return formatted DB articles
+
+    // Ensure DB **was NOT queried** because cache existed
+    expect(fetchRecentArticlesSpy).not.toHaveBeenCalled();
+
+    expect(result).toEqual({
+      total_count: articlesInDb.length,
+      total_pages: Math.ceil(articlesInDb.length / 6),
+      current_page: 1,
+      articles: articlesInDb.slice(0, 6),
+    });
   });
 
   it('should fetch from DB and cache results if cache is empty', async () => {
