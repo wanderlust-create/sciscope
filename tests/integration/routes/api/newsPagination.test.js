@@ -3,6 +3,7 @@ import db from '../../../../src/config/db.js';
 import createServer from '../../../../src/loaders/server.js';
 import { storeArticlesInDB } from '../../../../src/services/dbService.js';
 import { generateMockArticlesResponse } from '../../../mocks/generateMockArticles.js';
+import { flushCache } from '../../../../src/services/cacheService.js';
 
 const app = createServer();
 let server;
@@ -13,6 +14,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  flushCache();
   await db('articles').del();
 });
 
@@ -39,6 +41,7 @@ describe('GET /api/v1/news Pagination', () => {
     await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news?page=1&limit=5');
+    console.log('test 1 res', res.body);
 
     expect(res.status).toBe(200);
     expect(res.body.total_count).toBe(15); // Mocked total count
@@ -59,7 +62,7 @@ describe('GET /api/v1/news Pagination', () => {
     await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news?page=2&limit=5');
-
+    console.log('test 2 res', res.body);
     expect(res.status).toBe(200);
     expect(res.body.current_page).toBe(2);
     expect(res.body.articles.length).toBe(5);
@@ -77,6 +80,7 @@ describe('GET /api/v1/news Pagination', () => {
     await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news?page=999&limit=5');
+    console.log('test 3 res', res.body);
 
     expect(res.status).toBe(200);
     expect(res.body.articles).toEqual([]);
@@ -95,6 +99,7 @@ describe('GET /api/v1/news Pagination', () => {
     await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news');
+    console.log('test 4 res', res.body);
 
     expect(res.status).toBe(200);
     expect(res.body.current_page).toBe(1);
@@ -114,6 +119,7 @@ describe('GET /api/v1/news Pagination', () => {
     await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news?page=1&limit=5');
+    console.log('test 5 res', res.body);
 
     expect(res.status).toBe(200);
     const { articles } = res.body;

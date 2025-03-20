@@ -1,9 +1,11 @@
 import logger from '../loaders/logger.js';
 import apiService from './apiService.js';
-import { fetchRecentArticles, storeArticlesInDB } from './dbService.js';
+import { flushCache, getCache, setCache } from './cacheService.js';
+import dbService from './dbService.js';
 
 export const MIN_DB_RESULTS = 6; // Minimum articles required before fetching from API
 const MAX_AGE_HOURS = 300;
+const CACHE_KEY = 'recent_articles';
 
 /**
  * Fetches general science news, prioritizing database results and adding pagination.
@@ -12,52 +14,77 @@ const MAX_AGE_HOURS = 300;
  * @returns {Promise<Object>} Paginated articles from the database or API.
  */
 export async function processNewsRequest(page = 1, limit = 10) {
-  let finalTotalCount = 0;
   try {
+    // Check cache first
+    const cachedArticles = getCache(CACHE_KEY);
+    if (cachedArticles) {
+      logger.info('⚡ Serving news from cache');
+
+      // ✅ Apply pagination dynamically
+      const startIdx = (page - 1) * limit;
+      const paginatedArticles = cachedArticles.slice(
+        startIdx,
+        startIdx + limit
+      );
+
+      return {
+        total_count: cachedArticles.length,
+        total_pages: Math.ceil(cachedArticles.length / limit),
+        current_page: page,
+        articles: paginatedArticles,
+      };
+    }
     logger.info('Checking database for recent science news...');
 
     // Retrieve paginated recent articles from the database
-    let dbResults = await fetchRecentArticles(MAX_AGE_HOURS, page, limit);
-    let origTotalCount = dbResults.total_count || 0;
+    let dbResults = await dbService.fetchRecentArticles(
+      MAX_AGE_HOURS,
+      page,
+      limit
+    );
 
-    // Determine if additional articles need to be fetched
-    const missingArticles = MIN_DB_RESULTS - origTotalCount;
+    // Determine if additional articles are needed
+    const missingArticles = MIN_DB_RESULTS - dbResults.articles.length;
     if (missingArticles > 0) {
       logger.info(
         `⚡ Need ${missingArticles} more articles, fetching from API...`
       );
 
-      // Fetch additional articles from the external API
+      // Fetch additional articles from API
       const apiResults = await apiService.fetchScienceNews(missingArticles);
+      // Store new articles in DB & clear cache
+      await dbService.storeArticlesInDB(apiResults);
+      flushCache(); // ✅ Clear cache when new articles are added
 
-      // Store new articles in the database
-      await storeArticlesInDB(apiResults);
-
-      // Re-fetch updated DB results to get the most recent count
-      dbResults = await fetchRecentArticles(MAX_AGE_HOURS, page, limit);
-
-      // Update finalTotalCount **only if more articles were fetched**
-      finalTotalCount = Math.min(
-        origTotalCount + apiResults.articles.length,
-        100
+      // Re-fetch updated DB results
+      dbResults = await dbService.fetchRecentArticles(
+        MAX_AGE_HOURS,
+        page,
+        limit
       );
-    } else {
-      finalTotalCount = origTotalCount; // ✅ Keep the original total if no API fetch
     }
+
+    // Cache the final DB response
+    setCache(CACHE_KEY, dbResults, 3600); // Store for 1 hour
 
     return {
       ...dbResults,
-      total_count: finalTotalCount,
-      total_pages: Math.ceil(finalTotalCount / limit),
+      total_count: dbResults.total_count,
+      total_pages: Math.ceil(dbResults.total_count / limit),
       current_page: page,
     };
   } catch (error) {
-    logger.error(`❌ Error fetching general science news: ${error.message}`, {
-      stack: error.stack,
-    });
+    logger.error(
+      `❌ Database fetch failed in fetchRecentArticles:
+    - Error Message: ${error.message}
+    - Stack Trace: ${error.stack}
+    - Params: maxAgeHours=${MAX_AGE_HOURS}, page=${page}, limit=${limit}`,
+      {
+        stack: error.stack,
+      }
+    );
 
-    // Preserve and rethrow the original error message
-    throw new Error(error.message || 'Failed to fetch general science news.');
+    throw new Error(`Database error in fetchRecentArticles: ${error.message}`);
   }
 }
 

@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
-import knex from '../../src/config/db.js';
-import { applyPagination } from '../../src/utils/pagination.js';
+import knex from '../../../../src/config/db.js';
+import { applyPagination } from '../../../../src/utils/pagination.js';
 
 beforeAll(async () => {
   await knex.destroy();
