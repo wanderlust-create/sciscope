@@ -122,7 +122,6 @@ export async function storeArticlesInDB(apiResponse) {
     logger.info('📭 No articles provided for insertion.');
     return;
   }
-
   try {
     // Retrieve the latest stored article's published date
     const latestPublishedAt = await db('articles')
@@ -139,13 +138,11 @@ export async function storeArticlesInDB(apiResponse) {
         return acc;
       }, {})
     );
-
     // ✅ Filter out older articles and format new ones
     const newArticles = filterNewArticles(
       uniqueArticles,
       latestPublishedAt
     ).map(formatArticle);
-
     if (!newArticles.length) {
       logger.info('📭 No new articles to insert.');
       return;
