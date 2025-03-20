@@ -31,7 +31,7 @@ export async function fetchRecentArticles(
   limit = 10
 ) {
   try {
-    // 🕒 Step 1: Calculate cutoff time
+    // Calculate cutoff time
     const now = new Date();
     if (isNaN(maxAgeHours) || maxAgeHours <= 0) {
       throw new Error('Invalid maxAgeHours value');
@@ -39,7 +39,7 @@ export async function fetchRecentArticles(
 
     const cutoffTime = new Date(now.getTime() - maxAgeHours * 60 * 60 * 1000);
 
-    // 🗂️ Step 2: Fetch filtered & paginated articles from DB
+    // Fetch filtered & paginated articles from DB
     const query = db('articles')
       .where('published_at', '>=', cutoffTime.toISOString()) // Filter by cutoff
       .orderBy('published_at', 'desc') // Sort newest first
@@ -48,7 +48,7 @@ export async function fetchRecentArticles(
 
     const articles = await query;
 
-    // 🏆 Step 3: Get total count (without pagination)
+    // Get total count (without pagination)
     const [{ count }] = await db('articles')
       .where('published_at', '>=', cutoffTime.toISOString())
       .count();
@@ -56,7 +56,7 @@ export async function fetchRecentArticles(
     const totalResults = parseInt(count, 10);
     const totalPages = Math.ceil(totalResults / limit);
 
-    // 📦 Step 4: Return structured response
+    // Return structured response
     return {
       total_count: totalResults,
       total_pages: totalPages,
