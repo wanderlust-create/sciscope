@@ -7,7 +7,7 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --verbose --bail=0 --testPathIgnorePatterns=realApi --detectOpenHandles",
-    "test:all": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --verbose --bail=0  --detectOpenHandles",
+    "test:all": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --verbose --bail=0 --coverage --detectOpenHandles",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "test:real": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles --verbose --bail=0 tests/integration/realApi/",
     "lint": "eslint .",
@@ -16,6 +16,7 @@
     "migrate": "knex migrate:latest --knexfile src/config/knexfile.js",
     "rollback": "knex migrate:rollback --knexfile src/config/knexfile.js",
     "seed": "knex seed:run --knexfile src/config/knexfile.js",
+    "seed:test": "NODE_ENV=test node scripts/resetAndSeedTestDatabase.js",
     "docker:up": "docker-compose up --build",
     "docker:down": "docker-compose down",
     "schema": "PGPASSWORD=$DB_PASSWORD pg_dump --dbname=$DB_NAME --schema-only > db/schemas/schema.sql"

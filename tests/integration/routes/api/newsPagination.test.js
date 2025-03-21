@@ -41,7 +41,6 @@ describe('GET /api/v1/news Pagination', () => {
     await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news?page=1&limit=5');
-    console.log('test 1 res', res.body);
 
     expect(res.status).toBe(200);
     expect(res.body.total_count).toBe(15); // Mocked total count
@@ -62,7 +61,7 @@ describe('GET /api/v1/news Pagination', () => {
     await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news?page=2&limit=5');
-    console.log('test 2 res', res.body);
+
     expect(res.status).toBe(200);
     expect(res.body.current_page).toBe(2);
     expect(res.body.articles.length).toBe(5);
@@ -80,7 +79,6 @@ describe('GET /api/v1/news Pagination', () => {
     await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news?page=999&limit=5');
-    console.log('test 3 res', res.body);
 
     expect(res.status).toBe(200);
     expect(res.body.articles).toEqual([]);
@@ -99,7 +97,6 @@ describe('GET /api/v1/news Pagination', () => {
     await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news');
-    console.log('test 4 res', res.body);
 
     expect(res.status).toBe(200);
     expect(res.body.current_page).toBe(1);
@@ -119,7 +116,6 @@ describe('GET /api/v1/news Pagination', () => {
     await storeArticlesInDB(mockRecentArticles);
 
     const res = await request(app).get('/api/v1/news?page=1&limit=5');
-    console.log('test 5 res', res.body);
 
     expect(res.status).toBe(200);
     const { articles } = res.body;
