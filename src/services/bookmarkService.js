@@ -2,6 +2,10 @@ import logger from '../loaders/logger.js';
 import Article from '../models/Article.js';
 import Bookmark from '../models/Bookmark.js';
 import { applyPagination } from '../utils/pagination.js';
+import cacheService from '../services/cacheService.js';
+
+const MOST_BOOKMARKED_CACHE_KEY = 'most_bookmarked_articles';
+const TOP_BOOKMARKING_USERS_CACHE_KEY = 'top_bookmarking_users';
 
 /**
  * Retrieves all bookmarks for a specific user.
@@ -12,16 +16,14 @@ import { applyPagination } from '../utils/pagination.js';
  */
 export async function getBookmarks(userId, page = 1, limit = 10) {
   try {
-    // ✅ Get total count of bookmarks
     const total = await Bookmark.query()
       .where({ user_id: userId })
       .resultSize();
 
-    // ✅ Apply pagination
     const paginatedBookmarks = await applyPagination(
       Bookmark.query()
         .where({ user_id: userId })
-        .withGraphFetched('article') // Ensure articles are included
+        .withGraphFetched('article')
         .orderBy('bookmarked_at', 'desc'),
       { page, limit }
     );
@@ -47,14 +49,21 @@ export async function createBookmark(userId, articleId) {
       throw new Error('Article not found.');
     }
 
-    // Insert the bookmark (if it doesn't already exist)
+    // Insert the bookmark
     const bookmark = await Bookmark.query()
       .insert({ user_id: userId, article_id: articleId })
       .returning('*');
 
+    // ✅ Purge cache after adding a bookmark
+    cacheService.delCache(MOST_BOOKMARKED_CACHE_KEY);
+    cacheService.delCache(TOP_BOOKMARKING_USERS_CACHE_KEY);
+    logger.info(
+      `🗑️ Cache purged after new bookmark (User: ${userId}, Article: ${articleId})`
+    );
+
     return bookmark;
   } catch (error) {
-    logger.error('Error creating bookmark: ${error.message}');
+    logger.error(`❌ Error creating bookmark: ${error.message}`);
     throw new Error(error.message);
   }
 }
@@ -68,10 +77,20 @@ export async function createBookmark(userId, articleId) {
 export async function deleteBookmark(id, userId) {
   try {
     const deletedCount = await Bookmark.query()
-      .where({ id, user_id: userId }) // ✅ Ensure user owns the bookmark
+      .where({ id, user_id: userId })
       .delete();
 
-    return deletedCount > 0; // ✅ Return `true` if deleted, `false` otherwise
+    if (deletedCount > 0) {
+      // ✅ Purge cache after deleting a bookmark
+      cacheService.delCache(MOST_BOOKMARKED_CACHE_KEY);
+      cacheService.delCache(TOP_BOOKMARKING_USERS_CACHE_KEY);
+      logger.info(
+        `🗑️ Cache purged after bookmark deletion (User: ${userId}, Bookmark ID: ${id})`
+      );
+
+      return true;
+    }
+    return false;
   } catch (error) {
     logger.error(`❌ Error deleting bookmark: ${error.message}`);
     throw new Error('Failed to delete bookmark.');
