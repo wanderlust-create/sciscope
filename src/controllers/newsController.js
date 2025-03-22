@@ -8,11 +8,17 @@ import newsService from '../services/newsService.js';
  */
 export async function getScienceNews(req, res) {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, test_no_api } = req.query;
+
+    // Only used in test environments to prevent real API calls
+    const disableApiFallback = test_no_api === 'true';
+
     const paginatedNews = await newsService.processNewsRequest(
       Number(page),
-      Number(limit)
+      Number(limit),
+      disableApiFallback // pass test parmas the service
     );
+
     res.status(200).json(paginatedNews);
   } catch (error) {
     logger.error(`❌ Error fetching science news: ${error.message}`, {
