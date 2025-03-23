@@ -13,10 +13,16 @@ beforeAll(() => {
   server = app.listen(8080);
 });
 
+beforeEach(async () => {
+  await db('articles').del();
+});
+
 afterAll(async () => {
   if (server) {
     await new Promise((resolve) => server.close(resolve));
+    console.log('✅ Server closed.');
   }
+
   await db('articles').del();
   await db.destroy();
 });
