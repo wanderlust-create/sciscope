@@ -78,7 +78,9 @@ describe('GET /api/v1/news Pagination', () => {
 
     await storeArticlesInDB(mockRecentArticles);
 
-    const res = await request(app).get('/api/v1/news?page=999&limit=5');
+    const res = await request(app).get(
+      '/api/v1/news?page=999&limit=5&test_no_api=true'
+    );
 
     expect(res.status).toBe(200);
     expect(res.body.articles).toEqual([]);

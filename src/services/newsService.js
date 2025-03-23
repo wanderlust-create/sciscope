@@ -11,9 +11,14 @@ const CACHE_KEY = 'recent_articles';
  * Fetches general science news, prioritizing database results and adding pagination.
  * @param {number} page - The requested page number.
  * @param {number} limit - The number of articles per page.
+ * @param {boolean} [disableApiFallback=false] - If true, prevents fallback to external API (used in tests).
  * @returns {Promise<Object>} Paginated articles from the database or API.
  */
-export async function processNewsRequest(page = 1, limit = 10) {
+export async function processNewsRequest(
+  page = 1,
+  limit = 10,
+  disableApiFallback = false
+) {
   try {
     // Check cache first
     const cachedArticles = getCache(CACHE_KEY);
@@ -42,9 +47,17 @@ export async function processNewsRequest(page = 1, limit = 10) {
       page,
       limit
     );
+    // Determine how many articles are considered "enough" to avoid calling the external API.
+    // - If disableApiFallback is true (in test mode), set minimum to 0 to prevent real API calls.
+    // - Otherwise, use the smaller of MIN_DB_RESULTS or limit to avoid fetching extra articles
+    //   when the user only requested a small number (e.g., limit = 5, MIN_DB_RESULTS = 6).
+    // This ensures proper behavior in production and prevents external requests during tests.
+    const effectiveMin = disableApiFallback
+      ? 0
+      : Math.min(MIN_DB_RESULTS, limit);
 
     // Determine if additional articles are needed
-    const missingArticles = MIN_DB_RESULTS - dbResults.articles.length;
+    const missingArticles = effectiveMin - dbResults.articles.length;
     if (missingArticles > 0) {
       logger.info(
         `⚡ Need ${missingArticles} more articles, fetching from API...`

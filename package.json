@@ -10,6 +10,7 @@
     "test:all": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --verbose --bail=0 --coverage --detectOpenHandles",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "test:real": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles --verbose --bail=0 tests/integration/realApi/",
+    "test:quick": "SKIP_DB_RESET=true NODE_OPTIONS=--experimental-vm-modules jest --runInBand --verbose --bail=0 --testPathIgnorePatterns=realApi --detectOpenHandles",
     "lint": "eslint .",
     "format": "prettier --write .",
     "migrate-make": "knex migrate:make $(date +%Y%m%d_%H%M%S)_migration --knexfile src/config/knexfile.js",

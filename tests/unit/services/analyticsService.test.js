@@ -1,24 +1,46 @@
-import knex from '../../../src/config/db.js';
+import createServer from '../../../src/loaders/server.js';
+import db from '../../../src/config/db.js';
 import analyticsService from '../../../src/services/analyticsService.js';
 import cacheService from '../../../src/services/cacheService.js';
 import { execSync } from 'child_process';
+
+const app = createServer();
+let server;
+
+// ✅ Use a clean, explicit flag for controlling seed behavior
+const shouldSeed = process.env.SKIP_DB_RESET !== 'true';
 
 const MOST_BOOKMARKED_CACHE_KEY = 'most_bookmarked_articles';
 const TOP_BOOKMARKING_USERS_CACHE_KEY = 'top_bookmarking_users';
 
 beforeAll(async () => {
-  console.log('🚀 Resetting and seeding the test database...');
-  execSync('NODE_ENV=test node scripts/resetAndSeedTestDatabase.js', {
-    stdio: 'inherit',
-  });
+  server = app.listen(8080);
+
+  if (shouldSeed) {
+    console.log('🚀 Seeding large test database for analytics tests...');
+    execSync('NODE_ENV=test node scripts/resetAndSeedTestDatabase.js', {
+      stdio: 'inherit',
+    });
+  } else {
+    console.log('⚡️ Skipping DB seed (using previously seeded data)');
+  }
+});
+
+beforeEach(() => {
+  cacheService.flushCache();
 });
 
 afterAll(async () => {
-  const currentDb = await knex.raw('SELECT current_database();');
+  const currentDb = await db.raw('SELECT current_database();');
   console.log(
-    `🛑 Closing connection to: ${currentDb.rows[0].current_database}`
+    `🛑 Closing DB connection to: ${currentDb.rows[0].current_database}`
   );
-  await knex.destroy();
+  await db.destroy();
+
+  if (server) {
+    await new Promise((resolve) => server.close(resolve));
+    console.log('✅ Server closed.');
+  }
 });
 
 describe('🔎 Bookmark Analytics Queries (with Caching)', () => {
@@ -27,75 +49,107 @@ describe('🔎 Bookmark Analytics Queries (with Caching)', () => {
   });
 
   /** ✅ Most Bookmarked Articles Tests */
-  it('should return the most bookmarked articles in descending order & cache the result', async () => {
-    const articles = await analyticsService.getMostBookmarkedArticles(5);
+  it('should return paginated results & cache full set of top 50 articles', async () => {
+    const page = 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+
+    const articles = await analyticsService.getMostBookmarkedArticles(
+      page,
+      limit
+    );
 
     expect(articles).toBeInstanceOf(Array);
-    expect(articles.length).toBeGreaterThan(0);
+    expect(articles.length).toBeLessThanOrEqual(limit);
 
-    // ✅ Ensure articles are sorted by bookmark count
+    // Ensure descending order
     for (let i = 1; i < articles.length; i++) {
       expect(Number(articles[i - 1].bookmark_count)).toBeGreaterThanOrEqual(
         Number(articles[i].bookmark_count)
       );
     }
 
-    // ✅ Cache should now contain the result
-    const cachedArticles = cacheService.getCache(MOST_BOOKMARKED_CACHE_KEY);
-    expect(cachedArticles).toEqual(articles);
+    // ✅ Cached value should be the full top 50
+    const cached = cacheService.getCache(MOST_BOOKMARKED_CACHE_KEY);
+    expect(cached).toBeInstanceOf(Array);
+    expect(cached.length).toBeGreaterThanOrEqual(limit);
+
+    // ✅ Returned page should match the slice from cached data
+    const expectedSlice = cached.slice(offset, offset + limit);
+    expect(articles).toEqual(expectedSlice);
   });
 
-  it('should return cached results for most bookmarked articles', async () => {
-    cacheService.setCache(
-      MOST_BOOKMARKED_CACHE_KEY,
-      [{ id: 1, title: 'Cached Article' }],
-      600
-    );
+  it('should return cached results when already set', async () => {
+    const mockData = Array.from({ length: 50 }, (_, i) => ({
+      article_id: i + 1,
+      title: `Cached Article ${i + 1}`,
+      bookmark_count: 100 - i,
+    }));
+    cacheService.setCache(MOST_BOOKMARKED_CACHE_KEY, mockData, 600);
 
-    const articles = await analyticsService.getMostBookmarkedArticles(5);
-    expect(articles).toEqual([{ id: 1, title: 'Cached Article' }]);
+    const page = 1;
+    const limit = 5;
+    const result = await analyticsService.getMostBookmarkedArticles(
+      page,
+      limit
+    );
+    const expectedSlice = mockData.slice(0, limit);
+
+    expect(result).toEqual(expectedSlice);
   });
 
   /** ✅ Top Bookmarking Users Tests */
-  it('should return the top bookmarking users in descending order & cache the result', async () => {
-    const users = await analyticsService.getTopBookmarkingUsers(5);
+  it('should return paginated top users & cache full top 50', async () => {
+    const page = 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
 
+    const users = await analyticsService.getTopBookmarkingUsers(page, limit);
     expect(users).toBeInstanceOf(Array);
-    expect(users.length).toBeGreaterThan(0);
+    expect(users.length).toBeLessThanOrEqual(limit);
 
-    // ✅ Ensure users are sorted by bookmark count
     for (let i = 1; i < users.length; i++) {
       expect(Number(users[i - 1].bookmark_count)).toBeGreaterThanOrEqual(
         Number(users[i].bookmark_count)
       );
     }
 
-    // ✅ Cache should now contain the result
-    const cachedUsers = cacheService.getCache(TOP_BOOKMARKING_USERS_CACHE_KEY);
-    expect(cachedUsers).toEqual(users);
+    const cached = cacheService.getCache(TOP_BOOKMARKING_USERS_CACHE_KEY);
+    expect(cached).toBeInstanceOf(Array);
+    expect(cached.length).toBeGreaterThanOrEqual(limit);
+
+    const expectedSlice = cached.slice(offset, offset + limit);
+    expect(users).toEqual(expectedSlice);
   });
 
-  it('should return cached results for top bookmarking users', async () => {
-    cacheService.setCache(
-      TOP_BOOKMARKING_USERS_CACHE_KEY,
-      [{ id: 2, username: 'Cached User' }],
-      600
-    );
+  it('should return cached top users when already set', async () => {
+    const mockUsers = Array.from({ length: 50 }, (_, i) => ({
+      user_id: i + 1,
+      username: `User ${i + 1}`,
+      email: `user${i + 1}@example.com`,
+      bookmark_count: 50 - i,
+    }));
+    cacheService.setCache(TOP_BOOKMARKING_USERS_CACHE_KEY, mockUsers, 600);
 
-    const users = await analyticsService.getTopBookmarkingUsers(5);
-    expect(users).toEqual([{ id: 2, username: 'Cached User' }]);
+    const page = 2;
+    const limit = 10;
+    const expected = mockUsers.slice(10, 20);
+
+    const result = await analyticsService.getTopBookmarkingUsers(page, limit);
+    expect(result).toEqual(expected);
   });
 
   /** ✅ Cache Expiration & Regeneration */
   it('should fetch fresh data after cache expires', async () => {
-    cacheService.setCache(
-      MOST_BOOKMARKED_CACHE_KEY,
-      [{ id: 3, title: 'Old Cached Article' }],
-      1
-    );
+    const oldData = Array.from({ length: 50 }, (_, i) => ({
+      article_id: i + 1,
+      title: `Old Cached Article ${i + 1}`,
+      bookmark_count: 1,
+    }));
+    cacheService.setCache(MOST_BOOKMARKED_CACHE_KEY, oldData, 1);
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    const articles = await analyticsService.getMostBookmarkedArticles(5);
-    expect(articles).not.toEqual([{ id: 3, title: 'Old Cached Article' }]);
+    const fresh = await analyticsService.getMostBookmarkedArticles(1, 5);
+    expect(fresh).not.toEqual(oldData.slice(0, 5));
   });
 });
