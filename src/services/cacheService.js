@@ -22,9 +22,7 @@ export const setCache = (key, value, ttl = 3600) => {
  * @returns {any|null} - Cached value or null if not found
  */
 export const getCache = (key) => {
-  // console.log('key:', key);
   const value = cache.get(key);
-  // console.log('value:', value);
   if (value) {
     logger.info(`⚡ Cache Hit: ${key}`);
     return value;
