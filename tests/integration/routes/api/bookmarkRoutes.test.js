@@ -9,7 +9,7 @@ const app = createServer();
 let server, token, user, article, article2;
 
 beforeAll(async () => {
-  server = app.listen(3031);
+  server = app.listen(8080);
   await knex.migrate.latest();
   await knex.seed.run();
 });
