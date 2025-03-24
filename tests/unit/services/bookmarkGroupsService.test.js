@@ -2,6 +2,8 @@ import knex from '../../../src/config/db.js';
 import * as service from '../../../src/services/bookmarkGroupsService.js';
 import BookmarkGroup from '../../../src/models/BookmarkGroup.js';
 import User from '../../../src/models/User.js';
+import Bookmark from '../../../src/models/Bookmark.js';
+import Article from '../../../src/models/Article.js';
 
 let user;
 
@@ -70,5 +72,88 @@ describe('bookmarkGroupsService', () => {
 
     const result = await service.deleteBookmarkGroup(user.id, group.id);
     expect(result).toEqual({ success: true });
+  });
+});
+describe('📎 Bookmark ↔ Bookmark Group Assignment Logic', () => {
+  let user, group, article1, article2, bookmark1, bookmark2;
+
+  beforeAll(async () => {
+    await knex.migrate.latest();
+    await knex.seed.run();
+
+    user = await User.query().whereNotNull('password_hash').first();
+
+    group = await service.createBookmarkGroup(user.id, 'Test Group');
+
+    article1 = await Article.query().insert({
+      title: 'Fresh Article 1',
+      url: 'https://example.com/article-1',
+      published_at: new Date().toISOString(),
+    });
+
+    article2 = await Article.query().insert({
+      title: 'Fresh Article 2',
+      url: 'https://example.com/article-2',
+      published_at: new Date().toISOString(),
+    });
+
+    bookmark1 = await Bookmark.query().insert({
+      user_id: user.id,
+      article_id: article1.id,
+    });
+
+    bookmark2 = await Bookmark.query().insert({
+      user_id: user.id,
+      article_id: article2.id,
+    });
+
+    // Pre-assign one bookmark to test duplicate removal
+    await service.addBookmarkToGroup(user.id, group.id, bookmark2.id);
+  });
+
+  it('adds a bookmark to a group', async () => {
+    const result = await service.addBookmarkToGroup(
+      user.id,
+      group.id,
+      bookmark1.id
+    );
+
+    expect(result).toHaveProperty('success', true);
+    const assignments = await knex('bookmark_group_assignments').where({
+      user_bookmark_id: bookmark1.id,
+      bookmark_group_id: group.id,
+    });
+
+    expect(assignments.length).toBe(1);
+  });
+
+  it('prevents duplicate group assignment', async () => {
+    const result = await service.addBookmarkToGroup(
+      user.id,
+      group.id,
+      bookmark2.id
+    );
+    expect(result).toHaveProperty('alreadyAssigned', true);
+  });
+
+  it('removes a bookmark from a group', async () => {
+    const result = await service.removeBookmarkFromGroup(
+      user.id,
+      group.id,
+      bookmark1.id
+    );
+    expect(result).toHaveProperty('success', true);
+  });
+
+  it('throws if user does not own group or bookmark', async () => {
+    expect.assertions(2);
+
+    await expect(
+      service.addBookmarkToGroup(9999, group.id, bookmark1.id)
+    ).rejects.toThrow('Unauthorized');
+
+    await expect(
+      service.removeBookmarkFromGroup(9999, group.id, bookmark1.id)
+    ).rejects.toThrow('Unauthorized');
   });
 });
