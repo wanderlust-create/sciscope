@@ -46,7 +46,7 @@ describe('Real API Tests', () => {
   test('Fetches news by query (GET /api/v1/search)', async () => {
     const response = await supertest(app)
       .get('/api/v1/search')
-      .query({ keyword: 'space' })
+      .query({ keyword: 'science' })
       .expect(200);
     expect(response.body.articles).toBeInstanceOf(Array);
     expect(response.body.articles.length).toBeGreaterThan(0);
