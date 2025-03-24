@@ -12,7 +12,6 @@ export async function seed(knex) {
     articles.push({
       title: `${faker.lorem.words(3)} about ${keyword}`, // Include keyword in title
       description: `This is an article about ${keyword}. ${faker.lorem.sentence()}`,
-      // content: `Scientific research on ${keyword} shows interesting results.`,
       url: faker.internet.url(),
       url_to_image: faker.image.url(),
       published_at: faker.date.past().toISOString(),
