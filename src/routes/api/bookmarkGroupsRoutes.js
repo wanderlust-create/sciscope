@@ -21,5 +21,16 @@ router.delete(
   authMiddleware,
   bookmarkGroupsController.deleteBookmarkGroup
 );
+router.post(
+  '/:groupId/bookmarks/:bookmarkId',
+  authMiddleware,
+  bookmarkGroupsController.addBookmarkToGroup
+);
+
+router.delete(
+  '/:groupId/bookmarks/:bookmarkId',
+  authMiddleware,
+  bookmarkGroupsController.removeBookmarkFromGroup
+);
 
 export default router;
