@@ -166,6 +166,49 @@ export async function deleteBookmarkGroup(req, res) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+export async function addBookmarkToGroup(req, res) {
+  try {
+    const userId = req.user.id;
+    const { groupId, bookmarkId } = req.params;
+
+    const result = await bookmarkGroupsService.addBookmarkToGroup(
+      userId,
+      groupId,
+      bookmarkId
+    );
+
+    if (result.alreadyAssigned) {
+      return res.status(400).json({ error: 'Bookmark already in this group' });
+    }
+
+    res.status(201).json({ message: 'Bookmark added to group' });
+  } catch (error) {
+    logger.error(`❌ Add bookmark to group failed: ${error.message}`, {
+      stack: error.stack,
+    });
+    res.status(400).json({ error: error.message });
+  }
+}
+
+export async function removeBookmarkFromGroup(req, res) {
+  try {
+    const userId = req.user.id;
+    const { groupId, bookmarkId } = req.params;
+
+    await bookmarkGroupsService.removeBookmarkFromGroup(
+      userId,
+      groupId,
+      bookmarkId
+    );
+
+    res.status(204).send();
+  } catch (error) {
+    logger.error(`❌ Remove bookmark from group failed: ${error.message}`, {
+      stack: error.stack,
+    });
+    res.status(400).json({ error: error.message });
+  }
+}
 
 export default {
   getBookmarkGroups,
@@ -173,4 +216,6 @@ export default {
   createBookmarkGroup,
   updateBookmarkGroup,
   deleteBookmarkGroup,
+  addBookmarkToGroup,
+  removeBookmarkFromGroup,
 };
