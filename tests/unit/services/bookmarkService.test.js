@@ -11,9 +11,17 @@ beforeAll(async () => {
   await knex.seed.run();
 
   user = await User.query().whereNotNull('password_hash').first();
-  const articles = await Article.query().limit(2);
-  article1 = articles[0];
-  article2 = articles[1];
+  article1 = await Article.query().insert({
+    title: 'New Article 1',
+    url: 'https://example.com/new-article-1',
+    published_at: new Date().toISOString(),
+  });
+
+  article2 = await Article.query().insert({
+    title: 'New Article 2',
+    url: 'https://example.com/new-article-2',
+    published_at: new Date().toISOString(),
+  });
 });
 
 afterAll(async () => {
