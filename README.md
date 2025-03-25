@@ -174,7 +174,6 @@ npm run test:all
 
 - 🔐 Add auth protection to analytics endpoints
 - 🧾 Article categories and tags for filtering
-- 🌐 OAuth integration
 - 🧑‍💻 Simple front-end for browsing/searching/bookmarking articles
 - 📈 Track bookmark timestamps for usage trends
 - 🗂 Public/shareable bookmark groups
