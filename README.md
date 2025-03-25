@@ -32,18 +32,20 @@
 
 ```
 SciScope/
-│── src/
-│   ├── config/             # Knex config, env loader
-│   ├── db/                 # Migrations & seeds
+├── db/                     # Migrations & seeds
+├── src/
+│   ├── config/             # Knex config, db-setup
 │   ├── controllers/        # Route controllers
-│   ├── routes/             # Express routes (modular)
-│   ├── services/           # External API + app logic
-│   ├── middleware/         # Auth and error middleware
-│   ├── loaders/            # Server loader
-│   ├── tests/              # Jest/Supertest tests
-│── app.js                  # Server entry
-│── .env                    # API keys and config
-│── jest.config.js          # Jest config
+│   ├── loaders/            # Logger, Express server
+│   ├── middleware/         # Auth and error handling
+│   ├── models/             # Objection.js models
+│   ├── routes/             # Modular API routing
+│   ├── services/           # API, database, and logic layers
+│   ├── utils/              # Pagination, auth helpers, etc.
+├── tests/                  # Jest/Supertest test suites
+├── app.js                  # App entry point
+├── .env                    # Environment variables
+├── jest.config.js          # Jest test config
 ```
 
 ---
@@ -54,6 +56,7 @@ SciScope/
 - Node.js
 - PostgreSQL
 - A News API Key (e.g. from [NewsAPI.org](https://newsapi.org))
+- JWT Secret (`JWT_SECRET`)
 
 ### Installation
 
@@ -62,10 +65,15 @@ git clone https://github.com/wanderlust-create/sciscope.git
 cd sciscope
 npm install
 cp .env.example .env
-# Add your NEWS_API_KEY and DB credentials
+# Add your NEWS_API_KEY, DB credentials, and JWT_SECRET
 npm run migrate
 npm run seed
-npm run dev
+npm run start
+```
+
+Run tests:
+```bash
+npm run test:all
 ```
 
 ---
@@ -73,8 +81,12 @@ npm run dev
 ## 🔑 Authentication
 
 - Users sign up or log in using `/api/v1/auth/signup` or `/login`
-- JWT-based authentication
-- Protected routes include `/bookmarks` and `/bookmark-groups`
+- JWT-based authentication (`JWT_SECRET` required)
+- Protected routes include:
+  - `/bookmarks`
+  - `/bookmark-groups`
+
+_Note: Analytics endpoints are currently public but may be protected in future versions._
 
 ---
 
@@ -88,7 +100,7 @@ npm run dev
 ### `/api/v1/bookmark-groups`
 - `GET` – List all bookmark groups
 - `POST` – Create a new group
-- `PATCH /:id` – Rename a group
+- `PATCH /:id` – Update group name
 - `DELETE /:id` – Delete a group
 
 ### `/api/v1/bookmark-groups/:groupId/bookmarks/:bookmarkId`
@@ -145,7 +157,7 @@ SciScope has both unit and integration tests, including **real API calls**.
 Run all tests:
 
 ```bash
-npm test
+npm run test:all
 ```
 
 ---
@@ -158,17 +170,20 @@ npm test
 
 ---
 
+## 🚧 Future Improvements
+
+- 🔐 Add auth protection to analytics endpoints
+- 🧾 Article categories and tags for filtering
+- 🌐 OAuth integration
+- 🧑‍💻 Simple front-end for browsing/searching/bookmarking articles
+- 📈 Track bookmark timestamps for usage trends
+- 🗂 Public/shareable bookmark groups
+- 🧪 Improve test coverage for edge cases (e.g. expired tokens)
+
+---
+
 ## 👩🏽‍🎤 Contributor
 
 Tamara Dowis  
 [GitHub](https://github.com/wanderlust-create)  
 [LinkedIn](https://www.linkedin.com/in/tamara-dowis/)
-
----
-
-## 🚧 Future Improvements
-
-- Shareable bookmark groups
-- Article categories/tags
-- OAuth integration
-- Rate limiting per user
