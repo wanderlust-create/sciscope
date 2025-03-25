@@ -82,7 +82,7 @@ describe('Bookmark API Endpoints', () => {
       .send({ article_id: article.id });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toMatch(/already bookmarked/);
+    expect(res.body.error).toBe('Article already bookmarked');
   });
 
   it('should fetch all user bookmarks', async () => {

@@ -86,7 +86,6 @@ export async function searchArticlesInDB(keyword, page = 1, limit = 10) {
     const allResults = await db('articles')
       .where('title', 'ILIKE', `%${keyword}%`)
       .orWhere('description', 'ILIKE', `%${keyword}%`)
-      .orWhere('content', 'ILIKE', `%${keyword}%`)
       .orderBy('published_at', 'desc');
 
     // Cap total results at 100

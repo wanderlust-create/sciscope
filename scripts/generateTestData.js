@@ -56,7 +56,6 @@ async function seedDatabase() {
         articles.push({
           title: faker.lorem.sentence(),
           description: faker.lorem.paragraph(),
-          content: null, // Keeping content null since it's in schema but not used
           url,
           url_to_image: faker.datatype.boolean() ? faker.image.url() : null, // 20% chance of null
           published_at: faker.date.past().toISOString(),

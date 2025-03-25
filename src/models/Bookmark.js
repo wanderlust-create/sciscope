@@ -1,6 +1,7 @@
 import { Model } from 'objection';
 import User from './User.js';
 import Article from './Article.js';
+import BookmarkGroup from './BookmarkGroup.js';
 
 class Bookmark extends Model {
   static get tableName() {
@@ -36,6 +37,18 @@ class Bookmark extends Model {
         join: {
           from: 'user_bookmarks.article_id',
           to: 'articles.id',
+        },
+      },
+      bookmarkGroups: {
+        relation: Model.ManyToManyRelation,
+        modelClass: BookmarkGroup,
+        join: {
+          from: 'user_bookmarks.id',
+          through: {
+            from: 'bookmark_group_assignments.user_bookmark_id',
+            to: 'bookmark_group_assignments.bookmark_group_id',
+          },
+          to: 'bookmark_groups.id',
         },
       },
     };

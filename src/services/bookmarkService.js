@@ -64,7 +64,15 @@ export async function createBookmark(userId, articleId) {
     return bookmark;
   } catch (error) {
     logger.error(`❌ Error creating bookmark: ${error.message}`);
-    throw new Error(error.message);
+
+    if (
+      error.message.includes('duplicate key value') &&
+      error.message.includes('user_bookmarks_user_id_article_id_unique')
+    ) {
+      throw new Error('Article already bookmarked');
+    }
+
+    throw error;
   }
 }
 

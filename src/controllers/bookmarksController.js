@@ -49,12 +49,8 @@ export async function createBookmark(req, res) {
       stack: error.stack,
     });
 
-    if (
-      error.message.includes('duplicate key value violates unique constraint')
-    ) {
-      return res
-        .status(400)
-        .json({ error: 'This article is already bookmarked' });
+    if (error.message === 'Article already bookmarked') {
+      return res.status(400).json({ error: error.message });
     }
 
     res.status(500).json({ error: 'Internal Server Error' });

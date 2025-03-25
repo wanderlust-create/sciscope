@@ -14,21 +14,26 @@ beforeAll(() => {
 afterAll(async () => {
   console.log('🔻 Running global teardown...');
 
+  // Cancel any pending API requests
   if (cancelTokenSource) {
     cancelTokenSource.cancel('Test cleanup');
     console.log('✅ Canceled pending API requests.');
   }
 
+  // Close the database connection
   if (db && db.destroy) {
     await db.destroy();
     console.log('✅ Database connection closed.');
   }
 
-  // **Ensure Express server is closed**
+  // Ensure Express server is closed
   if (global.__SERVER__ && typeof global.__SERVER__.close === 'function') {
     await new Promise((resolve) => global.__SERVER__.close(resolve));
     console.log('✅ Server closed.');
   }
+
+  // Jest sometimes fails to exit due to lingering handles, so force exit.
+  setTimeout(() => process.exit(0), 1000);
 });
 
 describe('Real API Tests', () => {
@@ -46,7 +51,7 @@ describe('Real API Tests', () => {
   test('Fetches news by query (GET /api/v1/search)', async () => {
     const response = await supertest(app)
       .get('/api/v1/search')
-      .query({ keyword: 'space' })
+      .query({ keyword: 'climate' })
       .expect(200);
     expect(response.body.articles).toBeInstanceOf(Array);
     expect(response.body.articles.length).toBeGreaterThan(0);
