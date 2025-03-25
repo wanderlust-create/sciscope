@@ -14,6 +14,7 @@
 - 🧪 Real API integration with caching & tests
 - ✅ Full CRUD for bookmarks and groups
 - 🔐 Auth with login/signup and protected routes
+- 🌐 OAuth integration for third-party login
 
 ---
 
@@ -71,16 +72,12 @@ npm run seed
 npm run start
 ```
 
-Run tests:
-```bash
-npm run test:all
-```
-
 ---
 
 ## 🔑 Authentication
 
 - Users sign up or log in using `/api/v1/auth/signup` or `/login`
+- OAuth login is available via `/api/v1/auth/oauth`
 - JWT-based authentication (`JWT_SECRET` required)
 - Protected routes include:
   - `/bookmarks`
@@ -142,23 +139,19 @@ Both support:
 
 ## 🧪 Testing Overview
 
-SciScope has both unit and integration tests, including **real API calls**.
+SciScope includes unit tests, integration tests, and real API call tests.
 
-### 🔬 Real API Call Tests
-- `/api/v1/news`
-- `/api/v1/search`
-- Handles external failures (e.g. invalid key)
+### Test Scripts
 
-### 📊 Analytics Tests
-- Pagination + sorting
-- Cache hit/miss logic
-- Integration with DB seed data
+| Command | Description |
+|---------|-------------|
+| `npm test` | Run internal-only tests (excludes real API). |
+| `npm run test:real` | Run tests that hit the external news API. |
+| `npm run test:all` | Run everything (internal + real API tests). |
+| `npm run test:quick` | Skip DB reset for faster test runs. |
+| `npm run test:watch` | Watch mode during development. |
 
-Run all tests:
-
-```bash
-npm run test:all
-```
+> ⚠️ `test:real` and `test:all` require a valid `NEWS_API_KEY` in your `.env`.
 
 ---
 
