@@ -1,6 +1,7 @@
 <p align="center">
   <img src="./assets/sci-scope-banner.png" alt="SciScope Banner" width=700"/>
 </p>
+<p align="center"><em>Curated science news for educators — fast, filterable, and bookmarkable.</em></p>
 
 # 🔬 SciScope
 
