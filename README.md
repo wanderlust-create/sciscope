@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/sci-scope-banner.png" alt="SciScope Banner" width="600"/>
+  <img src="./assets/sci-scope-banner.png" alt="SciScope Banner" width=700"/>
 </p>
 
 # 🔬 SciScope
