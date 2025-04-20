@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/sci-scope-banner.png" alt="SciScope Banner" width="600"/>
+</p>
+
 # 🔬 SciScope
 
 **SciScope** is a backend API for browsing, searching, and saving science news. It integrates with an external news API and provides user bookmarking, custom bookmark groups, and analytics on top-bookmarked articles and most active users.
