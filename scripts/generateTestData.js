@@ -1,12 +1,13 @@
 import knex from '../src/config/db.js';
 import { faker } from '@faker-js/faker';
+import logger from '../src/loaders/logger.js';
 
 const NUM_USERS = 10000;
 const NUM_ARTICLES = 5000;
 const NUM_BOOKMARKS = 100000;
 
 async function seedDatabase() {
-  console.log('🚀 Seeding database with test data...');
+  logger.info('🚀 Seeding database with test data...');
 
   try {
     // ✅ Ensure Unique Users
@@ -42,7 +43,7 @@ async function seedDatabase() {
       }
     }
     await knex.batchInsert('users', users, 500);
-    console.log(`✅ Inserted ${NUM_USERS} unique users.`);
+    logger.info(`✅ Inserted ${NUM_USERS} unique users.`);
 
     // ✅ Ensure Unique Articles
     const urls = new Set();
@@ -69,7 +70,7 @@ async function seedDatabase() {
       }
     }
     await knex.batchInsert('articles', articles, 500);
-    console.log(`✅ Inserted ${NUM_ARTICLES} unique articles.`);
+    logger.info(`✅ Inserted ${NUM_ARTICLES} unique articles.`);
 
     // ✅ Ensure Unique Bookmarks
     const bookmarkPairs = new Set();
@@ -90,12 +91,12 @@ async function seedDatabase() {
       }
     }
     await knex.batchInsert('user_bookmarks', bookmarks, 1000);
-    console.log(`✅ Inserted ${NUM_BOOKMARKS} unique bookmarks.`);
+    logger.info(`✅ Inserted ${NUM_BOOKMARKS} unique bookmarks.`);
 
-    console.log('🎉 Database seeding complete!');
+    logger.info('🎉 Database seeding complete!');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error seeding database:', error);
+    logger.error('❌ Error seeding database:', error);
     process.exit(1);
   }
 }

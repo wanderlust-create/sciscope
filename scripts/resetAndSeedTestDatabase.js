@@ -1,24 +1,34 @@
+import logger from '../src/loaders/logger.js';
+// Default to 'test' if NODE_ENV is not provided
+process.env.NODE_ENV = process.env.NODE_ENV || 'test';
+
 import { exec } from 'child_process';
 
-console.log('🚀 Resetting and seeding the test database...');
+const env = process.env.NODE_ENV;
 
-// Run reset script first
+logger.info(`🚀 Resetting and seeding the "${env}" database...`);
+
+// Run reset script
 exec(
-  'NODE_ENV=test node scripts/resetTestDatabase.js',
+  `NODE_ENV=${env} node scripts/resetTestDatabase.js`,
   (resetError, resetStdout, resetStderr) => {
     if (resetError) {
-      console.error(`❌ Error resetting test database: ${resetError.message}`);
+      console.error(
+        `❌ Error resetting ${env} database: ${resetError.message}`
+      );
       return;
     }
     console.log(resetStdout);
     if (resetStderr) console.error(resetStderr);
 
-    // After reset completes, run the seed script
+    // Then run the seed script
     exec(
-      'NODE_ENV=test node scripts/generateTestData.js',
+      `NODE_ENV=${env} node scripts/generateTestData.js`,
       (seedError, seedStdout, seedStderr) => {
         if (seedError) {
-          console.error(`❌ Error seeding test database: ${seedError.message}`);
+          console.error(
+            `❌ Error seeding ${env} database: ${seedError.message}`
+          );
           return;
         }
         console.log(seedStdout);
