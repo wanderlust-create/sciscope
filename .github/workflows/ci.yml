@@ -62,7 +62,7 @@ jobs:
 
       - name: Run migrations
         run: |
-          npx knex migrate:latest --env test --knexfile ./src/config/knexfile.js
+          npx knex migrate:latest --env development --knexfile ./src/config/knexfile.js
 
       - name: Run tests
         run: npm test
