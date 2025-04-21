@@ -1,6 +1,7 @@
 import express from 'express';
 import bookmarkGroupsController from '../../controllers/bookmarkGroupsController.js';
-import { authMiddleware, validateNumericParam } from '../../middleware';
+import authMiddleware from '../../middleware/authMiddleware.js';
+import { validateNumericParam } from '../../middleware/validateParam.js';
 
 const router = express.Router();
 
