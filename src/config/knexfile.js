@@ -1,18 +1,30 @@
 import dotenv from 'dotenv';
 import { knexSnakeCaseMappers } from 'objection';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// dotenv.config({
-//   path: path.resolve(
-//     __dirname,
-//     `../../.env.${process.env.NODE_ENV || 'development'}`
-//   ),
-// });
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+// Detect if running in GitHub Actions
+const isCI = process.env.GITHUB_ACTIONS === 'true';
+const nodeEnv = process.env.NODE_ENV || 'development';
+
+// Dynamically determine the correct .env file
+let envPath;
+
+if (isCI) {
+  envPath = path.resolve(__dirname, '../../.env');
+} else {
+  const specificPath = path.resolve(__dirname, `../../.env.${nodeEnv}`);
+  envPath = fs.existsSync(specificPath)
+    ? specificPath
+    : path.resolve(__dirname, '../../.env');
+}
+
+dotenv.config({ path: envPath });
+console.log(`✅ Loaded env file: ${envPath}`);
 
 const config = {
   development: {
