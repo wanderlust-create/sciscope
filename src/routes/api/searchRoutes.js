@@ -1,6 +1,6 @@
 import express from 'express';
 import queryController from '../../controllers/queryController.js';
-import { validateNumericParam } from '../../middleware';
+import { validateNumericParam } from '../../middleware/validateParam.js';
 
 const router = express.Router();
 
