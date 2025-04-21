@@ -14,7 +14,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "migrate-make": "knex migrate:make $(date +%Y%m%d_%H%M%S)_migration --knexfile src/config/knexfile.js",
-    "migrate": "knex migrate:latest --knexfile src/config/knexfile.js",
+    "migrate": "NODE_ENV=test knex migrate:latest --knexfile src/config/knexfile.js",
     "migrate-postman": "NODE_ENV=postman knex migrate:latest --knexfile src/config/knexfile.js",
     "rollback": "knex migrate:rollback --knexfile src/config/knexfile.js",
     "seed": "knex seed:run --knexfile src/config/knexfile.js",
