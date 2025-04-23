@@ -15,6 +15,8 @@ app.listen(PORT, async () => {
   try {
     await db.raw('SELECT 1'); // Simple query to verify connection
     logger.info('✅ Database is connected');
+    const dbName = db.context?.client?.config?.connection?.database;
+    logger.info(`🔍 Connected to database: ${dbName}`);
   } catch (error) {
     logger.error('❌ Database connection failed:', error);
   }
