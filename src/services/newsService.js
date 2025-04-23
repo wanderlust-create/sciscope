@@ -20,12 +20,13 @@ export async function processNewsRequest(
   disableApiFallback = false
 ) {
   try {
-    // Check cache first
+    // 🔍 Try cached data first
     const cachedArticles = getCache(CACHE_KEY);
-    if (cachedArticles) {
+
+    if (Array.isArray(cachedArticles)) {
+      logger.info('⚡ Cache Hit: recent_articles');
       logger.info('⚡ Serving news from cache');
 
-      // ✅ Apply pagination dynamically
       const startIdx = (page - 1) * limit;
       const paginatedArticles = cachedArticles.slice(
         startIdx,
@@ -38,38 +39,38 @@ export async function processNewsRequest(
         current_page: page,
         articles: paginatedArticles,
       };
+    } else if (cachedArticles !== undefined) {
+      logger.warn('⚠️ Cached value was not an array:', cachedArticles);
     }
-    logger.info('Checking database for recent science news...');
 
-    // Retrieve paginated recent articles from the database
+    logger.info('📡 Cache miss or invalid cache — checking DB...');
+
+    // 🔎 Get recent articles from DB
     let dbResults = await dbService.fetchRecentArticles(
       MAX_AGE_HOURS,
       page,
       limit
     );
-    // Determine how many articles are considered "enough" to avoid calling the external API.
-    // - If disableApiFallback is true (in test mode), set minimum to 0 to prevent real API calls.
-    // - Otherwise, use the smaller of MIN_DB_RESULTS or limit to avoid fetching extra articles
-    //   when the user only requested a small number (e.g., limit = 5, MIN_DB_RESULTS = 6).
-    // This ensures proper behavior in production and prevents external requests during tests.
+
+    // 💡 Set fallback threshold
     const effectiveMin = disableApiFallback
       ? 0
       : Math.min(MIN_DB_RESULTS, limit);
 
-    // Determine if additional articles are needed
     const missingArticles = effectiveMin - dbResults.articles.length;
+
+    // 📥 Fetch from external API if DB is lacking
     if (missingArticles > 0) {
       logger.info(
         `⚡ Need ${missingArticles} more articles, fetching from API...`
       );
 
-      // Fetch additional articles from API
       const apiResults = await apiService.fetchScienceNews(missingArticles);
-      // Store new articles in DB & clear cache
-      await dbService.storeArticlesInDB(apiResults);
-      flushCache(); // ✅ Clear cache when new articles are added
 
-      // Re-fetch updated DB results
+      // 💾 Store & flush
+      await dbService.storeArticlesInDB(apiResults);
+      flushCache();
+
       dbResults = await dbService.fetchRecentArticles(
         MAX_AGE_HOURS,
         page,
@@ -77,8 +78,15 @@ export async function processNewsRequest(
       );
     }
 
-    // Cache the final DB response
-    setCache(CACHE_KEY, dbResults, 3600); // Store for 1 hour
+    // ✅ Store final DB results in cache (array only)
+    if (Array.isArray(dbResults.articles)) {
+      setCache(CACHE_KEY, dbResults.articles, 3600); // cache for 1 hour
+    } else {
+      logger.warn(
+        '⚠️ Skipping cache write — DB result not an array:',
+        dbResults.articles
+      );
+    }
 
     return {
       ...dbResults,
