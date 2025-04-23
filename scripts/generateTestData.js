@@ -1,25 +1,48 @@
 import knex from '../src/config/db.js';
+import bcrypt from 'bcrypt';
 import { faker } from '@faker-js/faker';
 import logger from '../src/loaders/logger.js';
 
-const NUM_USERS = 10000;
-const NUM_ARTICLES = 5000;
-const NUM_BOOKMARKS = 100000;
+const isPostman = process.env.NODE_ENV === 'postman';
+
+const NUM_USERS = isPostman ? 10 : 10000;
+const NUM_ARTICLES = isPostman ? 20 : 5000;
+const NUM_BOOKMARKS = isPostman ? 100 : 100000;
 
 async function seedDatabase() {
   logger.info('🚀 Seeding database with test data...');
 
   try {
-    // ✅ Ensure Unique Users
+    // ✅ Unique Users
     const usernames = new Set();
     const emails = new Set();
     const oauthIds = new Set();
     const users = [];
 
+    // Add known password-based user
+    users.push({
+      username: 'testuser',
+      email: 'testuser@example.com',
+      password_hash: await bcrypt.hash('Password123!', 10),
+      oauth_provider: null,
+      oauth_id: null,
+    });
+
+    // Add known OAuth user
+    users.push({
+      username: 'oauthuser',
+      email: 'oauthuser@example.com',
+      password_hash: null,
+      oauth_provider: 'google',
+      oauth_id: 'test-oauth-id',
+    });
+
+    logger.info(`🔐 Test login available: testuser@example.com / Password123!`);
+
     while (users.length < NUM_USERS) {
       let username = faker.internet.username();
       let email = faker.internet.email();
-      let useOAuth = faker.datatype.boolean(); // 50% chance OAuth
+      let useOAuth = faker.datatype.boolean();
       let oauthId = useOAuth ? faker.string.uuid() : null;
 
       if (
@@ -34,7 +57,9 @@ async function seedDatabase() {
         users.push({
           username,
           email,
-          password_hash: useOAuth ? null : faker.internet.password(),
+          password_hash: useOAuth
+            ? null
+            : await bcrypt.hash(faker.internet.password(), 10),
           oauth_provider: useOAuth
             ? faker.helpers.arrayElement(['google', 'github'])
             : null,
@@ -42,10 +67,11 @@ async function seedDatabase() {
         });
       }
     }
+
     await knex.batchInsert('users', users, 500);
     logger.info(`✅ Inserted ${NUM_USERS} unique users.`);
 
-    // ✅ Ensure Unique Articles
+    // ✅ Unique Articles
     const urls = new Set();
     const articles = [];
 
@@ -58,26 +84,73 @@ async function seedDatabase() {
           title: faker.lorem.sentence(),
           description: faker.lorem.paragraph(),
           url,
-          url_to_image: faker.datatype.boolean() ? faker.image.url() : null, // 20% chance of null
+          url_to_image: faker.datatype.boolean() ? faker.image.url() : null,
           published_at: faker.date.past().toISOString(),
           created_at: faker.date.past().toISOString(),
           updated_at: faker.date.past().toISOString(),
           author_name: faker.datatype.boolean()
             ? faker.person.fullName()
-            : 'Unknown', // 20% chance of "Unknown"
+            : 'Unknown',
           source_name: faker.company.name(),
         });
       }
     }
+
     await knex.batchInsert('articles', articles, 500);
     logger.info(`✅ Inserted ${NUM_ARTICLES} unique articles.`);
 
-    // ✅ Ensure Unique Bookmarks
+    // ✅ Add bookmarks and groups for testuser
+    const testUser = await knex('users')
+      .where({ email: 'testuser@example.com' })
+      .first();
+    const testArticleIds = (await knex('articles').select('id').limit(10)).map(
+      (a) => a.id
+    );
+
+    const testBookmarks = testArticleIds.slice(0, 5).map((articleId) => ({
+      user_id: testUser.id,
+      article_id: articleId,
+      bookmarked_at: knex.fn.now(),
+    }));
+
+    const insertedBookmarks = await knex('user_bookmarks')
+      .insert(testBookmarks)
+      .returning('*');
+
+    const groups = [
+      {
+        user_id: testUser.id,
+        group_name: 'Planets',
+        created_at: knex.fn.now(),
+      },
+      {
+        user_id: testUser.id,
+        group_name: 'Astrobiology',
+        created_at: knex.fn.now(),
+      },
+    ];
+
+    const groupResults = await knex('bookmark_groups')
+      .insert(groups)
+      .returning('*');
+
+    const assignments = insertedBookmarks.map((bookmark, idx) => ({
+      user_bookmark_id: bookmark.id,
+      bookmark_group_id: groupResults[idx % groupResults.length].id,
+      assigned_at: knex.fn.now(),
+    }));
+
+    await knex('bookmark_group_assignments').insert(assignments);
+    logger.info('✅ Created testuser bookmarks and groups.');
+
+    // ✅ Random bookmarks for other users
     const bookmarkPairs = new Set();
     const bookmarks = [];
 
     while (bookmarks.length < NUM_BOOKMARKS) {
       let userId = faker.number.int({ min: 1, max: NUM_USERS });
+      if (userId === testUser.id) continue;
+
       let articleId = faker.number.int({ min: 1, max: NUM_ARTICLES });
       let pairKey = `${userId}-${articleId}`;
 
@@ -90,8 +163,9 @@ async function seedDatabase() {
         });
       }
     }
+
     await knex.batchInsert('user_bookmarks', bookmarks, 1000);
-    logger.info(`✅ Inserted ${NUM_BOOKMARKS} unique bookmarks.`);
+    logger.info(`✅ Inserted ${NUM_BOOKMARKS} random bookmarks.`);
 
     logger.info('🎉 Database seeding complete!');
     process.exit(0);
@@ -101,5 +175,4 @@ async function seedDatabase() {
   }
 }
 
-// Run the script
 seedDatabase();
