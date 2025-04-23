@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
+    "start:postman": "NODE_ENV=postman node app.js",
     "dev": "nodemon app.js",
     "test": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --runInBand --verbose --bail=0 --testPathIgnorePatterns=realApi --detectOpenHandles",
     "test:all": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --runInBand --verbose --bail=0 --coverage --detectOpenHandles",
@@ -21,7 +22,6 @@
     "seed:postman": "NODE_ENV=postman node scripts/resetAndSeedTestDatabase.js",
     "reset:test": "NODE_ENV=test node scripts/resetTestDatabase.js",
     "reset:postman": "NODE_ENV=postman node scripts/resetTestDatabase.js",
-    "start:postman": "NODE_ENV=postman node app.js",
     "docker:up": "docker-compose up --build",
     "docker:down": "docker-compose down",
     "schema": "PGPASSWORD=$DB_PASSWORD pg_dump --dbname=$DB_NAME --schema-only > db/schemas/schema.sql"
