@@ -52,7 +52,7 @@ export const searchNewsByKeyword = (keyword, pageSize = 10) => {
       language: 'en',
       pageSize,
     }),
-    `search keyword: "${keyword}" with pageSize: ${pageSize}`
+    `keyword: "${keyword}" with pageSize: ${pageSize}`
   );
 };
 
