@@ -12,18 +12,16 @@ import logger from '../loaders/logger.js';
  */
 export async function createBookmarkGroup(userId, groupName) {
   const existing = await BookmarkGroup.query()
-    .where({ user_id: userId, group_name: groupName })
+    .where({ userId, group_name: groupName })
     .first();
-
   if (existing) {
     logger.warn(
       `🚫 Duplicate group creation attempt by user ${userId}: "${groupName}"`
     );
     throw new Error('Bookmark group already exists.');
   }
-
   const newGroup = await BookmarkGroup.query().insert({
-    user_id: userId,
+    userId,
     group_name: groupName,
   });
 
@@ -67,6 +65,10 @@ export async function getBookmarkGroupWithArticles(userId, groupId) {
   }
 
   return group;
+}
+
+export async function findGroupByIdAndUser(groupId, userId) {
+  return BookmarkGroup.query().findOne({ id: groupId, user_id: userId });
 }
 
 /**
@@ -174,6 +176,15 @@ export async function addBookmarkToGroup(userId, groupId, bookmarkId) {
     `➕ Bookmark ${bookmarkId} assigned to group ${groupId} by user ${userId}`
   );
   return { success: true };
+}
+
+export async function isBookmarkInGroup(bookmarkId, groupId) {
+  return await db('bookmark_group_assignments')
+    .where({
+      user_bookmark_id: bookmarkId,
+      bookmark_group_id: groupId,
+    })
+    .first();
 }
 
 /**
