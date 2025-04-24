@@ -35,6 +35,10 @@ export async function getBookmarks(userId, page = 1, limit = 10) {
   }
 }
 
+async function getBookmarkByIdAndUser(id, userId) {
+  return Bookmark.query().findOne({ id, userId });
+}
+
 /**
  * Creates a new bookmark for a user.
  * @param {number} userId - ID of the user.
@@ -51,7 +55,7 @@ export async function createBookmark(userId, articleId) {
 
     // Insert the bookmark
     const bookmark = await Bookmark.query()
-      .insert({ user_id: userId, article_id: articleId })
+      .insert({ userId, articleId })
       .returning('*');
 
     // ✅ Purge cache after adding a bookmark
@@ -107,6 +111,7 @@ export async function deleteBookmark(id, userId) {
 
 export default {
   getBookmarks,
+  getBookmarkByIdAndUser,
   createBookmark,
   deleteBookmark,
 };
