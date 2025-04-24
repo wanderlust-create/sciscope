@@ -137,11 +137,18 @@ export async function storeArticlesInDB(apiResponse) {
         return acc;
       }, {})
     );
+
+    if (uniqueArticles.length === 0) {
+      logger.info('📭 No unique articles to insert.');
+      return;
+    }
     // ✅ Filter out older articles and format new ones
     const newArticles = filterNewArticles(
       uniqueArticles,
-      latestPublishedAt
+      latestPublishedAt,
+      process.env.NODE_ENV === 'postman'
     ).map(formatArticle);
+
     if (!newArticles.length) {
       logger.info('📭 No new articles to insert.');
       return;
@@ -156,19 +163,30 @@ export async function storeArticlesInDB(apiResponse) {
 }
 
 /**
- * Filters out articles that are already stored in the database.
- * @param {Object[]} articles - Raw articles from the API.
- * @param {Date|null} latestPublishedAt - Timestamp of the most recent stored article.
- * @returns {Object[]} - A list of new articles to store.
- * @private
+ * Filters out articles that are too old or missing required fields.
+ *
+ * In production, this prevents inserting duplicate or outdated articles by comparing
+ * each article's publishedAt date to the latest date already in the database.
+ *
+ * During testing (e.g. in Postman or automated tests), we often want predictable,
+ * repeatable insert behavior — so the optional `bypass` flag disables the date check
+ * and allows all valid articles through regardless of their publish time.
+ *
+ * @param {Array} articles - The array of article objects to filter
+ * @param {Date|null} latestPublishedAt - The most recent publishedAt timestamp from DB
+ * @param {Boolean} bypass - Optional flag to disable filtering by date (for tests/dev)
+ * @returns {Array} Filtered array of articles to insert
  */
-function filterNewArticles(articles, latestPublishedAt) {
-  return articles.filter(
-    (article) =>
-      article.url &&
-      article.publishedAt &&
-      (!latestPublishedAt || new Date(article.publishedAt) > latestPublishedAt)
-  );
+function filterNewArticles(articles, latestPublishedAt, bypass = false) {
+  return articles.filter((article) => {
+    if (!article.url || !article.publishedAt) return false;
+
+    if (bypass) return true;
+
+    return (
+      !latestPublishedAt || new Date(article.publishedAt) > latestPublishedAt
+    );
+  });
 }
 
 /**
