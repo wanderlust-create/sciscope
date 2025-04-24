@@ -9,9 +9,9 @@ import queryService from '../services/queryService.js';
  * @param {Object} res - Express response object.
  */
 export async function getNewsByQuery(req, res) {
-  logger.info(req.body);
   try {
-    const { keyword, page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10 } = req.query;
+    const keyword = req.query.keyword?.trim();
 
     if (!keyword) {
       return res.status(400).json({ error: 'Keyword parameter is required.' });
@@ -22,6 +22,11 @@ export async function getNewsByQuery(req, res) {
       Number(page),
       Number(limit)
     );
+
+    const { articles = [] } = paginatedArticles;
+    if (articles.length === 0) {
+      return res.status(404).json({ error: 'No articles found.' });
+    }
 
     res.status(200).json(paginatedArticles);
   } catch (error) {
