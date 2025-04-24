@@ -10,7 +10,7 @@ class BookmarkGroup extends Model {
   static get jsonSchema() {
     return {
       type: 'object',
-      required: ['user_id', 'group_name'],
+      required: ['userId', 'group_name'],
       properties: {
         id: { type: 'integer' },
         user_id: { type: 'integer' },
