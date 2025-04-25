@@ -3,6 +3,7 @@ import createServer from '../../../../src/loaders/server.js';
 import db from '../../../../src/config/db.js';
 import cacheService from '../../../../src/services/cacheService.js';
 import { execSync } from 'child_process';
+import logger from '../../../../src/loaders/logger.js';
 
 const app = createServer();
 let server;
@@ -14,15 +15,15 @@ const MOST_BOOKMARKED_CACHE_KEY = 'most_bookmarked_articles';
 const TOP_BOOKMARKING_USERS_CACHE_KEY = 'top_bookmarking_users';
 
 beforeAll(async () => {
-  server = app.listen(8080);
+  server = app.listen(3000);
 
   if (shouldSeed) {
-    console.log('🚀 Seeding large test database for analytics tests...');
+    logger.info('🚀 Seeding large test database for analytics tests...');
     execSync('NODE_ENV=test node scripts/resetAndSeedTestDatabase.js', {
       stdio: 'inherit',
     });
   } else {
-    console.log('⚡️ Skipping DB seed (using previously seeded data)');
+    logger.info('⚡️ Skipping DB seed (using previously seeded data)');
   }
 });
 
@@ -48,7 +49,7 @@ describe('📊 GET /api/analytics/most-bookmarked', () => {
     const res = await request(app).get(
       '/api/v1/analytics/most-bookmarked-articles?limit=5&page=1'
     );
-
+    console.log('TEST 1 Response body:', res.body);
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('results');
     expect(Array.isArray(res.body.results)).toBe(true);
