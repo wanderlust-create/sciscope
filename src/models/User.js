@@ -1,7 +1,7 @@
-import { Model } from 'objection';
-import Bookmark from './Bookmark.js'; // ✅ Import Bookmark model
+import BaseModel from './BaseModel.js';
+import Bookmark from './Bookmark.js';
 
-class User extends Model {
+class User extends BaseModel {
   static get tableName() {
     return 'users';
   }
@@ -10,14 +10,13 @@ class User extends Model {
     return {
       type: 'object',
       required: ['username', 'email'],
-
       properties: {
         id: { type: 'integer' },
         username: { type: 'string', minLength: 3, maxLength: 255 },
         email: { type: 'string', format: 'email' },
-        password_hash: { type: ['string', 'null'] }, // 🔹 DB uses this
-        oauth_provider: { type: ['string', 'null'] },
-        oauth_id: { type: ['string', 'null'] },
+        passwordHash: { type: ['string', 'null'] },
+        oauthProvider: { type: ['string', 'null'] },
+        oauthId: { type: ['string', 'null'] },
       },
     };
   }
@@ -25,28 +24,14 @@ class User extends Model {
   static get relationMappings() {
     return {
       bookmarks: {
-        relation: Model.HasManyRelation,
+        relation: BaseModel.HasManyRelation,
         modelClass: Bookmark,
         join: {
           from: 'users.id',
-          to: 'user_bookmarks.user_id',
+          to: 'user_bookmarks.user_id', // DB snake_case
         },
       },
     };
-  }
-
-  static get virtualAttributes() {
-    return ['passwordHash'];
-  }
-
-  // ✅ Virtual Getter for JS-friendly property
-  get passwordHash() {
-    return this.password_hash;
-  }
-
-  // ✅ Virtual Setter for consistency
-  set passwordHash(value) {
-    this.password_hash = value;
   }
 
   static get modifiers() {
@@ -64,10 +49,10 @@ class User extends Model {
       throw new Error('beforeInsert received no data!');
     }
 
-    const { passwordHash, oauth_provider } = data; // 🔹 Use `passwordHash`
+    const { passwordHash, oauthProvider } = data;
 
-    if (!passwordHash && !oauth_provider) {
-      throw new Error('Either `passwordHash` or `oauth_provider` is required.');
+    if (!passwordHash && !oauthProvider) {
+      throw new Error('Either `passwordHash` or `oauthProvider` is required.');
     }
   }
 }
