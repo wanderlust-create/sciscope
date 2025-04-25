@@ -9,7 +9,7 @@ const NUM_USERS = isPostman ? 10 : 10000;
 const NUM_ARTICLES = isPostman ? 20 : 5000;
 const NUM_BOOKMARKS = isPostman ? 100 : 100000;
 
-async function seedDatabase() {
+export default async function seedDatabase() {
   logger.info('🚀 Seeding database with test data...');
 
   try {
@@ -174,5 +174,3 @@ async function seedDatabase() {
     process.exit(1);
   }
 }
-
-seedDatabase();
