@@ -1,9 +1,9 @@
-import { Model } from 'objection';
+import BaseModel from './BaseModel.js';
 import User from './User.js';
 import Article from './Article.js';
 import BookmarkGroup from './BookmarkGroup.js';
 
-class Bookmark extends Model {
+class Bookmark extends BaseModel {
   static get tableName() {
     return 'user_bookmarks';
   }
@@ -14,9 +14,9 @@ class Bookmark extends Model {
       required: ['userId', 'articleId'],
       properties: {
         id: { type: 'integer' },
-        user_id: { type: 'integer' },
-        article_id: { type: 'integer' },
-        bookmarked_at: { type: 'string', format: 'date-time' },
+        userId: { type: 'integer' },
+        articleId: { type: 'integer' },
+        bookmarkedAt: { type: 'string', format: 'date-time' },
       },
     };
   }
@@ -24,7 +24,7 @@ class Bookmark extends Model {
   static get relationMappings() {
     return {
       user: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: User,
         join: {
           from: 'user_bookmarks.user_id',
@@ -32,7 +32,7 @@ class Bookmark extends Model {
         },
       },
       article: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: Article,
         join: {
           from: 'user_bookmarks.article_id',
@@ -40,7 +40,7 @@ class Bookmark extends Model {
         },
       },
       bookmarkGroups: {
-        relation: Model.ManyToManyRelation,
+        relation: BaseModel.ManyToManyRelation,
         modelClass: BookmarkGroup,
         join: {
           from: 'user_bookmarks.id',
