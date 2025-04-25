@@ -3,11 +3,24 @@ import bcrypt from 'bcrypt';
 import { faker } from '@faker-js/faker';
 import logger from '../src/loaders/logger.js';
 
-const isPostman = process.env.NODE_ENV === 'postman';
+const env = process.env.NODE_ENV;
 
-const NUM_USERS = isPostman ? 10 : 10000;
-const NUM_ARTICLES = isPostman ? 20 : 5000;
-const NUM_BOOKMARKS = isPostman ? 100 : 100000;
+// 🔵 Default to small DBnpm test
+const isLargeSeed = env === 'largeDB';
+
+if (isLargeSeed) {
+  logger.info(
+    '📈 Running LARGE seed mode (full dataset for analytics stress testing).'
+  );
+} else {
+  logger.info(
+    '🔹 Running SMALL seed mode (default for Postman, tests, and dev).'
+  );
+}
+
+const NUM_USERS = isLargeSeed ? 500 : 10;
+const NUM_ARTICLES = isLargeSeed ? 2000 : 20;
+const NUM_BOOKMARKS = isLargeSeed ? 4000 : 100;
 
 export default async function seedDatabase() {
   logger.info('🚀 Seeding database with test data...');
@@ -40,6 +53,7 @@ export default async function seedDatabase() {
     logger.info(`🔐 Test login available: testuser@example.com / Password123!`);
 
     while (users.length < NUM_USERS) {
+      // console.log(`Generated ${users.length} USERS...`);
       let username = faker.internet.username();
       let email = faker.internet.email();
       let useOAuth = faker.datatype.boolean();
@@ -69,8 +83,9 @@ export default async function seedDatabase() {
     }
 
     await knex.batchInsert('users', users, 500);
-    logger.info(`✅ Inserted ${NUM_USERS} unique users.`);
-
+    logger.info(
+      `✅       Inserted ${users.length} users: Including 1 known password and 1 OAuth user.`
+    );
     // ✅ Unique Articles
     const urls = new Set();
     const articles = [];
@@ -97,7 +112,7 @@ export default async function seedDatabase() {
     }
 
     await knex.batchInsert('articles', articles, 500);
-    logger.info(`✅ Inserted ${NUM_ARTICLES} unique articles.`);
+    logger.info(`✅       Inserted ${NUM_ARTICLES} unique articles.`);
 
     // ✅ Add bookmarks and groups for testuser
     const testUser = await knex('users')
@@ -116,7 +131,7 @@ export default async function seedDatabase() {
     const insertedBookmarks = await knex('user_bookmarks')
       .insert(testBookmarks)
       .returning('*');
-
+    logger.info(`✅       Inserted 5 bookmarks for known test user.`);
     const groups = [
       {
         user_id: testUser.id,
@@ -141,7 +156,9 @@ export default async function seedDatabase() {
     }));
 
     await knex('bookmark_group_assignments').insert(assignments);
-    logger.info('✅ Created testuser bookmarks and groups.');
+    logger.info(
+      '✅       Created 2 bookmark groups and inserted 5 articles randomly into the 2 groups.'
+    );
 
     // ✅ Random bookmarks for other users
     const bookmarkPairs = new Set();
@@ -165,12 +182,11 @@ export default async function seedDatabase() {
     }
 
     await knex.batchInsert('user_bookmarks', bookmarks, 1000);
-    logger.info(`✅ Inserted ${NUM_BOOKMARKS} random bookmarks.`);
+    logger.info(`✅       Inserted ${NUM_BOOKMARKS} random bookmarks.`);
 
     logger.info('🎉 Database seeding complete!');
-    process.exit(0);
   } catch (error) {
     logger.error('❌ Error seeding database:', error);
-    process.exit(1);
+    throw error;
   }
 }
