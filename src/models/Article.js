@@ -1,10 +1,7 @@
-import { Model } from 'objection';
-import db from '../config/db.js';
+import BaseModel from './BaseModel.js';
 import Bookmark from './Bookmark.js';
 
-Model.knex(db);
-
-class Article extends Model {
+class Article extends BaseModel {
   static get tableName() {
     return 'articles';
   }
@@ -18,10 +15,10 @@ class Article extends Model {
         title: { type: 'string', minLength: 1, maxLength: 255 },
         description: { type: ['string', 'null'] },
         url: { type: 'string', format: 'uri' },
-        url_to_image: { type: ['string', 'null'], format: 'uri' },
-        published_at: { type: ['string', 'null'], format: 'date-time' },
-        author_name: { type: ['string', 'null'] },
-        source_name: { type: ['string', 'null'] },
+        urlToImage: { type: ['string', 'null'], format: 'uri' },
+        publishedAt: { type: ['string', 'null'], format: 'date-time' },
+        authorName: { type: ['string', 'null'] },
+        sourceName: { type: ['string', 'null'] },
       },
     };
   }
@@ -29,7 +26,7 @@ class Article extends Model {
   static get relationMappings() {
     return {
       bookmarks: {
-        relation: Model.HasManyRelation,
+        relation: BaseModel.HasManyRelation,
         modelClass: Bookmark,
         join: {
           from: 'articles.id',
