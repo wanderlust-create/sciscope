@@ -21,7 +21,7 @@ const dbName =
   '(unable to determine DB name)';
 logger.info(`🔍 Connected to database: ${dbName}`);
 
-export default async function resetTestDatabase() {
+export default async function resetDatabase() {
   logger.info(`🚀 Resetting database for environment: ${process.env.NODE_ENV}`);
 
   try {
@@ -30,9 +30,8 @@ export default async function resetTestDatabase() {
     );
 
     logger.info('✅ Database reset complete!');
-    process.exit(0);
   } catch (error) {
     logger.error('❌ Error resetting database:', error);
-    process.exit(1);
+    throw error;
   }
 }
