@@ -45,26 +45,26 @@ afterAll(async () => {
 });
 
 describe('📊 GET /api/analytics/most-bookmarked', () => {
-  it('returns top bookmarked articles with correct structure and pagination', async () => {
+  it.only('returns top bookmarked articles with correct structure and pagination', async () => {
     const res = await request(app).get(
       '/api/v1/analytics/most-bookmarked-articles?limit=5&page=1'
     );
-    console.log('TEST 1 Response body:', res.body);
+
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('results');
     expect(Array.isArray(res.body.results)).toBe(true);
     expect(res.body.results.length).toBeLessThanOrEqual(5);
 
     const first = res.body.results[0];
-    expect(first).toHaveProperty('article_id');
+    expect(first).toHaveProperty('articleId');
     expect(first).toHaveProperty('title');
-    expect(first).toHaveProperty('bookmark_count');
+    expect(first).toHaveProperty('bookmarkCount');
 
     // Ensure descending order
     for (let i = 1; i < res.body.results.length; i++) {
       expect(
-        Number(res.body.results[i - 1].bookmark_count)
-      ).toBeGreaterThanOrEqual(Number(res.body.results[i].bookmark_count));
+        Number(res.body.results[i - 1].bookmarkCount)
+      ).toBeGreaterThanOrEqual(Number(res.body.results[i].bookmarkCount));
     }
   });
 
@@ -106,8 +106,8 @@ describe('📊 GET /api/analytics/most-bookmarked', () => {
     );
     expect(res1.body.results.length).toBeGreaterThan(0);
     expect(res2.body.results.length).toBeGreaterThan(0);
-    expect(res1.body.results[0].article_id).not.toEqual(
-      res2.body.results[0].article_id
+    expect(res1.body.results[0].articleId).not.toEqual(
+      res2.body.results[0].articleId
     );
   });
 });
@@ -124,14 +124,14 @@ describe('📊 GET /api/analytics/top-bookmarking-users', () => {
     expect(res.body.results.length).toBeLessThanOrEqual(5);
 
     const first = res.body.results[0];
-    expect(first).toHaveProperty('user_id');
+    expect(first).toHaveProperty('userId');
     expect(first).toHaveProperty('username');
-    expect(first).toHaveProperty('bookmark_count');
+    expect(first).toHaveProperty('bookmarkCount');
 
     for (let i = 1; i < res.body.results.length; i++) {
       expect(
-        Number(res.body.results[i - 1].bookmark_count)
-      ).toBeGreaterThanOrEqual(Number(res.body.results[i].bookmark_count));
+        Number(res.body.results[i - 1].bookmarkCount)
+      ).toBeGreaterThanOrEqual(Number(res.body.results[i].bookmarkCount));
     }
   });
 
@@ -173,8 +173,8 @@ describe('📊 GET /api/analytics/top-bookmarking-users', () => {
     );
     expect(res1.body.results.length).toBeGreaterThan(0);
     expect(res2.body.results.length).toBeGreaterThan(0);
-    expect(res1.body.results[0].user_id).not.toEqual(
-      res2.body.results[0].user_id
+    expect(res1.body.results[0].userId).not.toEqual(
+      res2.body.results[0].userId
     );
   });
 });
