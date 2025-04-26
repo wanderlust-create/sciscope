@@ -35,7 +35,6 @@ describe('Bookmark Groups API', () => {
       .post('/api/v1/bookmark-groups')
       .set('Authorization', token)
       .send({ groupName: 'New Science Group' });
-    console.log(res.body);
     expect(res.status).toBe(201);
     expect(res.body.groupName).toBe('New Science Group');
   });
