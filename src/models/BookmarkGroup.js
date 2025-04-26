@@ -1,8 +1,8 @@
-import { Model } from 'objection';
+import BaseModel from './BaseModel.js';
 import User from './User.js';
 import Bookmark from './Bookmark.js';
 
-class BookmarkGroup extends Model {
+class BookmarkGroup extends BaseModel {
   static get tableName() {
     return 'bookmark_groups';
   }
@@ -10,12 +10,12 @@ class BookmarkGroup extends Model {
   static get jsonSchema() {
     return {
       type: 'object',
-      required: ['user_id', 'group_name'],
+      required: ['userId', 'groupName'],
       properties: {
         id: { type: 'integer' },
-        user_id: { type: 'integer' },
-        group_name: { type: 'string', maxLength: 255 },
-        created_at: { type: 'string', format: 'date-time' },
+        userId: { type: 'integer' },
+        groupName: { type: 'string', maxLength: 255 },
+        createdAt: { type: 'string', format: 'date-time' },
       },
     };
   }
@@ -23,7 +23,7 @@ class BookmarkGroup extends Model {
   static get relationMappings() {
     return {
       user: {
-        relation: Model.BelongsToOneRelation,
+        relation: BaseModel.BelongsToOneRelation,
         modelClass: User,
         join: {
           from: 'bookmark_groups.user_id',
@@ -31,7 +31,7 @@ class BookmarkGroup extends Model {
         },
       },
       bookmarks: {
-        relation: Model.ManyToManyRelation,
+        relation: BaseModel.ManyToManyRelation,
         modelClass: Bookmark,
         join: {
           from: 'bookmark_groups.id',

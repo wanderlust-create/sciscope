@@ -8,13 +8,13 @@ const app = createServer();
 let server, token, user;
 
 beforeAll(async () => {
-  server = app.listen(8081);
+  server = app.listen(0);
   await knex.migrate.latest();
   await knex.seed.run();
 });
 
 beforeEach(async () => {
-  user = await User.query().whereNotNull('password_hash').first();
+  user = await User.query().whereNotNull('passwordHash').first();
 
   const loginRes = await request(app).post('/api/v1/auth/login').send({
     email: user.email,
@@ -34,22 +34,21 @@ describe('Bookmark Groups API', () => {
     const res = await request(app)
       .post('/api/v1/bookmark-groups')
       .set('Authorization', token)
-      .send({ group_name: 'New Science Group' });
-
+      .send({ groupName: 'New Science Group' });
     expect(res.status).toBe(201);
-    expect(res.body.group_name).toBe('New Science Group');
+    expect(res.body.groupName).toBe('New Science Group');
   });
 
   it('prevents duplicate group names', async () => {
     await BookmarkGroup.query().insert({
-      user_id: user.id,
-      group_name: 'Duplicate Group',
+      userId: user.id,
+      groupName: 'Duplicate Group',
     });
 
     const res = await request(app)
       .post('/api/v1/bookmark-groups')
       .set('Authorization', token)
-      .send({ group_name: 'Duplicate Group' });
+      .send({ groupName: 'Duplicate Group' });
 
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/already exists/);
@@ -94,22 +93,22 @@ describe('Bookmark Groups API', () => {
 
   it('updates a group name', async () => {
     const group = await BookmarkGroup.query()
-      .where({ user_id: user.id })
+      .where({ userId: user.id })
       .first();
 
     const res = await request(app)
       .patch(`/api/v1/bookmark-groups/${group.id}`)
       .set('Authorization', token)
-      .send({ group_name: 'Updated Name' });
+      .send({ groupName: 'Updated Name' });
 
     expect(res.status).toBe(200);
-    expect(res.body.group_name).toBe('Updated Name');
+    expect(res.body.groupName).toBe('Updated Name');
   });
 
   it('deletes a bookmark group', async () => {
     const group = await BookmarkGroup.query().insert({
-      user_id: user.id,
-      group_name: 'Temp Group',
+      userId: user.id,
+      groupName: 'Temp Group',
     });
 
     const res = await request(app)
@@ -117,5 +116,15 @@ describe('Bookmark Groups API', () => {
       .set('Authorization', token);
 
     expect(res.status).toBe(204);
+    expect(res.text).toBe('');
+  });
+
+  it('returns 404 when fetching a non-existing group', async () => {
+    const res = await request(app)
+      .get('/api/v1/bookmark-groups/9999/articles')
+      .set('Authorization', token);
+
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('error');
   });
 });

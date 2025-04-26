@@ -32,8 +32,8 @@ describe('🔖 bookmarkService', () => {
   it('creates a new bookmark', async () => {
     const result = await service.createBookmark(user.id, article1.id);
 
-    expect(result).toHaveProperty('user_id', user.id);
-    expect(result).toHaveProperty('article_id', article1.id);
+    expect(result).toHaveProperty('userId', user.id);
+    expect(result).toHaveProperty('articleId', article1.id);
   });
 
   it('prevents duplicate bookmarks', async () => {

@@ -3,6 +3,7 @@ import createServer from '../../../../src/loaders/server.js';
 import db from '../../../../src/config/db.js';
 import cacheService from '../../../../src/services/cacheService.js';
 import { execSync } from 'child_process';
+import logger from '../../../../src/loaders/logger.js';
 
 const app = createServer();
 let server;
@@ -14,15 +15,15 @@ const MOST_BOOKMARKED_CACHE_KEY = 'most_bookmarked_articles';
 const TOP_BOOKMARKING_USERS_CACHE_KEY = 'top_bookmarking_users';
 
 beforeAll(async () => {
-  server = app.listen(8080);
+  server = app.listen(0);
 
   if (shouldSeed) {
-    console.log('🚀 Seeding large test database for analytics tests...');
+    logger.info('🚀 Seeding large test database for analytics tests...');
     execSync('NODE_ENV=test node scripts/resetAndSeedTestDatabase.js', {
       stdio: 'inherit',
     });
   } else {
-    console.log('⚡️ Skipping DB seed (using previously seeded data)');
+    logger.info('⚡️ Skipping DB seed (using previously seeded data)');
   }
 });
 
@@ -55,15 +56,15 @@ describe('📊 GET /api/analytics/most-bookmarked', () => {
     expect(res.body.results.length).toBeLessThanOrEqual(5);
 
     const first = res.body.results[0];
-    expect(first).toHaveProperty('article_id');
+    expect(first).toHaveProperty('articleId');
     expect(first).toHaveProperty('title');
-    expect(first).toHaveProperty('bookmark_count');
+    expect(first).toHaveProperty('bookmarkCount');
 
     // Ensure descending order
     for (let i = 1; i < res.body.results.length; i++) {
       expect(
-        Number(res.body.results[i - 1].bookmark_count)
-      ).toBeGreaterThanOrEqual(Number(res.body.results[i].bookmark_count));
+        Number(res.body.results[i - 1].bookmarkCount)
+      ).toBeGreaterThanOrEqual(Number(res.body.results[i].bookmarkCount));
     }
   });
 
@@ -105,8 +106,8 @@ describe('📊 GET /api/analytics/most-bookmarked', () => {
     );
     expect(res1.body.results.length).toBeGreaterThan(0);
     expect(res2.body.results.length).toBeGreaterThan(0);
-    expect(res1.body.results[0].article_id).not.toEqual(
-      res2.body.results[0].article_id
+    expect(res1.body.results[0].articleId).not.toEqual(
+      res2.body.results[0].articleId
     );
   });
 });
@@ -123,14 +124,14 @@ describe('📊 GET /api/analytics/top-bookmarking-users', () => {
     expect(res.body.results.length).toBeLessThanOrEqual(5);
 
     const first = res.body.results[0];
-    expect(first).toHaveProperty('user_id');
+    expect(first).toHaveProperty('userId');
     expect(first).toHaveProperty('username');
-    expect(first).toHaveProperty('bookmark_count');
+    expect(first).toHaveProperty('bookmarkCount');
 
     for (let i = 1; i < res.body.results.length; i++) {
       expect(
-        Number(res.body.results[i - 1].bookmark_count)
-      ).toBeGreaterThanOrEqual(Number(res.body.results[i].bookmark_count));
+        Number(res.body.results[i - 1].bookmarkCount)
+      ).toBeGreaterThanOrEqual(Number(res.body.results[i].bookmarkCount));
     }
   });
 
@@ -172,8 +173,8 @@ describe('📊 GET /api/analytics/top-bookmarking-users', () => {
     );
     expect(res1.body.results.length).toBeGreaterThan(0);
     expect(res2.body.results.length).toBeGreaterThan(0);
-    expect(res1.body.results[0].user_id).not.toEqual(
-      res2.body.results[0].user_id
+    expect(res1.body.results[0].userId).not.toEqual(
+      res2.body.results[0].userId
     );
   });
 });

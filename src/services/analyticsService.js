@@ -1,6 +1,7 @@
 import knex from '../config/db.js';
 import cacheService from './cacheService.js';
 import logger from '../loaders/logger.js';
+import camelcaseKeys from 'camelcase-keys';
 
 const MOST_BOOKMARKED_CACHE_KEY = 'most_bookmarked_articles';
 const MAX_CACHED_ARTICLES = 50;
@@ -27,8 +28,10 @@ export async function getMostBookmarkedArticles(page = 1, limit = 10) {
        LIMIT ?`,
       [MAX_CACHED_ARTICLES]
     );
-
-    articles = result.rows;
+    const camelCasedResult = camelcaseKeys(result, { deep: true });
+    console.log('CamelCased Result:', camelCasedResult);
+    articles = camelCasedResult.rows;
+    console.log('Articles IN SERVICE:', articles);
     cacheService.setCache(MOST_BOOKMARKED_CACHE_KEY, articles, CACHE_TTL);
     logger.info(
       `📌 Cached top ${MAX_CACHED_ARTICLES} most bookmarked articles`
@@ -62,8 +65,8 @@ export async function getTopBookmarkingUsers(page = 1, limit = 10) {
        LIMIT ?`,
       [MAX_CACHED_USERS]
     );
-
-    users = result.rows;
+    const camelCasedResult = camelcaseKeys(result, { deep: true });
+    users = camelCasedResult.rows;
     cacheService.setCache(TOP_BOOKMARKING_USERS_CACHE_KEY, users, CACHE_TTL);
     logger.info(`📌 Cached top ${MAX_CACHED_USERS} bookmarking users`);
   }

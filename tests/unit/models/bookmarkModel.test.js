@@ -18,13 +18,13 @@ beforeEach(async () => {
   user = await User.query().insert({
     username: 'testuser',
     email: 'test@example.com',
-    password_hash: await bcrypt.hash('Password123!', 10),
+    passwordHash: await bcrypt.hash('Password123!', 10), // ✅ camelCase
   });
 
   article = await Article.query().insert({
     title: 'SpaceX Launches Starship',
     url: 'https://spacex.com/news',
-    published_at: new Date().toISOString(),
+    publishedAt: new Date().toISOString(), // ✅ camelCase
   });
 });
 
@@ -35,8 +35,8 @@ afterAll(async () => {
 describe('Bookmark Model', () => {
   it('should create a bookmark entry', async () => {
     const bookmark = await Bookmark.query().insert({
-      user_id: user.id,
-      article_id: article.id,
+      userId: user.id, // ✅ camelCase
+      articleId: article.id, // ✅ camelCase
     });
 
     const storedBookmark = await Bookmark.query().findById(bookmark.id);
@@ -47,17 +47,23 @@ describe('Bookmark Model', () => {
   });
 
   it('should enforce unique user-article bookmark constraint', async () => {
-    await Bookmark.query().insert({ user_id: user.id, article_id: article.id });
+    await Bookmark.query().insert({
+      userId: user.id,
+      articleId: article.id,
+    });
 
     await expect(
-      Bookmark.query().insert({ user_id: user.id, article_id: article.id })
+      Bookmark.query().insert({
+        userId: user.id,
+        articleId: article.id,
+      })
     ).rejects.toThrow(/duplicate key value violates unique constraint/);
   });
 
   it('should delete bookmarks when the associated user is deleted', async () => {
     const bookmark = await Bookmark.query().insert({
-      user_id: user.id,
-      article_id: article.id,
+      userId: user.id,
+      articleId: article.id,
     });
 
     await user.$query().delete();
@@ -68,8 +74,8 @@ describe('Bookmark Model', () => {
 
   it('should delete bookmarks when the associated article is deleted', async () => {
     const bookmark = await Bookmark.query().insert({
-      user_id: user.id,
-      article_id: article.id,
+      userId: user.id,
+      articleId: article.id,
     });
 
     await article.$query().delete();
@@ -80,8 +86,8 @@ describe('Bookmark Model', () => {
 
   it('should fetch bookmarked articles with user & article details using withGraphFetched()', async () => {
     await Bookmark.query().insert({
-      user_id: user.id,
-      article_id: article.id,
+      userId: user.id,
+      articleId: article.id,
     });
 
     const bookmarkWithRelations = await Bookmark.query()

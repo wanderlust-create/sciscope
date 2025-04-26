@@ -40,8 +40,8 @@ beforeEach(async () => {
   // Pre-insert bookmarks for pagination
   await Bookmark.query().insert(
     articles.map((a) => ({
-      user_id: user.id,
-      article_id: a.id,
+      userId: user.id,
+      articleId: a.id,
     }))
   );
 });
@@ -58,21 +58,21 @@ describe('Bookmark API Endpoints', () => {
     // Fetch an article that is NOT already bookmarked
     const newArticle = await Article.query()
       .whereNotIn('id', function () {
-        this.select('article_id')
+        this.select('articleId')
           .from('user_bookmarks')
-          .where('user_id', user.id);
+          .where('userId', user.id);
       })
       .first();
     expect(newArticle).toBeDefined();
-
+    console.log('New Article:', newArticle.id);
     const res = await request(app)
       .post('/api/v1/bookmarks')
       .set('Authorization', token)
       .send({ article_id: newArticle.id });
-
+    console.log('Response:', res.body);
     expect(res.status).toBe(201);
-    expect(res.body).toHaveProperty('user_id', user.id);
-    expect(res.body).toHaveProperty('article_id', newArticle.id);
+    expect(res.body).toHaveProperty('userId', user.id);
+    expect(res.body).toHaveProperty('articleId', newArticle.id);
   });
 
   it('should not allow duplicate bookmarks', async () => {

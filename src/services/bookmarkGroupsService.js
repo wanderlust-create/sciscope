@@ -12,20 +12,15 @@ import logger from '../loaders/logger.js';
  */
 export async function createBookmarkGroup(userId, groupName) {
   const existing = await BookmarkGroup.query()
-    .where({ user_id: userId, group_name: groupName })
+    .where({ userId, groupName })
     .first();
-
   if (existing) {
     logger.warn(
       `🚫 Duplicate group creation attempt by user ${userId}: "${groupName}"`
     );
     throw new Error('Bookmark group already exists.');
   }
-
-  const newGroup = await BookmarkGroup.query().insert({
-    user_id: userId,
-    group_name: groupName,
-  });
+  const newGroup = await BookmarkGroup.query().insert({ userId, groupName });
 
   logger.info(
     `✅ Created new bookmark group [${newGroup.id}] for user ${userId}`
@@ -40,7 +35,7 @@ export async function createBookmarkGroup(userId, groupName) {
  * @returns {Promise<Object[]>} List of bookmark groups.
  */
 export async function getUserBookmarkGroups(userId) {
-  return await BookmarkGroup.query().where({ user_id: userId });
+  return await BookmarkGroup.query().where({ userId });
 }
 
 /**
@@ -52,7 +47,7 @@ export async function getUserBookmarkGroups(userId) {
  */
 export async function getBookmarkGroupWithArticles(userId, groupId) {
   const group = await BookmarkGroup.query()
-    .where({ id: groupId, user_id: userId })
+    .where({ id: groupId, userId })
     .withGraphFetched('bookmarks.article')
     .first();
 
@@ -70,6 +65,17 @@ export async function getBookmarkGroupWithArticles(userId, groupId) {
 }
 
 /**
+ * Finds a single bookmark group by groupId and userId.
+ *
+ * @param {number} groupId - ID of the bookmark group.
+ * @param {number} userId - ID of the user.
+ * @returns {Promise<Object|null>} The bookmark group if found, otherwise null.
+ */
+export async function findGroupByIdAndUser(groupId, userId) {
+  return BookmarkGroup.query().findOne({ id: groupId, userId });
+}
+
+/**
  * Updates the name of a bookmark group for a specific user.
  *
  * @param {number} userId - ID of the user who owns the group.
@@ -80,7 +86,7 @@ export async function getBookmarkGroupWithArticles(userId, groupId) {
  */
 export async function updateBookmarkGroup(userId, groupId, newName) {
   const duplicate = await BookmarkGroup.query()
-    .where({ user_id: userId, group_name: newName })
+    .where({ userId, groupName: newName })
     .whereNot('id', groupId)
     .first();
 
@@ -93,7 +99,7 @@ export async function updateBookmarkGroup(userId, groupId, newName) {
 
   const group = await BookmarkGroup.query()
     .findById(groupId)
-    .where('user_id', userId);
+    .where('userId', userId);
 
   if (!group) {
     logger.warn(
@@ -101,7 +107,8 @@ export async function updateBookmarkGroup(userId, groupId, newName) {
     );
     throw new Error('Bookmark group not found or unauthorized');
   }
-  const updated = await group.$query().patchAndFetch({ group_name: newName });
+
+  const updated = await group.$query().patchAndFetch({ groupName: newName });
   logger.info(
     `✏️ Updated group ${groupId} name to "${newName}" by user ${userId}`
   );
@@ -119,7 +126,7 @@ export async function updateBookmarkGroup(userId, groupId, newName) {
 export async function deleteBookmarkGroup(userId, groupId) {
   const group = await BookmarkGroup.query()
     .findById(groupId)
-    .where('user_id', userId);
+    .where('userId', userId);
 
   if (!group) {
     logger.warn(
@@ -165,6 +172,7 @@ export async function addBookmarkToGroup(userId, groupId, bookmarkId) {
     );
     return { alreadyAssigned: true };
   }
+
   await db('bookmark_group_assignments').insert({
     bookmark_group_id: groupId,
     user_bookmark_id: bookmarkId,
@@ -177,9 +185,25 @@ export async function addBookmarkToGroup(userId, groupId, bookmarkId) {
 }
 
 /**
+ * Checks if a bookmark is already assigned to a specific group.
+ *
+ * @param {number} bookmarkId - ID of the bookmark.
+ * @param {number} groupId - ID of the group.
+ * @returns {Promise<Object|null>} The assignment record if it exists, otherwise null.
+ */
+export async function isBookmarkInGroup(bookmarkId, groupId) {
+  return await db('bookmark_group_assignments')
+    .where({
+      bookmark_group_id: groupId,
+      user_bookmark_id: bookmarkId,
+    })
+    .first();
+}
+
+/**
  * Removes a bookmark from a group (if user owns both).
  *
- * @param {number} userId - ID of the user requesting the group.
+ * @param {number} userId - ID of the user requesting removal.
  * @param {number} groupId - ID of the bookmark group.
  * @param {number} bookmarkId - ID of the bookmark.
  * @returns {Promise<Object>} Success confirmation.

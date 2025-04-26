@@ -71,14 +71,17 @@ export async function deleteBookmark(req, res) {
       return res.status(400).json({ error: 'Bookmark ID is required' });
     }
 
-    const success = await bookmarkService.deleteBookmark(id, userId);
+    // 🔍 Optional: verify that the bookmark exists before deletion
+    const bookmark = await bookmarkService.getBookmarkByIdAndUser(id, userId);
 
-    if (!success) {
+    if (!bookmark || bookmark.userId !== userId) {
       return res
         .status(404)
         .json({ error: 'Bookmark not found or unauthorized' });
     }
 
+    // ✅ Proceed with deletion
+    await bookmarkService.deleteBookmark(id, userId);
     return res.status(204).send();
   } catch (error) {
     logger.error(`❌ Error deleting bookmark: ${error.message}`, {

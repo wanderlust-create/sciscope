@@ -32,6 +32,20 @@ export async function processQueryRequest(keyword, page = 1, limit = 10) {
       missingArticles
     );
 
+    if (
+      !apiResults ||
+      !apiResults.articles ||
+      apiResults.articles.length === 0
+    ) {
+      throw new Error('No articles found from the API.');
+    }
+    if (apiResults.articles.length < missingArticles) {
+      logger.warn(
+        `⚠️ Fewer articles fetched from API than needed: ${apiResults.articles.length} < ${missingArticles}`
+      );
+    }
+    logger.info(`✅ Fetched ${apiResults.articles.length} articles from API`);
+
     // Store new articles in the database
     await storeArticlesInDB(apiResults);
 

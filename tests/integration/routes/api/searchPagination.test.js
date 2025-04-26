@@ -6,7 +6,7 @@ const app = createServer();
 let server;
 
 beforeAll(async () => {
-  server = app.listen(8080);
+  server = app.listen(0);
   await knex.migrate.latest();
   await knex.seed.run();
 });
@@ -45,10 +45,8 @@ describe('GET /api/v1/search?keyword Pagination', () => {
     const res = await request(app).get(
       '/api/v1/search?keyword=saturn&page=999&limit=5'
     );
-
-    expect(res.status).toBe(200);
-    expect(res.body.articles).toEqual([]);
-    expect(res.body.articles.length).toBe(0);
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('error', 'No articles found.');
   });
 
   it('should default to page 1 and limit 10 if no query params are provided', async () => {
@@ -68,10 +66,11 @@ describe('GET /api/v1/search?keyword Pagination', () => {
     const { articles } = res.body;
 
     expect(articles.length).toBeGreaterThan(1);
-    expect(new Date(articles[0].publishedAt)).toBeInstanceOf(Date);
-    expect(
-      new Date(articles[0].publishedAt) >=
-        new Date(articles[articles.length - 1].publishedAt)
-    ).toBe(true);
+    expect(isNaN(new Date(articles[0].publishedAt).getTime())).toBe(false);
+    const firstDate = new Date(articles[0].publishedAt).getTime();
+    const lastDate = new Date(
+      articles[articles.length - 1].publishedAt
+    ).getTime();
+    expect(firstDate).toBeGreaterThanOrEqual(lastDate);
   });
 });

@@ -23,7 +23,6 @@ beforeEach(async () => {
   await db('articles').del();
   flushCache();
   jest.clearAllMocks();
-  // jest.restoreAllMocks();
 });
 
 afterEach(async () => {
@@ -74,7 +73,8 @@ describe('News Caching (Database Articles)', () => {
 
     const result = await processNewsRequest(1, 6);
     // Cache should now store the DB results
-    expect(getSortedUrls(getCache(CACHE_KEY).articles)).toEqual(
+    console.log('Cache after processNewsRequest:', getCache(CACHE_KEY));
+    expect(getSortedUrls(getCache(CACHE_KEY))).toEqual(
       getSortedUrls(mockDBArticles.articles)
     );
     expect(getSortedUrls(result.articles)).toEqual(
@@ -93,7 +93,7 @@ describe('News Caching (Database Articles)', () => {
     await storeArticlesInDB(mockDBArticles);
     setCache(
       CACHE_KEY,
-      { total_count: 5, articles: [{ title: 'Old Cache' }] },
+      { totalCount: 5, articles: [{ title: 'Old Cache' }] },
       1
     ); // ✅ Expire quickly
 
@@ -104,7 +104,7 @@ describe('News Caching (Database Articles)', () => {
     expect(loggerSpy).toHaveBeenCalledWith('❌ Cache Miss: recent_articles'); // Ensure cache miss was logged
     expect(fetchRecentArticlesSpy).toHaveBeenCalledTimes(1); // Should query DB after cache expiry
 
-    expect(getSortedUrls(getCache(CACHE_KEY).articles)).toEqual(
+    expect(getSortedUrls(getCache(CACHE_KEY))).toEqual(
       getSortedUrls(mockDBArticles.articles)
     );
     expect(getSortedUrls(result.articles)).toEqual(
@@ -155,7 +155,7 @@ describe('News Caching (Database Articles)', () => {
     expect(fetchScienceNewsSpy).toHaveBeenCalledTimes(1); // Should call API
 
     // Ensure cache and result contain **both** DB + API articles
-    expect(getSortedUrls(getCache(CACHE_KEY).articles)).toEqual(
+    expect(getSortedUrls(getCache(CACHE_KEY))).toEqual(
       getSortedUrls(result.articles) // Cache should match DB articles
     );
     expect(getSortedUrls(result.articles)).toEqual(

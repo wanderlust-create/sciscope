@@ -54,22 +54,22 @@ export async function getBookmarkGroupWithArticles(req, res) {
 /**
  * Creates a new bookmark group for the logged-in user.
  *
- * @param {Object} req - Express request object with pagination query (expects `req.user.id` and `req.body.group_name`).
+ * @param {Object} req - Express request object with pagination query (expects `req.user.id` and `req.body.groupName`).
  * @param {Object} res - Express response object.
  * @returns {Promise<void>}
  */
 export async function createBookmarkGroup(req, res) {
   try {
     const userId = req.user.id;
-    const { group_name } = req.body;
+    const { groupName } = req.body;
 
-    if (!group_name) {
+    if (!groupName) {
       return res.status(400).json({ error: 'Group name is required' });
     }
 
     const group = await bookmarkGroupsService.createBookmarkGroup(
       userId,
-      group_name
+      groupName
     );
 
     res.status(201).json(group);
@@ -91,7 +91,7 @@ export async function createBookmarkGroup(req, res) {
 /**
  * Updates the name of an existing bookmark group for the logged-in user.
  *
- * @param {Object} req - Express request object with pagination query (expects `req.user.id`, `req.params.id`, and `req.body.group_name`).
+ * @param {Object} req - Express request object with pagination query (expects `req.user.id`, `req.params.id`, and `req.body.groupName`).
  * @param {Object} res - Express response object.
  * @returns {Promise<void>}
  */
@@ -99,16 +99,16 @@ export async function updateBookmarkGroup(req, res) {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    const { group_name } = req.body;
+    const { groupName } = req.body;
 
-    if (!group_name) {
+    if (!groupName) {
       return res.status(400).json({ error: 'Group name is required' });
     }
 
     const updated = await bookmarkGroupsService.updateBookmarkGroup(
       userId,
       id,
-      group_name
+      groupName
     );
 
     res.status(200).json(updated);
@@ -148,6 +148,13 @@ export async function deleteBookmarkGroup(req, res) {
       return res.status(400).json({ error: 'Group ID is required' });
     }
 
+    // 🔍 Check if the group exists and belongs to the user
+    const group = await bookmarkGroupsService.findGroupByIdAndUser(id, userId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found or unauthorized' });
+    }
+
+    // ✅ Proceed with deletion
     await bookmarkGroupsService.deleteBookmarkGroup(userId, id);
 
     res.status(204).send();
@@ -166,6 +173,7 @@ export async function deleteBookmarkGroup(req, res) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
 export async function addBookmarkToGroup(req, res) {
   try {
     const userId = req.user.id;
@@ -195,18 +203,43 @@ export async function removeBookmarkFromGroup(req, res) {
     const userId = req.user.id;
     const { groupId, bookmarkId } = req.params;
 
+    if (!groupId || !bookmarkId) {
+      return res
+        .status(400)
+        .json({ error: 'Group ID and Bookmark ID are required' });
+    }
+
+    const group = await bookmarkGroupsService.findGroupByIdAndUser(
+      groupId,
+      userId
+    );
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found or unauthorized' });
+    }
+
+    const exists = await bookmarkGroupsService.isBookmarkInGroup(
+      bookmarkId,
+      groupId
+    );
+    if (!exists) {
+      return res
+        .status(404)
+        .json({ error: 'Bookmark is not assigned to this group' });
+    }
+
     await bookmarkGroupsService.removeBookmarkFromGroup(
       userId,
       groupId,
       bookmarkId
     );
 
-    res.status(204).send();
+    return res.status(204).send();
   } catch (error) {
     logger.error(`❌ Remove bookmark from group failed: ${error.message}`, {
       stack: error.stack,
     });
-    res.status(400).json({ error: error.message });
+
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
 

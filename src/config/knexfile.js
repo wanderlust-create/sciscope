@@ -51,7 +51,7 @@ const config = {
     connection: {
       host: process.env.DB_HOST,
       port: process.env.DB_PORT || 5432,
-      database: process.env.TEST_DB_NAME,
+      database: process.env.DB_NAME_TEST,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
     },
@@ -69,7 +69,7 @@ const config = {
     connection: {
       host: process.env.DB_HOST,
       port: process.env.DB_PORT || 5432,
-      database: process.env.DB_NAME,
+      database: process.env.DB_NAME_POSTMAN,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
     },
