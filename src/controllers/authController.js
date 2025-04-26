@@ -3,8 +3,19 @@ import db from '../config/db.js';
 import { generateToken } from '../utils/authUtils.js';
 import authService from '../services/authService.js';
 
+/**
+ * Controller for user authentication actions:
+ * - Email/password signup and login
+ * - OAuth signup and login
+ * - Logout and token blacklisting
+ */
 const AuthController = {
-  // 🔹 Email & Password Signup
+  /**
+   * Registers a new user with email and password.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   * @returns {Promise<Response>} 201 Created with JWT token or 409 Conflict if email exists.
+   */
   async signup(req, res) {
     try {
       logger.info('📨 Received signup request', { body: req.body });
@@ -16,7 +27,6 @@ const AuthController = {
       }
 
       const existingUser = await authService.findUserByEmail(email);
-      console.log('EXISTING USER!!!', existingUser);
       if (existingUser) {
         logger.warn('⚠️ Email or username already exists', { email, username });
         return res
@@ -46,7 +56,12 @@ const AuthController = {
     }
   },
 
-  // 🔹 Email & Password Login
+  /**
+   * Logs in a user with email and password credentials.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   * @returns {Promise<Response>} 200 OK with JWT token or 401 Unauthorized on failure.
+   */
   async login(req, res) {
     try {
       logger.info('📨 Received login request', { body: req.body });
@@ -83,24 +98,30 @@ const AuthController = {
     }
   },
 
-  // 🔹 OAuth Signup/Login
+  /**
+   * Handles OAuth login or signup:
+   * - If user exists, log them in.
+   * - If user doesn't exist, create and log in.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   * @returns {Promise<Response>} 200 OK or 201 Created with JWT token, or 409 Conflict if username/email is taken.
+   */
   async oauthLogin(req, res) {
     logger.info('📨 Received OAuth login request', { body: req.body });
-
     try {
-      const { provider, oauth_id, email, username } = req.body;
+      const { provider, oauthId, email, username } = req.body;
 
-      if (!provider || !oauth_id || !email) {
+      if (!provider || !oauthId || !email) {
         logger.warn('⚠️ Missing OAuth details');
         return res.status(400).json({ error: 'Missing OAuth details' });
       }
 
-      // Step 1: Look for existing user by OAuth credentials
-      let user = await authService.findOAuthUser(provider, oauth_id);
+      // Look for existing user by OAuth credentials
+      let user = await authService.findOAuthUser(provider, oauthId);
       logger.info('👀 Checked for existing OAuth user', { userExists: !!user });
 
       if (!user) {
-        // Step 2: Prevent conflict with existing local or OAuth users
+        // Prevent conflict with existing local or OAuth users
         const emailTaken = await authService.findUserByEmail(email);
         const usernameTaken = await authService.findUserByUsername(username);
 
@@ -118,22 +139,35 @@ const AuthController = {
           });
         }
 
-        // Step 3: Create new OAuth user
+        // If no existing User - Create new OAuth user
         user = await authService.createOAuthUser({
           username,
           email,
           provider,
-          oauth_id,
+          oauthId,
         });
 
         logger.info('✅ New OAuth user created', { userId: user.id, provider });
+        return res.status(201).json({
+          message: 'OAuth signup successful!',
+          token: generateToken(user),
+          user: {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+          },
+        });
       } else {
         logger.info('✅ OAuth user logged in', { userId: user.id, provider });
       }
-
       return res.status(200).json({
         message: 'OAuth login successful!',
         token: generateToken(user),
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+        },
       });
     } catch (error) {
       logger.error('❌ Error in OAuth login', { error: error.message });
@@ -141,7 +175,12 @@ const AuthController = {
     }
   },
 
-  // 🔹 Logout
+  /**
+   * Logs out the user by blacklisting the current JWT token.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   * @returns {Promise<Response>} 200 OK on successful logout.
+   */
   async logout(req, res) {
     logger.info('📨 Received logout request');
     try {
