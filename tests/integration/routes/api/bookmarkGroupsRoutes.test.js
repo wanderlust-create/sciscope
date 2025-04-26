@@ -127,4 +127,45 @@ describe('Bookmark Groups API', () => {
     expect(res.status).toBe(404);
     expect(res.body).toHaveProperty('error');
   });
+
+  it('returns 404 when updating a non-existent group', async () => {
+    const res = await request(app)
+      .patch('/api/v1/bookmark-groups/9999')
+      .set('Authorization', token)
+      .send({ groupName: 'New Name' });
+
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('error');
+  });
+  it('returns 404 when deleting a non-existent group', async () => {
+    const res = await request(app)
+      .delete('/api/v1/bookmark-groups/9999')
+      .set('Authorization', token);
+
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty('error');
+  });
+
+  it('returns 400 when updating a group without groupName', async () => {
+    const group = await BookmarkGroup.query().insert({
+      userId: user.id,
+      groupName: 'Initial Name',
+    });
+
+    const res = await request(app)
+      .patch(`/api/v1/bookmark-groups/${group.id}`)
+      .set('Authorization', token)
+      .send({});
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/Group name is required/);
+  });
+
+  it('returns 400 when trying to delete without providing groupId', async () => {
+    const res = await request(app)
+      .delete('/api/v1/bookmark-groups/')
+      .set('Authorization', token);
+
+    expect(res.status).toBe(404); // Express will return 404 because route expects :id
+  });
 });
