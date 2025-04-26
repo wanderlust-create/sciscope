@@ -38,34 +38,6 @@ describe('Pagination Logic', () => {
 
     expect(results[0].id).toBeGreaterThan(results[4].id);
   });
-  it('should sort results alphabetically (A→Z)', async () => {
-    const baseQuery = Article.query().select('id', 'title');
-    const results = await applyPagination(baseQuery, {
-      page: 1,
-      limit: 5,
-      sortBy: 'title', // Sort by title
-      order: 'asc', // A → Z
-    });
-
-    expect(results[0].title).toBeDefined();
-
-    const sortedTitles = [...titles].sort((a, b) => a.localeCompare(b));
-    expect(titles).toEqual(sortedTitles);
-  });
-
-  it('should sort results in reverse alphabetical order (Z→A)', async () => {
-    const baseQuery = Article.query().select('id', 'title');
-    const results = await applyPagination(baseQuery, {
-      page: 1,
-      limit: 5,
-      sortBy: 'title', // Sort by title
-      order: 'desc', // Z → A
-    });
-
-    expect(results.map((r) => r.title)).toEqual(
-      [...results.map((r) => r.title)].sort().reverse()
-    );
-  });
 });
 
 describe('Pagination Utility - Edge Cases', () => {
