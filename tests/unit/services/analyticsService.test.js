@@ -58,14 +58,13 @@ describe('🔎 Bookmark Analytics Queries (with Caching)', () => {
       page,
       limit
     );
-
     expect(articles).toBeInstanceOf(Array);
     expect(articles.length).toBeLessThanOrEqual(limit);
 
     // Ensure descending order
     for (let i = 1; i < articles.length; i++) {
-      expect(Number(articles[i - 1].bookmark_count)).toBeGreaterThanOrEqual(
-        Number(articles[i].bookmark_count)
+      expect(Number(articles[i - 1].bookmarkCount)).toBeGreaterThanOrEqual(
+        Number(articles[i].bookmarkCount)
       );
     }
 
@@ -81,9 +80,9 @@ describe('🔎 Bookmark Analytics Queries (with Caching)', () => {
 
   it('should return cached results when already set', async () => {
     const mockData = Array.from({ length: 50 }, (_, i) => ({
-      article_id: i + 1,
+      articleId: i + 1,
       title: `Cached Article ${i + 1}`,
-      bookmark_count: 100 - i,
+      bookmarkCount: 100 - i,
     }));
     cacheService.setCache(MOST_BOOKMARKED_CACHE_KEY, mockData, 600);
 
@@ -109,8 +108,8 @@ describe('🔎 Bookmark Analytics Queries (with Caching)', () => {
     expect(users.length).toBeLessThanOrEqual(limit);
 
     for (let i = 1; i < users.length; i++) {
-      expect(Number(users[i - 1].bookmark_count)).toBeGreaterThanOrEqual(
-        Number(users[i].bookmark_count)
+      expect(Number(users[i - 1].bookmarkCount)).toBeGreaterThanOrEqual(
+        Number(users[i].bookmarkCount)
       );
     }
 
@@ -127,7 +126,7 @@ describe('🔎 Bookmark Analytics Queries (with Caching)', () => {
       user_id: i + 1,
       username: `User ${i + 1}`,
       email: `user${i + 1}@example.com`,
-      bookmark_count: 50 - i,
+      bookmarkCount: 50 - i,
     }));
     cacheService.setCache(TOP_BOOKMARKING_USERS_CACHE_KEY, mockUsers, 600);
 
@@ -144,7 +143,7 @@ describe('🔎 Bookmark Analytics Queries (with Caching)', () => {
     const oldData = Array.from({ length: 50 }, (_, i) => ({
       article_id: i + 1,
       title: `Old Cached Article ${i + 1}`,
-      bookmark_count: 1,
+      bookmarkCount: 1,
     }));
     cacheService.setCache(MOST_BOOKMARKED_CACHE_KEY, oldData, 1);
     await new Promise((resolve) => setTimeout(resolve, 1500));
