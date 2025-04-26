@@ -73,7 +73,6 @@ describe('News Caching (Database Articles)', () => {
 
     const result = await processNewsRequest(1, 6);
     // Cache should now store the DB results
-    console.log('Cache after processNewsRequest:', getCache(CACHE_KEY));
     expect(getSortedUrls(getCache(CACHE_KEY))).toEqual(
       getSortedUrls(mockDBArticles.articles)
     );
