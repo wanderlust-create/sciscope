@@ -1,0 +1,2084 @@
+{
+	"info": {
+		"_postman_id": "7a4462d6-00a1-453b-8f70-cd70e7d46aa2",
+		"name": "SciScope",
+		"description": "SciScope is a REST API that delivers science news, user-created bookmarks, and analytics insights. Built for educators and science enthusiasts.\n\n### Features\n\n- 🔐 User authentication via password or OAuth\n    \n- 📰 Fetch latest news or search by keyword\n    \n- 📌 Bookmark and group favorite articles\n    \n- 📊 Analytics for top users and most-bookmarked content",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20045145"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Signup – new user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 201 Created\", () => {",
+									"  pm.expect(pm.response.code).to.eql(201);",
+									"});",
+									"",
+									"pm.test(\"Response includes token and user object\", () => {",
+									"  pm.expect(res).to.have.property(\"token\").that.is.a(\"string\");",
+									"  pm.expect(res).to.have.property(\"user\").that.is.an(\"object\");",
+									"",
+									"  const user = res.user;",
+									"  pm.expect(user).to.have.property(\"id\");",
+									"  pm.expect(user).to.have.property(\"email\", \"newUser@example.com\");",
+									"  pm.expect(user).to.have.property(\"username\", \"newUser\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newUser@example.com\",\n    \"password\": \"password123nu%\",\n    \"username\": \"newUser\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"signup"
+							]
+						},
+						"description": "Creates a new user with a unique email and password.  \nReturns `201 Created` with the new user object."
+					},
+					"response": []
+				},
+				{
+					"name": "Signup – duplicate email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns 409 or 400 on duplicate signup\", () => {",
+									"  pm.expect([400, 409]).to.include(pm.response.code);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newUser@example.com\",\n    \"password\": \"password123nu%\",\n    \"username\": \"newUser\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"signup"
+							]
+						},
+						"description": "Attempts to create a user with an email that already exists.  \nShould return `400` or `409 Conflict` depending on validation logic."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200 OK\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Returns success message and JWT token\", () => {",
+									"  pm.expect(res).to.have.property(\"message\", \"Login successful!\");",
+									"  pm.expect(res).to.have.property(\"token\");",
+									"  pm.expect(res.token).to.be.a(\"string\");",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newUser@example.com\",\n    \"password\": \"password123nu%\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticates a user and returns a valid JWT token if credentials are correct.  \nExpects a `200 OK` with a token in the response body."
+					},
+					"response": []
+				},
+				{
+					"name": "Login – invalid email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns 401 for invalid email\", () => {",
+									"  pm.expect(pm.response.code).to.eql(401);",
+									"  const res = pm.response.json();",
+									"  pm.expect(res.message || res.error).to.match(/invalid/i);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"invalidEmail@example.com\",\n    \"password\": \"password123nu%\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticates a user and returns a valid JWT token if credentials are correct.  \nExpects a `200 OK` with a token in the response body."
+					},
+					"response": []
+				},
+				{
+					"name": "Login – invalid password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns 401 for invalid password\", () => {",
+									"  pm.expect(pm.response.code).to.eql(401);",
+									"  const res = pm.response.json();",
+									"  pm.expect(res.message || res.error).to.match(/invalid/i);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newUser@example.com\",\n  \"password\": \"invalidPasswordnu%%\"\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticates a user and returns a valid JWT token if credentials are correct.  \nExpects a `200 OK` with a token in the response body."
+					},
+					"response": []
+				},
+				{
+					"name": "OAuth login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200 OK\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Returns a JWT token\", () => {",
+									"  pm.expect(res).to.have.property(\"message\", \"OAuth login successful!\");",
+									"  pm.expect(res).to.have.property(\"token\");",
+									"  pm.expect(res.token).to.be.a(\"string\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n      \"provider\": \"google\",\n      \"oauthId\": \"test-oauth-id\",\n      \"email\": \"oauthuser@example.com\",\n      \"username\": \"oauthuser\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/oauth",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"oauth"
+							]
+						},
+						"description": "Simulates login using a third-party provider (e.g. Google).  \nAccepts `provider` and `oauth_id`, and returns a `200 OK` with a JWT token."
+					},
+					"response": []
+				},
+				{
+					"name": "OAuth login – invalid oauth_id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns 409 for email or username conflict\", () => {",
+									"  pm.expect(pm.response.code).to.eql(409);",
+									"  const res = pm.response.json();",
+									"  pm.expect(res.message || res.error).to.match(/login unsuccessful|already exists/i);",
+									"});",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n      \"provider\": \"google\",\n      \"oauthId\": \"invalid-oauth-id\",\n      \"email\": \"oauthuser@example.com\",\n      \"username\": \"oauthuser\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/oauth",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"oauth"
+							]
+						},
+						"description": "Attempts to log in with an unknown OAuth ID.  \nShould return `401 Unauthorized` or `404 Not Found`."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Returns logout confirmation\", () => {",
+									"  const res = pm.response.json();",
+									"  pm.expect(res.message || res.success).to.match(/logout/i);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logs out the authenticated user.  \nReturns a `200 OK` with a logout confirmation message.  \nRequires a valid Bearer token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "News",
+			"item": [
+				{
+					"name": "Latest Science News",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200 OK\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Response includes pagination metadata\", () => {",
+									"  pm.expect(res).to.have.property(\"total_count\").that.is.a(\"number\");",
+									"  pm.expect(res).to.have.property(\"total_pages\").that.is.a(\"number\");",
+									"  pm.expect(res).to.have.property(\"current_page\").that.is.a(\"number\");",
+									"});",
+									"",
+									"pm.test(\"Returns no more than 10 articles per page\", () => {",
+									"  pm.expect(res.articles.length).to.be.at.most(10);",
+									"});",
+									"",
+									"pm.test(\"Response includes an array of articles\", () => {",
+									"  pm.expect(res).to.have.property(\"articles\").that.is.an(\"array\");",
+									"",
+									"  if (res.articles.length > 0) {",
+									"    const article = res.articles[0];",
+									"    pm.expect(article).to.have.property(\"id\");",
+									"    pm.expect(article).to.have.property(\"title\").that.is.a(\"string\");",
+									"    pm.expect(article).to.have.property(\"description\").that.is.a(\"string\");",
+									"    pm.expect(article).to.have.property(\"url\").that.is.a(\"string\");",
+									"    pm.expect(article).to.have.property(\"publishedAt\");",
+									"    pm.expect(article).to.have.property(\"authorName\");",
+									"    pm.expect(article).to.have.property(\"sourceName\");",
+									"  }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/news",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"news"
+							]
+						},
+						"description": "### Retrieve News\n\nRetrieves the latest science news articles.  \nReturns an array of articles with ID, title, description, and published date."
+					},
+					"response": []
+				},
+				{
+					"name": "Latest Science News – page 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200 OK\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Page 2 returns articles and correct page number\", () => {",
+									"  pm.expect(res).to.have.property(\"current_page\", 2);",
+									"  pm.expect(res).to.have.property(\"articles\").that.is.an(\"array\");",
+									"",
+									"  if (res.articles.length > 0) {",
+									"    const article = res.articles[0];",
+									"    pm.expect(article).to.have.property(\"id\");",
+									"    pm.expect(article).to.have.property(\"title\");",
+									"  }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/news?page=2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"news"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "2"
+								}
+							]
+						},
+						"description": "### Retrieve News\n\nRetrieves the latest science news articles.  \nReturns an array of articles with ID, title, description, and published date."
+					},
+					"response": []
+				},
+				{
+					"name": "Latest Science News – page too high (empty results)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Returns empty array if page number is too high\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"  pm.expect(res).to.have.property(\"articles\").that.is.an(\"array\").that.is.empty;",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/news?page=99999",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"news"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "99999"
+								}
+							]
+						},
+						"description": "### Retrieve News\n\nRetrieves the latest science news articles.  \nReturns an array of articles with ID, title, description, and published date."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Search with Keyword",
+			"item": [
+				{
+					"name": "Search by keyword",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200 OK\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Returns search results with pagination and article data\", () => {",
+									"  pm.expect(res).to.be.an(\"object\");",
+									"  pm.expect(res).to.have.property(\"articles\").that.is.an(\"array\");",
+									"  pm.expect(res).to.have.property(\"total_count\").that.is.a(\"number\");",
+									"  pm.expect(res).to.have.property(\"current_page\").that.is.a(\"number\");",
+									"",
+									"  if (res.articles.length > 0) {",
+									"    const article = res.articles[0];",
+									"    pm.expect(article).to.have.property(\"title\");",
+									"    pm.expect(article).to.have.property(\"description\");",
+									"  }",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/search?keyword={{search_keyword}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"search"
+							],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "{{search_keyword}}",
+									"description": "keyword to search news articles"
+								}
+							]
+						},
+						"description": "Searches for articles containing the specified keyword in the title or description.  \nExample: `?keyword=planet`"
+					},
+					"response": []
+				},
+				{
+					"name": "Search by keyword – missing keyword",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns 400 if keyword is missing or empty\", () => {",
+									"  pm.expect(pm.response.code).to.eql(400);",
+									"  const res = pm.response.json();",
+									"  pm.expect(res.message || res.error).to.match(/keyword/i);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/search?keyword=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"search"
+							],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "",
+									"description": "keyword to search news articles"
+								}
+							]
+						},
+						"description": "Attempts a keyword search without providing a valid query param.  \nShould return `400 Bad Request`."
+					},
+					"response": []
+				},
+				{
+					"name": "Search by article id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200 OK\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Returns a single article\", () => {",
+									"  pm.expect(res).to.be.an(\"object\");",
+									"  pm.expect(res).to.have.property(\"id\");",
+									"  pm.expect(res).to.have.property(\"title\");",
+									"  pm.expect(res).to.have.property(\"description\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/search/{{article_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"search",
+								"{{article_id}}"
+							]
+						},
+						"description": "Retrieves a single article by its unique ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Search by article ID – not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns 404 if article ID does not exist\", () => {",
+									"  pm.expect(pm.response.code).to.eql(404);",
+									"  const res = pm.response.json();",
+									"  pm.expect(res.message || res.error).to.match(/not found/i);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/search/99999",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"search",
+								"99999"
+							]
+						},
+						"description": "Attempts to fetch an article with an invalid or non-existent ID.  \nShould return `404 Not Found`."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Bookmarks",
+			"item": [
+				{
+					"name": "All bookmarks for a user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200 OK\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Returns bookmarks with total count\", () => {",
+									"  pm.expect(res).to.be.an(\"object\");",
+									"  pm.expect(res).to.have.property(\"total\").that.is.a(\"number\");",
+									"  pm.expect(res).to.have.property(\"bookmarks\").that.is.an(\"array\");",
+									"",
+									"  if (res.bookmarks.length > 0) {",
+									"    const bookmark = res.bookmarks[0];",
+									"    pm.expect(bookmark).to.have.property(\"id\");",
+									"    pm.expect(bookmark).to.have.property(\"userId\");",
+									"    pm.expect(bookmark).to.have.property(\"articleId\");",
+									"    pm.expect(bookmark).to.have.property(\"bookmarkedAt\");",
+									"  }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/bookmarks",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookmarks"
+							]
+						},
+						"description": "> &lt;p &gt;Returns all bookmarks created by the currently authenticated user.&lt;/p&gt;"
+					},
+					"response": []
+				},
+				{
+					"name": "All bookmarks – unauthenticated",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns 401 if not authenticated\", () => {",
+									"  pm.expect(pm.response.code).to.eql(401);",
+									"  const res = pm.response.json();",
+									"  pm.expect(res.message || res.error).to.match(/unauthorized|token/i);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/bookmarks",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookmarks"
+							]
+						},
+						"description": "> &lt;p &gt;Returns all bookmarks created by the currently authenticated user.&lt;/p&gt;"
+					},
+					"response": []
+				},
+				{
+					"name": "Create bookmark",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 201 Created\", () => {",
+									"  pm.expect(pm.response.code).to.eql(201);",
+									"});",
+									"",
+									"pm.test(\"Returns created bookmark\", () => {",
+									"  pm.expect(res).to.have.property(\"id\");",
+									"  pm.expect(res).to.have.property(\"userId\");",
+									"  pm.expect(res).to.have.property(\"articleId\")",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article_id\": 7\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/bookmarks",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookmarks"
+							]
+						},
+						"description": "Creates a bookmark for the authenticated user using a given article ID.  \nReturns `201 Created`."
+					},
+					"response": []
+				},
+				{
+					"name": "Create bookmark – missing article_id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Returns 400 for missing article_id\", () => {",
+									"  pm.expect(pm.response.code).to.eql(400);",
+									"  pm.expect(res).to.have.property(\"error\");",
+									"  pm.expect(res.error.toLowerCase()).to.include(\"article id\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/bookmarks",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookmarks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create bookmark – duplicate article_id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Returns 400 on duplicate bookmark\", () => {",
+									"  pm.expect(pm.response.code).to.eql(400);",
+									"  pm.expect(res).to.have.property(\"error\");",
+									"  pm.expect(res.error.toLowerCase()).to.include(\"article already bookmarked\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"article_id\": 7\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/bookmarks",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookmarks"
+							]
+						},
+						"description": "Attempts to bookmark an article that has already been bookmarked by the user.  \nShould return `400 Bad Request` or `409 Conflict` with an appropriate error message."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete bookmark by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204 No Content\", () => {",
+									"  pm.expect(pm.response.code).to.eql(204);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/bookmarks/{{created_bookmark_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookmarks",
+								"{{created_bookmark_id}}"
+							]
+						},
+						"description": "Deletes a bookmark for the authenticated user by bookmark ID.  \nReturns `204 No Content` on success."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete bookmark by ID – not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Returns 400 on duplicate bookmark\", () => {",
+									"  pm.expect(pm.response.code).to.eql(404);",
+									"  pm.expect(res).to.have.property(\"error\");",
+									"  pm.expect(res.error.toLowerCase()).to.include(\"bookmark not found or unauthorized\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/bookmarks/{{created_bookmark_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"bookmarks",
+								"{{created_bookmark_id}}"
+							]
+						},
+						"description": "Deletes a bookmark for the authenticated user by bookmark ID.  \nReturns `204 No Content` on success."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Bookmark Groups",
+			"item": [
+				{
+					"name": "Bookmark Groups CRUD",
+					"item": [
+						{
+							"name": "User bookmark groups",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const res = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200 OK\", () => {",
+											"  pm.expect(pm.response.code).to.eql(200);",
+											"});",
+											"",
+											"pm.test(\"Returns an array of bookmark groups\", () => {",
+											"  pm.expect(res).to.be.an(\"array\");",
+											"",
+											"  if (res.length > 0) {",
+											"    pm.expect(res[0]).to.have.property(\"id\");",
+											"    pm.expect(res[0]).to.have.property(\"groupName\");",
+											"    pm.expect(res[0]).to.have.property(\"userId\");",
+											"  }",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups"
+									]
+								},
+								"description": "Returns all bookmark groups created by the authenticated user."
+							},
+							"response": []
+						},
+						{
+							"name": "Articles in bookmark group",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const res = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200 OK\", () => {",
+											"  pm.expect(pm.response.code).to.eql(200);",
+											"});",
+											"",
+											"pm.test(\"Returns a bookmark group object with metadata\", () => {",
+											"  pm.expect(res).to.be.an(\"object\");",
+											"  pm.expect(res).to.have.property(\"id\");",
+											"  pm.expect(res).to.have.property(\"userId\");",
+											"  pm.expect(res).to.have.property(\"groupName\");",
+											"  pm.expect(res).to.have.property(\"createdAt\");",
+											"  pm.expect(res).to.have.property(\"bookmarks\").that.is.an(\"array\");",
+											"});",
+											"",
+											"pm.test(\"Bookmarks include expected fields\", () => {",
+											"  if (res.bookmarks.length > 0) {",
+											"    const bookmark = res.bookmarks[0];",
+											"    pm.expect(bookmark).to.have.property(\"id\");",
+											"    pm.expect(bookmark).to.have.property(\"userId\");",
+											"    pm.expect(bookmark).to.have.property(\"articleId\");",
+											"    pm.expect(bookmark).to.have.property(\"bookmarkedAt\");",
+											"    pm.expect(bookmark).to.have.property(\"article\");",
+											"  }",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/articles",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups",
+										"{{group_id}}",
+										"articles"
+									]
+								},
+								"description": "Returns a list of articles associated with a given bookmark group ID."
+							},
+							"response": []
+						},
+						{
+							"name": "Articles in bookmark group – invalid ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Returns 404 if group not found\", () => {",
+											"  pm.expect(pm.response.code).to.eql(404);",
+											"  const res = pm.response.json();",
+											"  pm.expect(res.message || res.error).to.match(/not found/i);",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups/999999/articles",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups",
+										"999999",
+										"articles"
+									]
+								},
+								"description": "Returns a list of articles associated with a given bookmark group ID."
+							},
+							"response": []
+						},
+						{
+							"name": "Create bookmark group",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const res = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 201 Created\", () => {",
+											"  pm.expect(pm.response.code).to.eql(201);",
+											"});",
+											"",
+											"pm.test(\"Returns created group\", () => {",
+											"  pm.expect(res).to.have.property(\"id\");",
+											"  pm.expect(res).to.have.property(\"groupName\", \"SciFavorites\");",
+											"",
+											"  // Save for later DELETE test",
+											"  pm.environment.set(\"created_group_id\", res.id);",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"groupName\": \"SciFavorites\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups"
+									]
+								},
+								"description": "Creates a new bookmark group for the authenticated user.  \nStores the `group_id` to use in later requests."
+							},
+							"response": []
+						},
+						{
+							"name": "Create bookmark group – Duplicate",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const res = pm.response.json();",
+											"",
+											"pm.test(\"Returns 400 on duplicate bookmark\", () => {",
+											"  pm.expect(pm.response.code).to.eql(400);",
+											"  pm.expect(res).to.have.property(\"error\");",
+											"  pm.expect(res.error.toLowerCase()).to.include(\"bookmark group with that name already exists\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"groupName\": \"SciFavorites\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups"
+									]
+								},
+								"description": "Creates a new bookmark group for the authenticated user.  \nStores the `group_id` to use in later requests."
+							},
+							"response": []
+						},
+						{
+							"name": "Create bookmark group – missing group_name",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const res = pm.response.json();",
+											"",
+											"pm.test(\"Returns 400 on duplicate bookmark\", () => {",
+											"  pm.expect(pm.response.code).to.eql(400);",
+											"  pm.expect(res).to.have.property(\"error\");",
+											"  pm.expect(res.error.toLowerCase()).to.include(\"group name is required\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update bookmark group",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const res = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 200 OK\", () => {",
+											"  pm.expect(pm.response.code).to.eql(200);",
+											"});",
+											"",
+											"pm.test(\"Group name is updated\", () => {",
+											"  pm.expect(res).to.have.property(\"groupName\", \"UpdatedGroupName\");",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"groupName\": \"UpdatedGroupName\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups/{{created_group_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups",
+										"{{created_group_id}}"
+									]
+								},
+								"description": "Updates the name of a bookmark group created by the authenticated user."
+							},
+							"response": []
+						},
+						{
+							"name": "Update bookmark group– invalid ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Returns 404 if group ID does not exist\", () => {",
+											"  pm.expect(pm.response.code).to.eql(404);",
+											"  const res = pm.response.json();",
+											"  pm.expect(res.message || res.error).to.match(/not found/i);",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"groupName\": \"ShouldNotWork\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups/99999",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups",
+										"99999"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete bookmark group",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 204 No Content\", () => {",
+											"  pm.expect(pm.response.code).to.eql(204);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups/{{created_group_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups",
+										"{{created_group_id}}"
+									]
+								},
+								"description": "Deletes a bookmark group by ID for the authenticated user.  \nUses the `created_group_id` stored from the POST request."
+							},
+							"response": []
+						},
+						{
+							"name": "Delete  bookmark group – invalid ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Returns 404 if group ID does not exist\", () => {",
+											"  pm.expect(pm.response.code).to.eql(404);",
+											"  const res = pm.response.json();",
+											"  pm.expect(res.message || res.error).to.match(/not found/i);",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups/999999",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups",
+										"999999"
+									]
+								},
+								"description": "Deletes a bookmark group by ID for the authenticated user.  \nUses the `created_group_id` stored from the POST request."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Manage group bookmarked articles",
+					"item": [
+						{
+							"name": "Add article to bookmark group",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const res = pm.response.json();",
+											"",
+											"pm.test(\"Status code is 201 Created\", () => {",
+											"  pm.expect(pm.response.code).to.eql(201);",
+											"});",
+											"",
+											"pm.test(\"Returns confirmation message\", () => {",
+											"  pm.expect(res).to.be.an(\"object\");",
+											"  pm.expect(res).to.have.property(\"message\", \"Bookmark added to group\");",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/4",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups",
+										"{{group_id}}",
+										"bookmarks",
+										"4"
+									]
+								},
+								"description": "Adds a bookmarked article to a specific group for the authenticated user."
+							},
+							"response": []
+						},
+						{
+							"name": "Add article to bookmark group – already assigned",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const res = pm.response.json();",
+											"",
+											"pm.test(\"Returns 400 or 409 if article is already in group\", () => {",
+											"  pm.expect([400, 409]).to.include(pm.response.code);",
+											"  pm.expect(res.message || res.error).to.match(/already|exists|assigned/i);",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/4",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups",
+										"{{group_id}}",
+										"bookmarks",
+										"4"
+									]
+								},
+								"description": "Adds a bookmarked article to a specific group for the authenticated user."
+							},
+							"response": []
+						},
+						{
+							"name": "Delete article from bookmark group",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 204 No Content\", () => {",
+											"  pm.expect(pm.response.code).to.eql(204);",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/4",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups",
+										"{{group_id}}",
+										"bookmarks",
+										"4"
+									]
+								},
+								"description": "Removes a bookmarked article from the specified group."
+							},
+							"response": []
+						},
+						{
+							"name": "Delete article from bookmark – article not in group",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const res = pm.response.json();",
+											"",
+											"pm.test(\"Returns 404 for bookmark not in group\", () => {",
+											"  pm.expect(pm.response.code).to.eql(404);",
+											"  pm.expect(res).to.have.property(\"error\");",
+											"  pm.expect(res.error.toLowerCase()).to.include(\"not assigned\");",
+											"});",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/4",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmark-groups",
+										"{{group_id}}",
+										"bookmarks",
+										"4"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Analytics",
+			"item": [
+				{
+					"name": "Most bookmarked articles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200 OK\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Response includes paginated most-bookmarked articles\", () => {",
+									"  pm.expect(res).to.be.an(\"object\");",
+									"  pm.expect(res).to.have.property(\"results\").that.is.an(\"array\");",
+									"  pm.expect(res).to.have.property(\"page\").that.is.a(\"number\");",
+									"  pm.expect(res).to.have.property(\"limit\").that.is.a(\"number\");",
+									"",
+									"  if (res.results.length > 0) {",
+									"    const article = res.results[0];",
+									"    pm.expect(article).to.have.property(\"articleId\");",
+									"    pm.expect(article).to.have.property(\"title\");",
+									"    pm.expect(article).to.have.property(\"sourceName\");",
+									"    pm.expect(article).to.have.property(\"bookmarkCount\");",
+									"  }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/most-bookmarked-articles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"analytics",
+								"most-bookmarked-articles"
+							]
+						},
+						"description": "Returns a ranked list of the most frequently bookmarked articles across all users."
+					},
+					"response": []
+				},
+				{
+					"name": "Top bookmarking users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200 OK\", () => {",
+									"  pm.expect(pm.response.code).to.eql(200);",
+									"});",
+									"",
+									"pm.test(\"Response includes paginated top users by bookmark count\", () => {",
+									"  pm.expect(res).to.be.an(\"object\");",
+									"  pm.expect(res).to.have.property(\"results\").that.is.an(\"array\");",
+									"  pm.expect(res).to.have.property(\"page\").that.is.a(\"number\");",
+									"  pm.expect(res).to.have.property(\"limit\").that.is.a(\"number\");",
+									"",
+									"  if (res.results.length > 0) {",
+									"    const user = res.results[0];",
+									"    pm.expect(user).to.have.property(\"userId\");",
+									"    pm.expect(user).to.have.property(\"username\");",
+									"    pm.expect(user).to.have.property(\"email\");",
+									"    pm.expect(user).to.have.property(\"bookmarkCount\");",
+									"  }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/top-bookmarking-users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"analytics",
+								"top-bookmarking-users"
+							]
+						},
+						"description": "Returns a ranked list of users who have created the most bookmarks."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"const loginUrl = pm.environment.get(\"base_url\") + \"/auth/login\";",
+					"console.log(\"🔍 Attempting login at:\", loginUrl);",
+					"",
+					"",
+					"pm.sendRequest({",
+					"  url: pm.environment.get(\"base_url\") + \"/auth/login\",",
+					"  method: \"POST\",",
+					"  header: {",
+					"    \"Content-Type\": \"application/json\"",
+					"  },",
+					"  body: {",
+					"    mode: \"raw\",",
+					"    raw: JSON.stringify({",
+					"      email: \"testuser@example.com\",",
+					"      password: \"Password123!\"",
+					"    })",
+					"  }",
+					"}, (err, res) => {",
+					"  if (err) {",
+					"    console.error('❌ Login failed:', err);",
+					"    return;",
+					"  }",
+					"  const token = res.json().token;",
+					"  pm.environment.set(\"jwt_token\", token);",
+					"});",
+					"",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "article_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "bookmark_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "created_bookmark_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "created_group_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "email",
+			"value": "testuser@example.com",
+			"type": "string"
+		},
+		{
+			"key": "group_id",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "group_name",
+			"value": "Planets",
+			"type": "default"
+		},
+		{
+			"key": "jwt_token",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "Password123!",
+			"type": "string"
+		},
+		{
+			"key": "search_keyword",
+			"value": "planets",
+			"type": "default"
+		}
+	]
+}
