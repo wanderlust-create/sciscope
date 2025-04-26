@@ -5,8 +5,8 @@ import { hashPassword } from '../utils/authUtils.js';
 
 const AuthService = {
   async registerUser({ username, email, password }) {
-    const password_hash = await hashPassword(password);
-    return User.query().insert({ username, email, password_hash });
+    const passwordHash = await hashPassword(password);
+    return User.query().insert({ username, email, passwordHash });
   },
 
   async findUserByEmail(email) {
