@@ -64,12 +64,10 @@ describe('Bookmark API Endpoints', () => {
       })
       .first();
     expect(newArticle).toBeDefined();
-    console.log('New Article:', newArticle.id);
     const res = await request(app)
       .post('/api/v1/bookmarks')
       .set('Authorization', token)
       .send({ article_id: newArticle.id });
-    console.log('Response:', res.body);
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty('userId', user.id);
     expect(res.body).toHaveProperty('articleId', newArticle.id);
