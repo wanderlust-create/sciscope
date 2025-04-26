@@ -70,12 +70,12 @@ const AuthService = {
    * @param {string} oauthDetails.oauth_id - OAuth user ID.
    * @returns {Promise<Object>} The inserted OAuth user record.
    */
-  async createOAuthUser({ username, email, provider, oauth_id }) {
+  async createOAuthUser({ username, email, provider, oauthId }) {
     return User.query().insert({
       username,
       email,
-      oauth_provider: provider,
-      oauth_id,
+      oauthProvider: provider,
+      oauthId,
     });
   },
 };
