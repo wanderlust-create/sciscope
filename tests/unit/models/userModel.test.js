@@ -5,9 +5,6 @@ import User from '../../../src/models/User.js';
 beforeAll(async () => {
   await db.migrate.latest();
 });
-afterEach(async () => {
-  await db('users').del(); // Clears all users between tests
-});
 
 afterAll(async () => {
   await db.destroy();
@@ -21,11 +18,11 @@ describe('User Model', () => {
   // 🔹 Test Required Fields
   test('should require email and username', async () => {
     await expect(
-      User.query().insert({ password_hash: 'password123' })
-    ).rejects.toThrow();
-    await expect(
-      User.query().insert({ username: 'testuser' })
-    ).rejects.toThrow();
+      User.query().insert({ passwordHash: 'password123' })
+    ).rejects.toThrow(/email/i);
+    await expect(User.query().insert({ username: 'testuser' })).rejects.toThrow(
+      /email/i
+    );
   });
 
   // 🔹 Test Unique Email Constraint
@@ -33,14 +30,14 @@ describe('User Model', () => {
     await User.query().insert({
       username: 'user1',
       email: 'test@example.com',
-      password_hash: await bcrypt.hash('password123', 10),
+      passwordHash: await bcrypt.hash('password123', 10),
     });
 
     await expect(
       User.query().insert({
         username: 'user2',
         email: 'test@example.com', // ❌ Duplicate email
-        password_hash: await bcrypt.hash('password456', 10),
+        passwordHash: await bcrypt.hash('password456', 10),
       })
     ).rejects.toThrow(/duplicate key value violates unique constraint/);
   });
@@ -50,14 +47,14 @@ describe('User Model', () => {
     await User.query().insert({
       username: 'duplicateuser',
       email: 'user1@example.com',
-      password_hash: await bcrypt.hash('password123', 10),
+      passwordHash: await bcrypt.hash('password123', 10),
     });
 
     await expect(
       User.query().insert({
         username: 'duplicateuser', // ❌ Duplicate username
         email: 'user2@example.com',
-        password_hash: await bcrypt.hash('password456', 10),
+        passwordHash: await bcrypt.hash('password456', 10),
       })
     ).rejects.toThrow(/duplicate key value violates unique constraint/);
   });
@@ -69,18 +66,18 @@ describe('User Model', () => {
     await User.query().insert({
       username: 'secureuser',
       email: 'secure@example.com',
-      password_hash: await bcrypt.hash(rawPassword, 10),
+      passwordHash: await bcrypt.hash(rawPassword, 10),
     });
 
-    const dbUser = await db('users')
+    const storedUser = await db('users')
       .where({ email: 'secure@example.com' })
       .first();
 
-    expect(dbUser).toBeDefined();
-    expect(dbUser.passwordHash).toBeDefined();
-    expect(dbUser.passwordHash).not.toBe(rawPassword);
+    expect(storedUser).toBeDefined();
+    expect(storedUser.passwordHash).toBeDefined();
+    expect(storedUser.passwordHash).not.toBe(rawPassword);
 
-    const isMatch = await bcrypt.compare(rawPassword, dbUser.passwordHash);
+    const isMatch = await bcrypt.compare(rawPassword, storedUser.passwordHash);
     expect(isMatch).toBe(true);
   });
 
@@ -90,9 +87,9 @@ describe('User Model', () => {
       User.query().insert({
         username: 'invalidemail',
         email: 'not-an-email',
-        password_hash: await bcrypt.hash('password123', 10),
+        passwordHash: await bcrypt.hash('password123', 10),
       })
-    ).rejects.toThrow();
+    ).rejects.toThrow(/email/i);
   });
 
   // 🔹 Test OAuth User Can Sign Up Without Password
@@ -100,12 +97,12 @@ describe('User Model', () => {
     const oauthUser = await User.query().insert({
       username: 'oauthuser',
       email: 'oauth@example.com',
-      oauth_provider: 'github',
-      oauth_id: '67890',
+      oauthProvider: 'github',
+      oauthId: '67890',
     });
 
-    expect(oauthUser.oauth_provider).toBe('github');
-    expect(oauthUser.oauth_id).toBe('67890');
-    expect(oauthUser.password_hash).toBeUndefined();
+    expect(oauthUser.oauthProvider).toBe('github');
+    expect(oauthUser.oauthId).toBe('67890');
+    expect(oauthUser.passwordHash).toBeUndefined();
   });
 });
