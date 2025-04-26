@@ -15,7 +15,7 @@ const MOST_BOOKMARKED_CACHE_KEY = 'most_bookmarked_articles';
 const TOP_BOOKMARKING_USERS_CACHE_KEY = 'top_bookmarking_users';
 
 beforeAll(async () => {
-  server = app.listen(3000);
+  server = app.listen(0);
 
   if (shouldSeed) {
     logger.info('🚀 Seeding large test database for analytics tests...');
@@ -45,7 +45,7 @@ afterAll(async () => {
 });
 
 describe('📊 GET /api/analytics/most-bookmarked', () => {
-  it.only('returns top bookmarked articles with correct structure and pagination', async () => {
+  it('returns top bookmarked articles with correct structure and pagination', async () => {
     const res = await request(app).get(
       '/api/v1/analytics/most-bookmarked-articles?limit=5&page=1'
     );
