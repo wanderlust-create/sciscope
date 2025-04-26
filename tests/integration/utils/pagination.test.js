@@ -49,9 +49,8 @@ describe('Pagination Logic', () => {
 
     expect(results[0].title).toBeDefined();
 
-    expect(results.map((r) => r.title)).toEqual(
-      [...results.map((r) => r.title)].sort()
-    );
+    const sortedTitles = [...titles].sort((a, b) => a.localeCompare(b));
+    expect(titles).toEqual(sortedTitles);
   });
 
   it('should sort results in reverse alphabetical order (Z→A)', async () => {
