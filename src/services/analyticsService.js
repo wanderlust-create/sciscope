@@ -29,9 +29,7 @@ export async function getMostBookmarkedArticles(page = 1, limit = 10) {
       [MAX_CACHED_ARTICLES]
     );
     const camelCasedResult = camelcaseKeys(result, { deep: true });
-    console.log('CamelCased Result:', camelCasedResult);
     articles = camelCasedResult.rows;
-    console.log('Articles IN SERVICE:', articles);
     cacheService.setCache(MOST_BOOKMARKED_CACHE_KEY, articles, CACHE_TTL);
     logger.info(
       `📌 Cached top ${MAX_CACHED_ARTICLES} most bookmarked articles`
