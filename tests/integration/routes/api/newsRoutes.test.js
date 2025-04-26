@@ -29,10 +29,10 @@ describe('News Controller', () => {
     it('should return 200 OK and a list of only recent science news articles', async () => {
       const now = new Date();
       const mockRecentArticles = generateMockArticlesResponse(
-        6,
-        null,
-        true,
-        false,
+        6, // number of articles
+        null, // keyword
+        true, // IsNew
+        false, // IsOld
         3 // ⬅ Ensures articles are "recent" within the last 3 hours
       );
 
