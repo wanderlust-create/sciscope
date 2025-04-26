@@ -6,7 +6,7 @@ const app = createServer();
 
 beforeAll(async () => {
   await db.migrate.latest();
-  await db.seed.run(); // ✅ Seed the test database before running tests
+  await db.seed.run();
 });
 
 afterEach(async () => {
@@ -20,8 +20,8 @@ afterAll(async () => {
 describe('Authentication Controller', () => {
   test('should sign up a user with email & password', async () => {
     const res = await request(app).post('/api/v1/auth/signup').send({
-      username: 'newuser',
-      email: 'newuser@example.com',
+      username: 'newTestUser',
+      email: 'newTestUser@example.com',
       password: 'securepassword123',
     });
 
@@ -30,11 +30,20 @@ describe('Authentication Controller', () => {
     expect(res.body).toHaveProperty('token');
   });
 
+  test('should return 400 if required signup fields are missing', async () => {
+    const res = await request(app).post('/api/v1/auth/signup').send({
+      username: 'testuser',
+      // missing email
+      password: 'password123',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('error', 'All fields are required'); // or whatever your error says
+  });
+
   test('should return 409 if email is already registered', async () => {
-    // ✅ Fetch a seeded user from the database
     const seededUser = await db('users').first(); // Get the first seeded user
 
-    // ✅ Ensure a user exists in the database
     expect(seededUser).toBeDefined();
 
     const res = await request(app).post('/api/v1/auth/signup').send({
@@ -79,10 +88,22 @@ describe('Authentication Controller', () => {
     expect(res.body).toHaveProperty('error', 'Invalid credentials');
   });
 
-  test('should log in an existing OAuth user', async () => {
+  test('should create and login a new OAuth user, returning a token', async () => {
     const res = await request(app).post('/api/v1/auth/oauth').send({
       provider: 'google',
-      oauth_id: 'existing-oauth-id', // ✅ Match seed data
+      oauthId: 'new-oauth-id',
+      email: 'new-oauth-user@example.com',
+      username: 'newoauthuser',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body).toHaveProperty('token');
+  });
+
+  test('should log in an existing OAuth userr, returning a token', async () => {
+    const res = await request(app).post('/api/v1/auth/oauth').send({
+      provider: 'google',
+      oauthId: 'existing-oauth-id', // ✅ Match seed data
       email: 'oauthuser@example.com',
       username: 'oauthuser',
     });
