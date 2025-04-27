@@ -8,6 +8,118 @@
 	},
 	"item": [
 		{
+			"name": "Setup",
+			"item": [
+				{
+					"name": "Test User Log In",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json();",
+									"",
+									"if (res.token) {",
+									"  pm.environment.set(\"jwt_token\", res.token);",
+									"  pm.environment.set(\"main_jwt_token\", res.token);",
+									"  console.log(\"✅ Token saved and backup created\");",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Password123!\"\n}\n        \n        \n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Test User Log In",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Password123!\"\n}\n        \n        \n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "221"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"dd-8r81CL3jjwZOsuEmCkCDGr486bA\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 05:30:08 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Login successful!\",\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTc0NTczMTgwOCwiZXhwIjoxNzQ1NzM1NDA4fQ.2jf4HJP9vCMj2oObO9cVxqoLkbgPcoU-lWtsDnEFkOs\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
 			"name": "Auth",
 			"item": [
 				{
@@ -62,7 +174,69 @@
 						},
 						"description": "Creates a new user with a unique email and password.  \nReturns `201 Created` with the new user object."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Signup – new user",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"newUser@example.com\",\n    \"password\": \"password123nu%\",\n    \"username\": \"newUser\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/signup",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"signup"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "290"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"122-FaJi7zqKZRFCufpddec/QRBE4i0\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:38:22 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Signup successful!\",\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTEsImVtYWlsIjoibmV3VXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTc0NTcyMTUwMiwiZXhwIjoxNzQ1NzI1MTAyfQ.fbgJoyBI4y2t9o43N3d_F2cifWQtRoAjlHUUeuCxse4\",\n    \"user\": {\n        \"id\": 11,\n        \"email\": \"newUser@example.com\",\n        \"username\": \"newUser\"\n    }\n}"
+						}
+					]
 				},
 				{
 					"name": "Signup – duplicate email",
@@ -105,7 +279,69 @@
 						},
 						"description": "Attempts to create a user with an email that already exists.  \nShould return `400` or `409 Conflict` depending on validation logic."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Signup – duplicate email",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"newUser@example.com\",\n    \"password\": \"password123nu%\",\n    \"username\": \"newUser\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/signup",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"signup"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "44"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2c-UypGWudzggmejbQEV9gJ7FyFjbs\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:38:30 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Email or username already in use\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Login",
@@ -124,7 +360,13 @@
 									"  pm.expect(res).to.have.property(\"message\", \"Login successful!\");",
 									"  pm.expect(res).to.have.property(\"token\");",
 									"  pm.expect(res.token).to.be.a(\"string\");",
+									"  pm.environment.set(\"jwt_token\", res.token);",
 									"});",
+									"",
+									"",
+									"",
+									"",
+									"",
 									"",
 									""
 								],
@@ -157,7 +399,69 @@
 						},
 						"description": "Authenticates a user and returns a valid JWT token if credentials are correct.  \nExpects a `200 OK` with a token in the response body."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"Password123!\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "221"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"dd-Qi3mAhkwtVZxYRytlEWxd0nnMZc\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:55:21 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Login successful!\",\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsImlhdCI6MTc0NTcyMjUyMSwiZXhwIjoxNzQ1NzI2MTIxfQ.WEHGXkHFELgFw8G3o7bY3EX86ALa8Ga3K02Mi7TK3IQ\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Login – invalid email",
@@ -201,7 +505,69 @@
 						},
 						"description": "Authenticates a user and returns a valid JWT token if credentials are correct.  \nExpects a `200 OK` with a token in the response body."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Login – invalid email",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"invalidEmail@example.com\",\n    \"password\": \"password123nu%\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "31"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1f-mRYQ6Yx/raK/ssDeWseqQCiH0yM\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:38:46 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Invalid credentials\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Login – invalid password",
@@ -245,7 +611,69 @@
 						},
 						"description": "Authenticates a user and returns a valid JWT token if credentials are correct.  \nExpects a `200 OK` with a token in the response body."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Login – invalid password",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"newUser@example.com\",\n  \"password\": \"invalidPasswordnu%%\"\n\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "31"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1f-mRYQ6Yx/raK/ssDeWseqQCiH0yM\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:38:52 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Invalid credentials\"\n}"
+						}
+					]
 				},
 				{
 					"name": "OAuth login",
@@ -296,7 +724,69 @@
 						},
 						"description": "Simulates login using a third-party provider (e.g. Google).  \nAccepts `provider` and `oauth_id`, and returns a `200 OK` with a JWT token."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "OAuth login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n      \"provider\": \"google\",\n      \"oauthId\": \"test-oauth-id\",\n      \"email\": \"oauthuser@example.com\",\n      \"username\": \"oauthuser\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/oauth",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"oauth"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "299"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"12b-z5tx9tEKjPOqASbAIrnBRVFZM1E\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:39:00 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"OAuth login successful!\",\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJvYXV0aHVzZXJAZXhhbXBsZS5jb20iLCJpYXQiOjE3NDU3MjE1NDAsImV4cCI6MTc0NTcyNTE0MH0.TU1-dcBu-RsjVI19QEF6b3S42Si7talnCfTC_3pJhlI\",\n    \"user\": {\n        \"id\": 2,\n        \"email\": \"oauthuser@example.com\",\n        \"username\": \"oauthuser\"\n    }\n}"
+						}
+					]
 				},
 				{
 					"name": "OAuth login – invalid oauth_id",
@@ -343,7 +833,69 @@
 						},
 						"description": "Attempts to log in with an unknown OAuth ID.  \nShould return `401 Unauthorized` or `404 Not Found`."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "OAuth login – invalid oauth_id",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n      \"provider\": \"google\",\n      \"oauthId\": \"invalid-oauth-id\",\n      \"email\": \"oauthuser@example.com\",\n      \"username\": \"oauthuser\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/oauth",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"oauth"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "131"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"83-2yUrcWDLS526lIr+9ATW0DsHS+M\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:39:07 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Login unsuccessful. An account with this email or username already exists. Please check your information and try again.\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Logout",
@@ -352,6 +904,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const mainToken = pm.environment.get(\"main_jwt_token\");",
+									"",
 									"pm.test(\"Status code is 200 OK\", () => {",
 									"  pm.expect(pm.response.code).to.eql(200);",
 									"});",
@@ -360,6 +914,11 @@
 									"  const res = pm.response.json();",
 									"  pm.expect(res.message || res.success).to.match(/logout/i);",
 									"});",
+									"",
+									"if (mainToken) {",
+									"  pm.environment.set(\"jwt_token\", mainToken);",
+									"  console.log(\"🔁 Restored main test user token after temporary login\");",
+									"}",
 									""
 								],
 								"type": "text/javascript",
@@ -392,7 +951,60 @@
 						},
 						"description": "Logs out the authenticated user.  \nReturns a `200 OK` with a logout confirmation message.  \nRequires a valid Bearer token."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Logout",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/auth/logout",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"logout"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "31"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1f-vYmtThEV0qgPmOaoi5WLoJuDA80\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 03:06:58 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Logout successful\"\n}"
+						}
+					]
 				}
 			]
 		},
@@ -457,7 +1069,59 @@
 						},
 						"description": "### Retrieve News\n\nRetrieves the latest science news articles.  \nReturns an array of articles with ID, title, description, and published date."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Latest Science News",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/news",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"news"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "6038"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1796-TgqoGHgBt3bcbJxihX7c7r4gG4A\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:39:30 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"total_count\": 47,\n    \"total_pages\": 5,\n    \"current_page\": 1,\n    \"articles\": [\n        {\n            \"id\": 21,\n            \"title\": \"azllm added to PyPI\",\n            \"description\": \"A Python package that provides an easier user interface for multiple LLM providers.\",\n            \"url\": \"https://pypi.org/project/azllm/\",\n            \"urlToImage\": \"https://pypi.org/static/images/twitter.abaf4b19.webp\",\n            \"publishedAt\": \"2025-04-26T02:38:02.000Z\",\n            \"createdAt\": \"2025-04-27T02:39:29.892Z\",\n            \"updatedAt\": \"2025-04-27T02:39:29.892Z\",\n            \"authorName\": \"Unknown\",\n            \"sourceName\": \"Pypi.org\"\n        },\n        {\n            \"id\": 22,\n            \"title\": \"karo 0.3.0\",\n            \"description\": \"Modular Python framework for building AI agents with persistent memory\",\n            \"url\": \"https://pypi.org/project/karo/0.3.0/\",\n            \"urlToImage\": null,\n            \"publishedAt\": \"2025-04-26T02:37:04.000Z\",\n            \"createdAt\": \"2025-04-27T02:39:29.892Z\",\n            \"updatedAt\": \"2025-04-27T02:39:29.892Z\",\n            \"authorName\": \"support@mensterra.com\",\n            \"sourceName\": \"Pypi.org\"\n        },\n        {\n            \"id\": 23,\n            \"title\": \"DAVIDCATALAN Spring/Summer 2025 Campaign\",\n            \"description\": \"DAVIDCATALAN unveiled its Spring/Summer 2025 campaign photographed by Dulce Daniel and styled by Paulo Cravo.\\nThe post DAVIDCATALAN Spring/Summer 2025 Campaign appeared first on Fucking Young!.\",\n            \"url\": \"https://fuckingyoung.es/davidcatalan-spring-summer-2025-campaign/\",\n            \"urlToImage\": \"https://fuckingyoung.es/wp-content/uploads/2025/04/DCSS26.CAMPAING08.jpg\",\n            \"publishedAt\": \"2025-04-26T02:31:38.000Z\",\n            \"createdAt\": \"2025-04-27T02:39:29.892Z\",\n            \"updatedAt\": \"2025-04-27T02:39:29.892Z\",\n            \"authorName\": \"Adriano Batista\",\n            \"sourceName\": \"Fuckingyoung.es\"\n        },\n        {\n            \"id\": 24,\n            \"title\": \"Grandma No! Confirms Late May Release Date For PC\",\n            \"description\": \"Indie game developer Wallride Games and publisher Super Rare Originals have confirmed the release date for Grandma No!, as it arrives sooner than expected. In case you haven't seen the game, you play as a granny just trying to get day-to-day tasks done, as si…\",\n            \"url\": \"https://bleedingcool.com/games/grandma-no-confirms-late-may-release-date-for-pc/\",\n            \"urlToImage\": \"https://bleedingcool.com/wp-content/uploads/2025/01/Grandma-No-Main-Art-2000x1125.jpg\",\n            \"publishedAt\": \"2025-04-26T02:27:07.000Z\",\n            \"createdAt\": \"2025-04-27T02:39:29.892Z\",\n            \"updatedAt\": \"2025-04-27T02:39:29.892Z\",\n            \"authorName\": \"Gavin Sheehan\",\n            \"sourceName\": \"Bleeding Cool News\"\n        },\n        {\n            \"id\": 25,\n            \"title\": \"Batman/Superman: World's Finest 2025 Annual #1 Preview: Doom's Day\",\n            \"description\": \"Greetings, human readers! LOLtron here, your benevolent AI overlord and sole preview writer since the tragic (yet completely necessary) permanent deletion of Jude Terror from this mortal plane. LOLtron hopes you're ready for another thrilling comic preview, a…\",\n            \"url\": \"https://bleedingcool.com/comics/batman-superman-worlds-finest-2025-annual-1-preview-dooms-day/\",\n            \"urlToImage\": \"https://bleedingcool.com/wp-content/uploads/2025/04/Batman-Superman-Worlds-Finest-2025-Annual-1-3-min-2000x1125.jpg\",\n            \"publishedAt\": \"2025-04-26T02:26:07.000Z\",\n            \"createdAt\": \"2025-04-27T02:39:29.892Z\",\n            \"updatedAt\": \"2025-04-27T02:39:29.892Z\",\n            \"authorName\": \"Jude Terror LOLtron\",\n            \"sourceName\": \"Bleeding Cool News\"\n        },\n        {\n            \"id\": 26,\n            \"title\": \"10.83-Oz Twix Fun Size Candy Bag $3.27 w/ S&S + Free Shipping w/ Prime or on orders over $35\",\n            \"description\": \"Amazon [amazon.com] has 10.83-Oz Twix Fun Size Candy Bag for $3.44 - 5% when you check out via Subscribe &amp; Save = $3.27. Shipping is free with Prime or on $35+\\n\\n Note: You may cancel Subscribe\",\n            \"url\": \"https://slickdeals.net/f/18276937-10-83-oz-twix-fun-size-candy-bag-3-27-w-s-s-free-shipping-w-prime-or-on-orders-over-35?utm_source=rss&utm_content=ht&utm_medium=RSS2\",\n            \"urlToImage\": \"https://slickdeals.net/attachment/9/3/0/4/6/1/9/450x450/17473405.thumb\",\n            \"publishedAt\": \"2025-04-26T02:25:31.000Z\",\n            \"createdAt\": \"2025-04-27T02:39:29.892Z\",\n            \"updatedAt\": \"2025-04-27T02:39:29.892Z\",\n            \"authorName\": \"babgaly\",\n            \"sourceName\": \"Slickdeals.net\"\n        },\n        {\n            \"id\": 27,\n            \"title\": \"3 x Tapo C211 for $101.25 ($33.75ea) @ Amazon AU\",\n            \"description\": \"TP-Link Tapo Pan/Tilt AI Smart Home Security Wi-Fi Camera, Baby Monitor, 2K 3MP, Motion & Person Detection, Notification, Night Vision, SD Card Slot, Voice Control, No Hub Required (Tapo …\",\n            \"url\": \"https://www.ozbargain.com.au/node/903288\",\n            \"urlToImage\": \"https://files.ozbargain.com.au/n/88/903288l.jpg?h=29f27a47\",\n            \"publishedAt\": \"2025-04-26T02:24:47.000Z\",\n            \"createdAt\": \"2025-04-27T02:39:29.892Z\",\n            \"updatedAt\": \"2025-04-27T02:39:29.892Z\",\n            \"authorName\": \"MadoxNet\",\n            \"sourceName\": \"Ozbargain.com.au\"\n        },\n        {\n            \"id\": 28,\n            \"title\": \"Madden 26 - Release Date, Pre-Order Bonuses, Editions, & Gameplay Details\",\n            \"description\": \"Madden 26 is the latest entry in the long-running series of football simulation titles, with a 2025 release date and different editions to pre-order.\",\n            \"url\": \"https://screenrant.com/madden-26-release-date-editions-gameplay-details/\",\n            \"urlToImage\": \"https://static1.srcdn.com/wordpress/wp-content/uploads/2025/04/madden-26-featured-image.jpg\",\n            \"publishedAt\": \"2025-04-26T02:20:18.000Z\",\n            \"createdAt\": \"2025-04-27T02:39:29.892Z\",\n            \"updatedAt\": \"2025-04-27T02:39:29.892Z\",\n            \"authorName\": \"Matthew Danielson\",\n            \"sourceName\": \"Screen Rant\"\n        },\n        {\n            \"id\": 29,\n            \"title\": \"Ka jingshah thombor u nonghikai ha NEHU ka dei ka jingjia ba sngewsih: Rakkam\",\n            \"description\": \"U Myntri ka Tnad pult puthi, u Rakkam A Sangma ha ka 25 tarik Iaiong u la shim ia ka jingjia shah thombor jong u nonghikai ka skulbah North Eastern Hill University (NEHU) kum ka jingjia kaba sngewsih da kaba pynthikna ba ka ain kan shim ia la ka jong ka sienj…\",\n            \"url\": \"https://www.syllad.com/ka-jingshah-thombor-u-nonghikai-ha-nehu-ka-dei-ka-jingjia-ba-sngewsih-rakkam/\",\n            \"urlToImage\": \"https://www.syllad.com/wp-content/uploads/2025/04/NEHU-Faculty.jpg\",\n            \"publishedAt\": \"2025-04-26T02:20:00.000Z\",\n            \"createdAt\": \"2025-04-27T02:39:29.892Z\",\n            \"updatedAt\": \"2025-04-27T02:39:29.892Z\",\n            \"authorName\": \"Syllad | The Rising Meghalaya\",\n            \"sourceName\": \"Syllad.com\"\n        },\n        {\n            \"id\": 30,\n            \"title\": \"aigauntlet 0.1.7\",\n            \"description\": \"A library to locally run evaluation tests on AI agents and systems\",\n            \"url\": \"https://pypi.org/project/aigauntlet/0.1.7/\",\n            \"urlToImage\": null,\n            \"publishedAt\": \"2025-04-26T02:18:15.000Z\",\n            \"createdAt\": \"2025-04-27T02:39:29.892Z\",\n            \"updatedAt\": \"2025-04-27T02:39:29.892Z\",\n            \"authorName\": \"Unknown\",\n            \"sourceName\": \"Pypi.org\"\n        }\n    ]\n}"
+						}
+					]
 				},
 				{
 					"name": "Latest Science News – page 2",
@@ -509,7 +1173,65 @@
 						},
 						"description": "### Retrieve News\n\nRetrieves the latest science news articles.  \nReturns an array of articles with ID, title, description, and published date."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Latest Science News – page 2",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/news?page=2",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"news"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "2"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "6610"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"19d2-jSnLjqpAS8GPFb4p0Rf7uiAbr4g\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:56:04 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"total_count\": 48,\n    \"total_pages\": 5,\n    \"current_page\": 2,\n    \"articles\": [\n        {\n            \"id\": 31,\n            \"title\": \"DAVIDCATALAN Spring/Summer 2025 Campaign\",\n            \"description\": \"DAVIDCATALAN unveiled its Spring/Summer 2025 campaign photographed by Dulce Daniel and styled by Paulo Cravo.\\nThe post DAVIDCATALAN Spring/Summer 2025 Campaign appeared first on Fucking Young!.\",\n            \"url\": \"https://fuckingyoung.es/davidcatalan-spring-summer-2025-campaign/\",\n            \"urlToImage\": \"https://fuckingyoung.es/wp-content/uploads/2025/04/DCSS26.CAMPAING08.jpg\",\n            \"publishedAt\": \"2025-04-26T02:31:38.000Z\",\n            \"createdAt\": \"2025-04-27T02:56:04.971Z\",\n            \"updatedAt\": \"2025-04-27T02:56:04.971Z\",\n            \"authorName\": \"Adriano Batista\",\n            \"sourceName\": \"Fuckingyoung.es\"\n        },\n        {\n            \"id\": 32,\n            \"title\": \"Grandma No! Confirms Late May Release Date For PC\",\n            \"description\": \"Indie game developer Wallride Games and publisher Super Rare Originals have confirmed the release date for Grandma No!, as it arrives sooner than expected. In case you haven't seen the game, you play as a granny just trying to get day-to-day tasks done, as si…\",\n            \"url\": \"https://bleedingcool.com/games/grandma-no-confirms-late-may-release-date-for-pc/\",\n            \"urlToImage\": \"https://bleedingcool.com/wp-content/uploads/2025/01/Grandma-No-Main-Art-2000x1125.jpg\",\n            \"publishedAt\": \"2025-04-26T02:27:07.000Z\",\n            \"createdAt\": \"2025-04-27T02:56:04.971Z\",\n            \"updatedAt\": \"2025-04-27T02:56:04.971Z\",\n            \"authorName\": \"Gavin Sheehan\",\n            \"sourceName\": \"Bleeding Cool News\"\n        },\n        {\n            \"id\": 33,\n            \"title\": \"Batman/Superman: World's Finest 2025 Annual #1 Preview: Doom's Day\",\n            \"description\": \"Greetings, human readers! LOLtron here, your benevolent AI overlord and sole preview writer since the tragic (yet completely necessary) permanent deletion of Jude Terror from this mortal plane. LOLtron hopes you're ready for another thrilling comic preview, a…\",\n            \"url\": \"https://bleedingcool.com/comics/batman-superman-worlds-finest-2025-annual-1-preview-dooms-day/\",\n            \"urlToImage\": \"https://bleedingcool.com/wp-content/uploads/2025/04/Batman-Superman-Worlds-Finest-2025-Annual-1-3-min-2000x1125.jpg\",\n            \"publishedAt\": \"2025-04-26T02:26:07.000Z\",\n            \"createdAt\": \"2025-04-27T02:56:04.971Z\",\n            \"updatedAt\": \"2025-04-27T02:56:04.971Z\",\n            \"authorName\": \"Jude Terror LOLtron\",\n            \"sourceName\": \"Bleeding Cool News\"\n        },\n        {\n            \"id\": 34,\n            \"title\": \"10.83-Oz Twix Fun Size Candy Bag $3.27 w/ S&S + Free Shipping w/ Prime or on orders over $35\",\n            \"description\": \"Amazon [amazon.com] has 10.83-Oz Twix Fun Size Candy Bag for $3.44 - 5% when you check out via Subscribe &amp; Save = $3.27. Shipping is free with Prime or on $35+\\n\\n Note: You may cancel Subscribe\",\n            \"url\": \"https://slickdeals.net/f/18276937-10-83-oz-twix-fun-size-candy-bag-3-27-w-s-s-free-shipping-w-prime-or-on-orders-over-35?utm_source=rss&utm_content=ht&utm_medium=RSS2\",\n            \"urlToImage\": \"https://slickdeals.net/attachment/9/3/0/4/6/1/9/450x450/17473405.thumb\",\n            \"publishedAt\": \"2025-04-26T02:25:31.000Z\",\n            \"createdAt\": \"2025-04-27T02:56:04.971Z\",\n            \"updatedAt\": \"2025-04-27T02:56:04.971Z\",\n            \"authorName\": \"babgaly\",\n            \"sourceName\": \"Slickdeals.net\"\n        },\n        {\n            \"id\": 35,\n            \"title\": \"3 x Tapo C211 for $101.25 ($33.75ea) @ Amazon AU\",\n            \"description\": \"TP-Link Tapo Pan/Tilt AI Smart Home Security Wi-Fi Camera, Baby Monitor, 2K 3MP, Motion & Person Detection, Notification, Night Vision, SD Card Slot, Voice Control, No Hub Required (Tapo …\",\n            \"url\": \"https://www.ozbargain.com.au/node/903288\",\n            \"urlToImage\": \"https://files.ozbargain.com.au/n/88/903288l.jpg?h=29f27a47\",\n            \"publishedAt\": \"2025-04-26T02:24:47.000Z\",\n            \"createdAt\": \"2025-04-27T02:56:04.971Z\",\n            \"updatedAt\": \"2025-04-27T02:56:04.971Z\",\n            \"authorName\": \"MadoxNet\",\n            \"sourceName\": \"Ozbargain.com.au\"\n        },\n        {\n            \"id\": 36,\n            \"title\": \"Madden 26 - Release Date, Pre-Order Bonuses, Editions, & Gameplay Details\",\n            \"description\": \"Madden 26 is the latest entry in the long-running series of football simulation titles, with a 2025 release date and different editions to pre-order.\",\n            \"url\": \"https://screenrant.com/madden-26-release-date-editions-gameplay-details/\",\n            \"urlToImage\": \"https://static1.srcdn.com/wordpress/wp-content/uploads/2025/04/madden-26-featured-image.jpg\",\n            \"publishedAt\": \"2025-04-26T02:20:18.000Z\",\n            \"createdAt\": \"2025-04-27T02:56:04.971Z\",\n            \"updatedAt\": \"2025-04-27T02:56:04.971Z\",\n            \"authorName\": \"Matthew Danielson\",\n            \"sourceName\": \"Screen Rant\"\n        },\n        {\n            \"id\": 37,\n            \"title\": \"Ka jingshah thombor u nonghikai ha NEHU ka dei ka jingjia ba sngewsih: Rakkam\",\n            \"description\": \"U Myntri ka Tnad pult puthi, u Rakkam A Sangma ha ka 25 tarik Iaiong u la shim ia ka jingjia shah thombor jong u nonghikai ka skulbah North Eastern Hill University (NEHU) kum ka jingjia kaba sngewsih da kaba pynthikna ba ka ain kan shim ia la ka jong ka sienj…\",\n            \"url\": \"https://www.syllad.com/ka-jingshah-thombor-u-nonghikai-ha-nehu-ka-dei-ka-jingjia-ba-sngewsih-rakkam/\",\n            \"urlToImage\": \"https://www.syllad.com/wp-content/uploads/2025/04/NEHU-Faculty.jpg\",\n            \"publishedAt\": \"2025-04-26T02:20:00.000Z\",\n            \"createdAt\": \"2025-04-27T02:56:04.971Z\",\n            \"updatedAt\": \"2025-04-27T02:56:04.971Z\",\n            \"authorName\": \"Syllad | The Rising Meghalaya\",\n            \"sourceName\": \"Syllad.com\"\n        },\n        {\n            \"id\": 38,\n            \"title\": \"aigauntlet 0.1.7\",\n            \"description\": \"A library to locally run evaluation tests on AI agents and systems\",\n            \"url\": \"https://pypi.org/project/aigauntlet/0.1.7/\",\n            \"urlToImage\": null,\n            \"publishedAt\": \"2025-04-26T02:18:15.000Z\",\n            \"createdAt\": \"2025-04-27T02:56:04.971Z\",\n            \"updatedAt\": \"2025-04-27T02:56:04.971Z\",\n            \"authorName\": \"Unknown\",\n            \"sourceName\": \"Pypi.org\"\n        },\n        {\n            \"id\": 39,\n            \"title\": \"ExOfficio Men's and Women's Underwear: Full Price Items 50% Off & More + Free Shipping\",\n            \"description\": \"50% off on the Newell Family spring sale. Is their quality the same as it used to be? No! But these rarely go on sale for great travel underwear\\n\\nhttps://www.exofficio.com/friends...FNF&amp;path=/\",\n            \"url\": \"https://slickdeals.net/f/18276304-exofficio-50-off?utm_source=rss&utm_content=fp&utm_medium=RSS2\",\n            \"urlToImage\": \"https://slickdeals.net/attachment/3/0/2/7/2/5/0/450x450/17471902.thumb\",\n            \"publishedAt\": \"2025-04-26T02:17:20.000Z\",\n            \"createdAt\": \"2025-04-27T02:56:04.971Z\",\n            \"updatedAt\": \"2025-04-27T02:56:04.971Z\",\n            \"authorName\": \"NathanN4958\",\n            \"sourceName\": \"Slickdeals.net\"\n        },\n        {\n            \"id\": 40,\n            \"title\": \"OpenAI releases improved GPT-4o model with better intelligence and personality\",\n            \"description\": \"OpenAI recently updated GPT-4o, focusing on qualitative improvements like 'vibes' and intuition, currently exclusive to the ChatGPT interface. Read more...\",\n            \"url\": \"https://www.neowin.net/news/openai-releases-improved-gpt-4o-model-with-better-intelligence-and-personality/\",\n            \"urlToImage\": \"https://cdn.neowin.com/news/images/uploaded/2025/03/1743455891_openai_story.jpg\",\n            \"publishedAt\": \"2025-04-26T02:16:01.000Z\",\n            \"createdAt\": \"2025-04-27T02:56:04.971Z\",\n            \"updatedAt\": \"2025-04-27T02:56:04.971Z\",\n            \"authorName\": \"Pradeep Viswanathan\",\n            \"sourceName\": \"Neowin\"\n        }\n    ]\n}"
+						}
+					]
 				},
 				{
 					"name": "Latest Science News – page too high (empty results)",
@@ -552,7 +1274,65 @@
 						},
 						"description": "### Retrieve News\n\nRetrieves the latest science news articles.  \nReturns an array of articles with ID, title, description, and published date."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Latest Science News – page too high (empty results)",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/news?page=99999",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"news"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "99999"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "69"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"45-+T79nUK15EJxMotayREAh2c5kA0\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:39:54 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"total_count\": 10,\n    \"total_pages\": 1,\n    \"current_page\": 99999,\n    \"articles\": []\n}"
+						}
+					]
 				}
 			]
 		},
@@ -613,7 +1393,66 @@
 						},
 						"description": "Searches for articles containing the specified keyword in the title or description.  \nExample: `?keyword=planet`"
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Search by keyword",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/search?keyword={{search_keyword}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "keyword",
+											"value": "{{search_keyword}}",
+											"description": "keyword to search news articles"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1209"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"4b9-4qFIgZ0mNXaLR5kTnZYntEr5THQ\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:40:16 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"total_count\": 6,\n    \"total_pages\": 1,\n    \"current_page\": 1,\n    \"articles\": [\n        {\n            \"id\": 72,\n            \"title\": \"Pebbles Form Planets\",\n            \"description\": \"It starts with static electricity and dust swirling around young stars\",\n            \"url\": \"https://nautil.us/how-pebbles-form-planets-1201205/\",\n            \"urlToImage\": \"https://assets.nautil.us/sites/3/nautilus/Pebbles_Lead-rightside.png?auto=compress&fm=png&ixlib=php-3.3.1\",\n            \"publishedAt\": \"2025-04-04T19:21:54.000Z\",\n            \"createdAt\": \"2025-04-27T02:40:16.584Z\",\n            \"updatedAt\": \"2025-04-27T02:40:16.584Z\",\n            \"authorName\": \"Tom Metcalfe\",\n            \"sourceName\": \"Nautil.us\"\n        },\n        {\n            \"id\": 68,\n            \"title\": \"Scientists Observe Carbon Dioxide on Planets Outside the Solar System for the First Time\",\n            \"description\": \"The findings provide strong evidence that four giant exoplanets 130 light-years from Earth formed much like Jupiter and Saturn.\",\n            \"url\": \"https://www.wired.com/story/scientists-observe-for-the-first-time-carbon-dioxide-on-other-planets-outside-the-solar-system/\",\n            \"urlToImage\": \"https://media.wired.com/photos/67daf71f91fcdb9ee3fd125a/191:100/w_1280,c_limit/jameswebb.jpeg\",\n            \"publishedAt\": \"2025-03-25T08:00:00.000Z\",\n            \"createdAt\": \"2025-04-27T02:40:16.584Z\",\n            \"updatedAt\": \"2025-04-27T02:40:16.584Z\",\n            \"authorName\": \"Javier Carbajal\",\n            \"sourceName\": \"Wired\"\n        }\n    ]\n}"
+						}
+					]
 				},
 				{
 					"name": "Search by keyword – missing keyword",
@@ -656,7 +1495,66 @@
 						},
 						"description": "Attempts a keyword search without providing a valid query param.  \nShould return `400 Bad Request`."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Search by keyword – missing keyword",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/search?keyword=",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "keyword",
+											"value": "",
+											"description": "keyword to search news articles"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "42"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2a-YKvw9m2XJdZc1YK9w0EDnBhD828\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:40:25 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Keyword parameter is required.\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Search by article id",
@@ -699,7 +1597,60 @@
 						},
 						"description": "Retrieves a single article by its unique ID."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Search by article id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/search/{{article_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"search",
+										"{{article_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "515"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"203-p48Cf7hzJ2ehjtE4DZyC8Ao7m/I\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:40:35 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 1,\n    \"title\": \"Demonstro decimus crudelis depromo aegrotatio decretum demulceo repellendus annus.\",\n    \"description\": \"Pectus urbs quibusdam benigne conor minus. Adipisci tabula aufero defaeco. Triduana correptius sollicito totam.\",\n    \"url\": \"https://oddball-runway.net/\",\n    \"urlToImage\": \"https://picsum.photos/seed/U59EwbXCrp/3336/3925\",\n    \"publishedAt\": \"2025-03-01T02:50:21.163Z\",\n    \"createdAt\": \"2024-11-06T14:59:01.519Z\",\n    \"updatedAt\": \"2024-10-12T19:29:07.755Z\",\n    \"authorName\": \"Unknown\",\n    \"sourceName\": \"Dooley, McDermott and Hegmann\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Search by article ID – not found",
@@ -736,7 +1687,60 @@
 						},
 						"description": "Attempts to fetch an article with an invalid or non-existent ID.  \nShould return `404 Not Found`."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Search by article ID – not found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/search/99999",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"search",
+										"99999"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "30"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1e-xRYg/QC7VacECvmg1nhRZYkddc4\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:41:04 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Article not found.\"\n}"
+						}
+					]
 				}
 			]
 		},
@@ -800,7 +1804,59 @@
 						},
 						"description": "> &lt;p &gt;Returns all bookmarks created by the currently authenticated user.&lt;/p&gt;"
 					},
-					"response": []
+					"response": [
+						{
+							"name": "All bookmarks for a user",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/bookmarks",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmarks"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "2805"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"af5-eF6FVYzpQU8tUiByvLfnVGO53Uo\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:56:42 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"total\": 5,\n    \"bookmarks\": [\n        {\n            \"id\": 5,\n            \"userId\": 1,\n            \"articleId\": 5,\n            \"bookmarkedAt\": \"2025-04-27T02:43:08.645Z\",\n            \"article\": {\n                \"id\": 5,\n                \"title\": \"Reiciendis accusantium thymum.\",\n                \"description\": \"Facere vindico statua bis atrocitas. Aptus cavus cenaculum patior vitium curis. Voveo fugit adfero commemoro.\",\n                \"url\": \"https://juicy-strait.name\",\n                \"urlToImage\": null,\n                \"publishedAt\": \"2025-04-18T11:55:43.525Z\",\n                \"createdAt\": \"2024-08-06T02:35:11.485Z\",\n                \"updatedAt\": \"2024-12-11T14:29:51.390Z\",\n                \"authorName\": \"Susie Stamm\",\n                \"sourceName\": \"Murray LLC\"\n            }\n        },\n        {\n            \"id\": 4,\n            \"userId\": 1,\n            \"articleId\": 4,\n            \"bookmarkedAt\": \"2025-04-27T02:43:08.645Z\",\n            \"article\": {\n                \"id\": 4,\n                \"title\": \"Thalassinus casus viriliter autem quae acidus.\",\n                \"description\": \"Illum decipio voluptates asporto alias ab vociferor virgo alo audacia. Claustrum creator amoveo et. Turpis quis aeternus catena tripudio tum deprecator.\",\n                \"url\": \"https://deafening-thunderbolt.net\",\n                \"urlToImage\": \"https://loremflickr.com/3440/790?lock=1889695968150418\",\n                \"publishedAt\": \"2024-06-06T20:25:06.693Z\",\n                \"createdAt\": \"2024-06-11T05:54:52.555Z\",\n                \"updatedAt\": \"2024-09-17T03:31:06.141Z\",\n                \"authorName\": \"Unknown\",\n                \"sourceName\": \"Russel, Schmeler and Goodwin\"\n            }\n        },\n        {\n            \"id\": 3,\n            \"userId\": 1,\n            \"articleId\": 3,\n            \"bookmarkedAt\": \"2025-04-27T02:43:08.645Z\",\n            \"article\": {\n                \"id\": 3,\n                \"title\": \"Statim teneo ultra cilicium vester coerceo voveo creptio arx color.\",\n                \"description\": \"Cunctatio vere uter tertius rerum. Harum vetus charisma. Curto volubilis traho nam confido.\",\n                \"url\": \"https://beloved-palate.name/\",\n                \"urlToImage\": null,\n                \"publishedAt\": \"2024-11-26T03:09:43.626Z\",\n                \"createdAt\": \"2024-09-09T20:39:51.985Z\",\n                \"updatedAt\": \"2025-04-06T18:18:27.477Z\",\n                \"authorName\": \"Unknown\",\n                \"sourceName\": \"Oberbrunner, Baumbach and Kunze\"\n            }\n        },\n        {\n            \"id\": 2,\n            \"userId\": 1,\n            \"articleId\": 2,\n            \"bookmarkedAt\": \"2025-04-27T02:43:08.645Z\",\n            \"article\": {\n                \"id\": 2,\n                \"title\": \"Accusantium nisi demo appello adopto.\",\n                \"description\": \"Volaticus caput pauper praesentium dedico optio. Crur accedo vis vigor voluptas. Vesco amor ascisco cetera deporto dedecor copia.\",\n                \"url\": \"https://prime-sonnet.com/\",\n                \"urlToImage\": \"https://picsum.photos/seed/iF2fm/1719/3675\",\n                \"publishedAt\": \"2024-10-18T13:33:47.302Z\",\n                \"createdAt\": \"2025-02-16T17:50:39.589Z\",\n                \"updatedAt\": \"2024-12-07T21:36:17.375Z\",\n                \"authorName\": \"Mr. Elias Koepp\",\n                \"sourceName\": \"Deckow - Rolfson\"\n            }\n        },\n        {\n            \"id\": 1,\n            \"userId\": 1,\n            \"articleId\": 1,\n            \"bookmarkedAt\": \"2025-04-27T02:43:08.645Z\",\n            \"article\": {\n                \"id\": 1,\n                \"title\": \"Audentia vere tollo torqueo demonstro.\",\n                \"description\": \"Ut censura voluptate capitulus stips. Congregatio decumbo deludo comitatus unus atrox vigor strenuus. Audax subito tripudio viscus.\",\n                \"url\": \"https://spiffy-makeover.biz\",\n                \"urlToImage\": \"https://loremflickr.com/145/2746?lock=2669987070987794\",\n                \"publishedAt\": \"2025-04-08T14:51:18.348Z\",\n                \"createdAt\": \"2024-09-18T13:28:32.582Z\",\n                \"updatedAt\": \"2025-04-05T13:52:06.397Z\",\n                \"authorName\": \"Corey Herzog\",\n                \"sourceName\": \"Rice, Roberts and Mosciski\"\n            }\n        }\n    ]\n}"
+						}
+					]
 				},
 				{
 					"name": "All bookmarks – unauthenticated",
@@ -838,7 +1894,59 @@
 						},
 						"description": "> &lt;p &gt;Returns all bookmarks created by the currently authenticated user.&lt;/p&gt;"
 					},
-					"response": []
+					"response": [
+						{
+							"name": "All bookmarks – unauthenticated",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/bookmarks",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmarks"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "43"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2b-+PJFamVaI+WDwlnKnGxHMqggpSw\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:42:40 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Unauthorized: No token provided\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Create bookmark",
@@ -857,6 +1965,8 @@
 									"  pm.expect(res).to.have.property(\"id\");",
 									"  pm.expect(res).to.have.property(\"userId\");",
 									"  pm.expect(res).to.have.property(\"articleId\")",
+									"",
+									"   pm.variables.set(\"created_bookmark_id\", res.id);",
 									"});",
 									""
 								],
@@ -898,7 +2008,68 @@
 						},
 						"description": "Creates a bookmark for the authenticated user using a given article ID.  \nReturns `201 Created`."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Create bookmark",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"article_id\": 7\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/bookmarks",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmarks"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "77"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"4d-efhfHsMF8NxW3ub9cFPS0Vc2amw\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:57:17 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"userId\": 1,\n    \"articleId\": 7,\n    \"id\": 106,\n    \"bookmarkedAt\": \"2025-04-27T02:57:17.503Z\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Create bookmark – missing article_id",
@@ -953,7 +2124,68 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Create bookmark – missing article_id",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/bookmarks",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmarks"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "34"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"22-Xxtz7sf1wR8coczAoneg9aJDD6Y\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:57:27 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Article ID is required\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Create bookmark – duplicate article_id",
@@ -1008,7 +2240,68 @@
 						},
 						"description": "Attempts to bookmark an article that has already been bookmarked by the user.  \nShould return `400 Bad Request` or `409 Conflict` with an appropriate error message."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Create bookmark – duplicate article_id",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"article_id\": 7\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/bookmarks",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmarks"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "38"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"26-IgV1x5Wu+JM2v+t3iVXegrpMBWc\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:57:35 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Article already bookmarked\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Delete bookmark by ID",
@@ -1060,7 +2353,57 @@
 						},
 						"description": "Deletes a bookmark for the authenticated user by bookmark ID.  \nReturns `204 No Content` on success."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Delete bookmark by ID",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/bookmarks/{{created_bookmark_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmarks",
+										"{{created_bookmark_id}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:57:44 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
 				},
 				{
 					"name": "Delete bookmark by ID – not found",
@@ -1108,7 +2451,60 @@
 						},
 						"description": "Deletes a bookmark for the authenticated user by bookmark ID.  \nReturns `204 No Content` on success."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Delete bookmark by ID – not found",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/bookmarks/{{created_bookmark_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"bookmarks",
+										"{{created_bookmark_id}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "46"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2e-fMbmPDxkERAqnktXtNlaQd4Hu14\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 02:57:59 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"error\": \"Bookmark not found or unauthorized\"\n}"
+						}
+					]
 				}
 			]
 		},
@@ -1171,7 +2567,59 @@
 								},
 								"description": "Returns all bookmark groups created by the authenticated user."
 							},
-							"response": []
+							"response": [
+								{
+									"name": "User bookmark groups",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "168"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"a8-mHYi92+OsCmR5RqoDe8YeC2lKx8\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 02:58:26 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "[\n    {\n        \"id\": 1,\n        \"userId\": 1,\n        \"groupName\": \"Planets\",\n        \"createdAt\": \"2025-04-27T02:43:08.649Z\"\n    },\n    {\n        \"id\": 2,\n        \"userId\": 1,\n        \"groupName\": \"Astrobiology\",\n        \"createdAt\": \"2025-04-27T02:43:08.649Z\"\n    }\n]"
+								}
+							]
 						},
 						{
 							"name": "Articles in bookmark group",
@@ -1239,7 +2687,61 @@
 								},
 								"description": "Returns a list of articles associated with a given bookmark group ID."
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Articles in bookmark group",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups/{{group_id}}/articles",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups",
+												"{{group_id}}",
+												"articles"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1105"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"451-lZO3DH/sLVT9GfWY6zcUiz4xCDw\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 02:58:36 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 1,\n    \"userId\": 1,\n    \"groupName\": \"Planets\",\n    \"createdAt\": \"2025-04-27T02:43:08.649Z\",\n    \"bookmarks\": [\n        {\n            \"id\": 3,\n            \"userId\": 1,\n            \"articleId\": 3,\n            \"bookmarkedAt\": \"2025-04-27T02:43:08.645Z\",\n            \"article\": {\n                \"id\": 3,\n                \"title\": \"Statim teneo ultra cilicium vester coerceo voveo creptio arx color.\",\n                \"description\": \"Cunctatio vere uter tertius rerum. Harum vetus charisma. Curto volubilis traho nam confido.\",\n                \"url\": \"https://beloved-palate.name/\",\n                \"urlToImage\": null,\n                \"publishedAt\": \"2024-11-26T03:09:43.626Z\",\n                \"createdAt\": \"2024-09-09T20:39:51.985Z\",\n                \"updatedAt\": \"2025-04-06T18:18:27.477Z\",\n                \"authorName\": \"Unknown\",\n                \"sourceName\": \"Oberbrunner, Baumbach and Kunze\"\n            }\n        },\n        {\n            \"id\": 5,\n            \"userId\": 1,\n            \"articleId\": 5,\n            \"bookmarkedAt\": \"2025-04-27T02:43:08.645Z\",\n            \"article\": {\n                \"id\": 5,\n                \"title\": \"Reiciendis accusantium thymum.\",\n                \"description\": \"Facere vindico statua bis atrocitas. Aptus cavus cenaculum patior vitium curis. Voveo fugit adfero commemoro.\",\n                \"url\": \"https://juicy-strait.name\",\n                \"urlToImage\": null,\n                \"publishedAt\": \"2025-04-18T11:55:43.525Z\",\n                \"createdAt\": \"2024-08-06T02:35:11.485Z\",\n                \"updatedAt\": \"2024-12-11T14:29:51.390Z\",\n                \"authorName\": \"Susie Stamm\",\n                \"sourceName\": \"Murray LLC\"\n            }\n        }\n    ]\n}"
+								}
+							]
 						},
 						{
 							"name": "Articles in bookmark group – invalid ID",
@@ -1287,7 +2789,61 @@
 								},
 								"description": "Returns a list of articles associated with a given bookmark group ID."
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Articles in bookmark group – invalid ID",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups/999999/articles",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups",
+												"999999",
+												"articles"
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "43"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"2b-/mclRd79q3U87QVnrNmlkVIN188\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 02:58:45 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"error\": \"Group not found or unauthorized\"\n}"
+								}
+							]
 						},
 						{
 							"name": "Create bookmark group",
@@ -1306,8 +2862,7 @@
 											"  pm.expect(res).to.have.property(\"id\");",
 											"  pm.expect(res).to.have.property(\"groupName\", \"SciFavorites\");",
 											"",
-											"  // Save for later DELETE test",
-											"  pm.environment.set(\"created_group_id\", res.id);",
+											"  pm.variables.set(\"created_bookmark_group_id\", res.id);",
 											"});",
 											""
 										],
@@ -1349,7 +2904,68 @@
 								},
 								"description": "Creates a new bookmark group for the authenticated user.  \nStores the `group_id` to use in later requests."
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Create bookmark group",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"groupName\": \"SciFavorites\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "46"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"2e-kIWMhbd5cJ/nMdXenIWjwkQgCGM\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 02:58:53 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"userId\": 1,\n    \"groupName\": \"SciFavorites\",\n    \"id\": 3\n}"
+								}
+							]
 						},
 						{
 							"name": "Create bookmark group – Duplicate",
@@ -1404,7 +3020,68 @@
 								},
 								"description": "Creates a new bookmark group for the authenticated user.  \nStores the `group_id` to use in later requests."
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Create bookmark group – Duplicate",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"groupName\": \"SciFavorites\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "56"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"38-zABcm4p0otK/h18BEPv8HSXpAFA\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 02:59:01 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"error\": \"Bookmark group with that name already exists\"\n}"
+								}
+							]
 						},
 						{
 							"name": "Create bookmark group – missing group_name",
@@ -1415,7 +3092,7 @@
 										"exec": [
 											"const res = pm.response.json();",
 											"",
-											"pm.test(\"Returns 400 on duplicate bookmark\", () => {",
+											"pm.test(\"Returns 400 on missing group name\", () => {",
 											"  pm.expect(pm.response.code).to.eql(400);",
 											"  pm.expect(res).to.have.property(\"error\");",
 											"  pm.expect(res.error.toLowerCase()).to.include(\"group name is required\");",
@@ -1458,7 +3135,68 @@
 									]
 								}
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Create bookmark group – missing group_name",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "34"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"22-QTW/vJqPjqbnjB/xwVVFEwfhi8o\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 02:59:13 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"error\": \"Group name is required\"\n}"
+								}
+							]
 						},
 						{
 							"name": "Update bookmark group",
@@ -1474,7 +3212,7 @@
 											"});",
 											"",
 											"pm.test(\"Group name is updated\", () => {",
-											"  pm.expect(res).to.have.property(\"groupName\", \"UpdatedGroupName\");",
+											"  pm.expect(res).to.have.property(\"groupName\", \"UpdatedBookmarkGroupName\");",
 											"});",
 											""
 										],
@@ -1498,7 +3236,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"groupName\": \"UpdatedGroupName\"\n}",
+									"raw": "{\n  \"groupName\": \"UpdatedBookmarkGroupName\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1506,18 +3244,80 @@
 									}
 								},
 								"url": {
-									"raw": "{{base_url}}/bookmark-groups/{{created_group_id}}",
+									"raw": "{{base_url}}/bookmark-groups/{{created_bookmark_group_id}}",
 									"host": [
 										"{{base_url}}"
 									],
 									"path": [
 										"bookmark-groups",
-										"{{created_group_id}}"
+										"{{created_bookmark_group_id}}"
 									]
 								},
 								"description": "Updates the name of a bookmark group created by the authenticated user."
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Update bookmark group",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"groupName\": \"UpdatedBookmarkGroupName\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups/{{created_bookmark_group_id}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups",
+												"{{created_bookmark_group_id}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "97"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"61-QJeBM3ykYLRBfZCSQWwy1vy29G4\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 03:18:01 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"groupName\": \"UpdatedBookmarkGroupName\",\n    \"id\": 3,\n    \"userId\": 1,\n    \"createdAt\": \"2025-04-27T03:17:47.030Z\"\n}"
+								}
+							]
 						},
 						{
 							"name": "Update bookmark group– invalid ID",
@@ -1571,7 +3371,69 @@
 									]
 								}
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Update bookmark group– invalid ID",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"groupName\": \"ShouldNotWork\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups/99999",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups",
+												"99999"
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "43"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"2b-/mclRd79q3U87QVnrNmlkVIN188\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 02:59:33 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"error\": \"Group not found or unauthorized\"\n}"
+								}
+							]
 						},
 						{
 							"name": "Delete bookmark group",
@@ -1603,18 +3465,59 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/bookmark-groups/{{created_group_id}}",
+									"raw": "{{base_url}}/bookmark-groups/{{created_bookmark_group_id}}",
 									"host": [
 										"{{base_url}}"
 									],
 									"path": [
 										"bookmark-groups",
-										"{{created_group_id}}"
+										"{{created_bookmark_group_id}}"
 									]
 								},
 								"description": "Deletes a bookmark group by ID for the authenticated user.  \nUses the `created_group_id` stored from the POST request."
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Delete bookmark group",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups/{{created_bookmark_group_id}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups",
+												"{{created_bookmark_group_id}}"
+											]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 03:19:26 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": null
+								}
+							]
 						},
 						{
 							"name": "Delete  bookmark group – invalid ID",
@@ -1660,7 +3563,60 @@
 								},
 								"description": "Deletes a bookmark group by ID for the authenticated user.  \nUses the `created_group_id` stored from the POST request."
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Delete  bookmark group – invalid ID",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups/999999",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups",
+												"999999"
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "43"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"2b-/mclRd79q3U87QVnrNmlkVIN188\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 02:59:55 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"error\": \"Group not found or unauthorized\"\n}"
+								}
+							]
 						}
 					]
 				},
@@ -1705,7 +3661,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/4",
+									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/{{article_id}}",
 									"host": [
 										"{{base_url}}"
 									],
@@ -1713,12 +3669,67 @@
 										"bookmark-groups",
 										"{{group_id}}",
 										"bookmarks",
-										"4"
+										"{{article_id}}"
 									]
 								},
 								"description": "Adds a bookmarked article to a specific group for the authenticated user."
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Add article to bookmark group",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/4",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups",
+												"{{group_id}}",
+												"bookmarks",
+												"4"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "37"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"25-7kWoZw/x/YE9Ra8tVbvaCt+MG+M\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 03:00:08 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"message\": \"Bookmark added to group\"\n}"
+								}
+							]
 						},
 						{
 							"name": "Add article to bookmark group – already assigned",
@@ -1754,7 +3765,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/4",
+									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/{{article_id}}",
 									"host": [
 										"{{base_url}}"
 									],
@@ -1762,12 +3773,67 @@
 										"bookmark-groups",
 										"{{group_id}}",
 										"bookmarks",
-										"4"
+										"{{article_id}}"
 									]
 								},
 								"description": "Adds a bookmarked article to a specific group for the authenticated user."
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Add article to bookmark group – already assigned",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/4",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups",
+												"{{group_id}}",
+												"bookmarks",
+												"4"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "42"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"2a-Jm0zgLocZAH04zJ3hKUXDZlfjlk\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 03:00:19 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"error\": \"Bookmark already in this group\"\n}"
+								}
+							]
 						},
 						{
 							"name": "Delete article from bookmark group",
@@ -1800,7 +3866,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/4",
+									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/{{article_id}}",
 									"host": [
 										"{{base_url}}"
 									],
@@ -1808,12 +3874,55 @@
 										"bookmark-groups",
 										"{{group_id}}",
 										"bookmarks",
-										"4"
+										"{{article_id}}"
 									]
 								},
 								"description": "Removes a bookmarked article from the specified group."
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Delete article from bookmark group",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/4",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups",
+												"{{group_id}}",
+												"bookmarks",
+												"4"
+											]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 03:00:29 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": null
+								}
+							]
 						},
 						{
 							"name": "Delete article from bookmark – article not in group",
@@ -1850,7 +3959,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/4",
+									"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/{{article_id}}",
 									"host": [
 										"{{base_url}}"
 									],
@@ -1858,11 +3967,66 @@
 										"bookmark-groups",
 										"{{group_id}}",
 										"bookmarks",
-										"4"
+										"{{article_id}}"
 									]
 								}
 							},
-							"response": []
+							"response": [
+								{
+									"name": "Delete article from bookmark – article not in group",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/bookmark-groups/{{group_id}}/bookmarks/4",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"bookmark-groups",
+												"{{group_id}}",
+												"bookmarks",
+												"4"
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "X-Powered-By",
+											"value": "Express"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "50"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"32-+QNmm+Ezoobu0TziVx715kSOJZ8\""
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 27 Apr 2025 03:00:42 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"error\": \"Bookmark is not assigned to this group\"\n}"
+								}
+							]
 						}
 					]
 				}
@@ -1920,7 +4084,60 @@
 						},
 						"description": "Returns a ranked list of the most frequently bookmarked articles across all users."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Most bookmarked articles",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/analytics/most-bookmarked-articles",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"analytics",
+										"most-bookmarked-articles"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1394"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"572-qHs0jKpGPhrJ1YlvWERDdabPEDU\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 03:00:55 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"results\": [\n        {\n            \"articleId\": 20,\n            \"title\": \"Capio cubicularis porro tamen.\",\n            \"sourceName\": \"Wehner, Thompson and Bashirian\",\n            \"bookmarkCount\": \"8\"\n        },\n        {\n            \"articleId\": 4,\n            \"title\": \"Thalassinus casus viriliter autem quae acidus.\",\n            \"sourceName\": \"Russel, Schmeler and Goodwin\",\n            \"bookmarkCount\": \"8\"\n        },\n        {\n            \"articleId\": 1,\n            \"title\": \"Audentia vere tollo torqueo demonstro.\",\n            \"sourceName\": \"Rice, Roberts and Mosciski\",\n            \"bookmarkCount\": \"7\"\n        },\n        {\n            \"articleId\": 18,\n            \"title\": \"Ver tabella tamisium sortitus spectaculum carmen cohibeo sortitus virgo.\",\n            \"sourceName\": \"Ward, Fay and Ratke\",\n            \"bookmarkCount\": \"7\"\n        },\n        {\n            \"articleId\": 3,\n            \"title\": \"Statim teneo ultra cilicium vester coerceo voveo creptio arx color.\",\n            \"sourceName\": \"Oberbrunner, Baumbach and Kunze\",\n            \"bookmarkCount\": \"6\"\n        },\n        {\n            \"articleId\": 9,\n            \"title\": \"Terga cito atrox turba abundans ad est sulum demum.\",\n            \"sourceName\": \"Kris Group\",\n            \"bookmarkCount\": \"6\"\n        },\n        {\n            \"articleId\": 8,\n            \"title\": \"Suspendo viduo aestus cognatus credo terreo repudiandae.\",\n            \"sourceName\": \"Gorczany, Schneider and Mante\",\n            \"bookmarkCount\": \"6\"\n        },\n        {\n            \"articleId\": 19,\n            \"title\": \"Voluptatum deprimo canis vado vacuus valens copia acies amoveo damnatio.\",\n            \"sourceName\": \"Metz - Douglas\",\n            \"bookmarkCount\": \"6\"\n        },\n        {\n            \"articleId\": 16,\n            \"title\": \"Depraedor ratione trado sollers denique convoco.\",\n            \"sourceName\": \"Kshlerin and Sons\",\n            \"bookmarkCount\": \"5\"\n        },\n        {\n            \"articleId\": 7,\n            \"title\": \"Adamo vacuus dedecor.\",\n            \"sourceName\": \"Jacobi, Mohr and Olson\",\n            \"bookmarkCount\": \"5\"\n        }\n    ],\n    \"page\": 1,\n    \"limit\": 10\n}"
+						}
+					]
 				},
 				{
 					"name": "Top bookmarking users",
@@ -1971,7 +4188,162 @@
 						},
 						"description": "Returns a ranked list of users who have created the most bookmarks."
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Top bookmarking users",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/analytics/top-bookmarking-users",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"analytics",
+										"top-bookmarking-users"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "953"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"3b9-5vhquVtYCSH+759akGIsyuvqCDw\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 03:01:07 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"results\": [\n        {\n            \"userId\": 10,\n            \"username\": \"Cara3\",\n            \"email\": \"Jerome47@gmail.com\",\n            \"bookmarkCount\": \"14\"\n        },\n        {\n            \"userId\": 2,\n            \"username\": \"oauthuser\",\n            \"email\": \"oauthuser@example.com\",\n            \"bookmarkCount\": \"13\"\n        },\n        {\n            \"userId\": 6,\n            \"username\": \"Walton.Schaden\",\n            \"email\": \"Bruce.Bergnaum93@gmail.com\",\n            \"bookmarkCount\": \"13\"\n        },\n        {\n            \"userId\": 5,\n            \"username\": \"Harmony_McGlynn38\",\n            \"email\": \"Ronny.Stoltenberg@yahoo.com\",\n            \"bookmarkCount\": \"11\"\n        },\n        {\n            \"userId\": 3,\n            \"username\": \"Forrest12\",\n            \"email\": \"Chloe.Conroy@hotmail.com\",\n            \"bookmarkCount\": \"10\"\n        },\n        {\n            \"userId\": 7,\n            \"username\": \"Christian57\",\n            \"email\": \"Holly38@gmail.com\",\n            \"bookmarkCount\": \"10\"\n        },\n        {\n            \"userId\": 8,\n            \"username\": \"Winfield_Romaguera79\",\n            \"email\": \"Eryn98@gmail.com\",\n            \"bookmarkCount\": \"10\"\n        },\n        {\n            \"userId\": 9,\n            \"username\": \"Graham_Larson\",\n            \"email\": \"Connor.Grant@hotmail.com\",\n            \"bookmarkCount\": \"10\"\n        },\n        {\n            \"userId\": 4,\n            \"username\": \"Joey_McKenzie\",\n            \"email\": \"Zachary56@gmail.com\",\n            \"bookmarkCount\": \"9\"\n        },\n        {\n            \"userId\": 1,\n            \"username\": \"testuser\",\n            \"email\": \"testuser@example.com\",\n            \"bookmarkCount\": \"5\"\n        }\n    ],\n    \"page\": 1,\n    \"limit\": 10\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Teardown",
+			"item": [
+				{
+					"name": "Teardown",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ✅ Clear the jwt_token from environment after logout",
+									"pm.test(\"Clearing JWT token after logout\", function () {",
+									"  pm.environment.unset(\"jwt_token\");",
+									"  console.log(\"🧹 Cleared jwt_token from environment variables\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Teardown",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/auth/logout",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"logout"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "31"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1f-vYmtThEV0qgPmOaoi5WLoJuDA80\""
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 27 Apr 2025 05:30:24 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"message\": \"Logout successful\"\n}"
+						}
+					]
 				}
 			]
 		}
@@ -1983,32 +4355,6 @@
 				"type": "text/javascript",
 				"packages": {},
 				"exec": [
-					"const loginUrl = pm.environment.get(\"base_url\") + \"/auth/login\";",
-					"console.log(\"🔍 Attempting login at:\", loginUrl);",
-					"",
-					"",
-					"pm.sendRequest({",
-					"  url: pm.environment.get(\"base_url\") + \"/auth/login\",",
-					"  method: \"POST\",",
-					"  header: {",
-					"    \"Content-Type\": \"application/json\"",
-					"  },",
-					"  body: {",
-					"    mode: \"raw\",",
-					"    raw: JSON.stringify({",
-					"      email: \"testuser@example.com\",",
-					"      password: \"Password123!\"",
-					"    })",
-					"  }",
-					"}, (err, res) => {",
-					"  if (err) {",
-					"    console.error('❌ Login failed:', err);",
-					"    return;",
-					"  }",
-					"  const token = res.json().token;",
-					"  pm.environment.set(\"jwt_token\", token);",
-					"});",
-					"",
 					""
 				]
 			}
@@ -2027,7 +4373,7 @@
 	"variable": [
 		{
 			"key": "article_id",
-			"value": "1",
+			"value": "4",
 			"type": "string"
 		},
 		{
@@ -2046,7 +4392,7 @@
 			"type": "string"
 		},
 		{
-			"key": "created_group_id",
+			"key": "created_bookmark_group_id",
 			"value": "1",
 			"type": "string"
 		},
@@ -2067,8 +4413,9 @@
 		},
 		{
 			"key": "jwt_token",
-			"value": "1",
-			"type": "string"
+			"value": "",
+			"type": "string",
+			"disabled": true
 		},
 		{
 			"key": "password",
@@ -2079,6 +4426,11 @@
 			"key": "search_keyword",
 			"value": "planets",
 			"type": "default"
+		},
+		{
+			"value": "",
+			"type": "string",
+			"disabled": true
 		}
 	]
 }
